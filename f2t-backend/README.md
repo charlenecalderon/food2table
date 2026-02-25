@@ -37,7 +37,11 @@ We are using TypeScript as the programming language.
 
 # Sprint 1 Assignements
 
-Instructions for each backend-developer
+Instructions for each backend-developer.
+
+The Scripts that are assigned to each member are to create routes (how the fronted will communicate with the backend).
+For example, clicking on "Create Account" in the frontend should allow communicate with the backend data ragarding the
+creation of an account.
 
 **NOTE:** The prisma/schema.prisma file has information that we want to create/set/update
 for our users. Let me know on Discord if there is any other information we should consider. 
