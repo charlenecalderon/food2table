@@ -42,7 +42,7 @@ Instructions for each backend-developer
 **NOTE:** The prisma/schema.prisma file has information that we want to create/set/update
 for our users. Let me know on Discord if there is any other information we should consider. 
 
-- **Thomas** - Authentication Routes 
+- **Thomas** - Authentication Routes - File: src/routes/authentication.ts
     - Set a way to register/create a new user
     - Set the ability to log in and logout 
     - Get information about the user (Can be used to see profiles) 
@@ -55,7 +55,7 @@ for our users. Let me know on Discord if there is any other information we shoul
 
 
 
-- **Anastasia** - Profile Routes
+- **Anastasia** - Profile Routes - File: src/routes/profile.ts
     - Get the profile for another user
     - Get your own profile
     - Set a way to update your own profile
@@ -66,7 +66,7 @@ for our users. Let me know on Discord if there is any other information we shoul
             - fastify.prisma.profile
             - fastify.prisma.user
 
-- **Charlene** - Roles Routes
+- **Charlene** - Roles Routes - File: src/routes/roles.ts
     - Set the ability to change roles (BUYER/SELLER) 
         - **NOTE:**
         - The default role is already set to BUYER
