@@ -30,29 +30,23 @@ export default function Home() {
     <div className = "flex justify-between items-center w-full p-4">
     <div className = "flex w-1/6">
     <span>
-      <a href>
       <button className="bg-emerald-400 hover:bg-emerald-500 text-white font-bold rounded-full mt-4 ml-4 h-20 w-40">
         Browse
       </button>
-      </a>
       </span>
     </div>
     <div className = "flex w-1/6 justify-center">
     <span>
-      <a href>
       <button className="bg-emerald-400 hover:bg-emerald-500 text-white font-bold rounded-full mt-4 ml-4 h-20 w-40">
         Cart
       </button>
-      </a>
       </span>
     </div>
     <div className = "flex w-1/6 justify-end p-1">
     <span>
-      <a href>
       <button className="bg-emerald-400 hover:bg-emerald-500 text-white font-bold rounded-full mt-4 ml-4 h-20 w-40">
         Orders
       </button>
-      </a>
       </span>
     </div>
     </div>
