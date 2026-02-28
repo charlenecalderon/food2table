@@ -59,7 +59,7 @@ export default function Home() {
             <img className="rounded-xl h-1/2 w-full" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSdIC8P1fXIU3Au62klNg7tc_BmUEelpxvJ3Q&s"></img>
             <div className="flex justify-between mt-2 ml-2">
             <h1 className="text-emerald-900  font-bold font-serif">Eggs</h1>
-              <button className="bg-emerald-900 rounded-full w-20 h-6 flex justify-center items-center align-middle font-serif text-sm font-bold">
+              <button className="bg-emerald-900 hover:bg-emerald-700 rounded-full w-20 h-6 flex justify-center items-center align-middle font-serif text-sm font-bold">
                 Vendor
               </button>
             <h1 className="text-emerald-900 font-bold font-serif flex justify-end">
