@@ -8,6 +8,7 @@ We are using TypeScript as the programming language.
 1. Start database
     - Make sure that you are in the following folder in the VS Code Terminal:
         - f2t-backend (use cd f2t-backend [Windows] or pwd f2t-backend [Mac])
+    - **Make sure to Rename ".env.sample" to only ".env"**
     - Once you have done that, run the following command to start the database:
         - docker compose up -d
 
