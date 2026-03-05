@@ -1,11 +1,11 @@
 // Import fastify-plugin helper to get the plugin to work
-import fp from "fastify-plugin";
+import fastifyPlugin from "fastify-plugin";
 
 // Import Prisma client constructor
 import { PrismaClient } from "@prisma/client";
 
 // Export the Fastify plugin
-export default fp(async (fastifyApp) => {
+export default fastifyPlugin(async (fastifyApp) => {
   // Create a new Prisma client instance
   const prisma = new PrismaClient();
 
