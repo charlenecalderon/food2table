@@ -1,5 +1,5 @@
 // Import fastify-plugin helper to get the plugin to work
-import fp from "fastify-plugin";
+import fastifyPlugins from "fastify-plugin";
 
 // Add cookie support to Fastify
 import cookie from "@fastify/cookie";
@@ -9,7 +9,7 @@ import cookie from "@fastify/cookie";
 import jwt from "@fastify/jwt";
 
 // Export the Fastify plugin
-export default fp(async (fastifyApp) => {
+export default fastifyPlugins(async (fastifyApp) => {
   // Read secret keys from environment (.env) variables
   const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
   const COOKIE_SECRET_KEY = process.env.COOKIE_SECRET_KEY;
