@@ -15,6 +15,11 @@ We are using TypeScript as the programming language.
 2. Install dependencies (only do it for the first time)
     - Run the following command:
         - npm install
+    - If **Problems** tab gets a Prisma error do the following:
+        - run the command **npx prisma generate**
+        - restart TypeScript server: “Ctrl + Shift + p” 
+        - check with the following command **node -p "require.resolve('@prisma/client/package.json')"**
+
 
 3. Run database updates
     - Run the following command: 
