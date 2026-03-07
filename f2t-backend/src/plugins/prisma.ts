@@ -4,10 +4,18 @@ import fp from "fastify-plugin";
 // Import Prisma client constructor
 import { PrismaClient } from "@prisma/client";
 
+import { PrismaPg } from "@prisma/adapter-pg";
+import "dotenv/config";
+
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString) {
+  throw new Error("DATABASE_URL is missing");
+}
+const adapter = new PrismaPg({ connectionString });
 // Export the Fastify plugin
 export default fp(async (fastifyApp) => {
   // Create a new Prisma client instance
-  const prisma = new PrismaClient();
+  const prisma = new PrismaClient({adapter});
 
   // Connect the prisma client to the database
   await prisma.$connect();
@@ -27,5 +35,7 @@ export default fp(async (fastifyApp) => {
 declare module "fastify" {
   interface FastifyInstance {
     prisma: PrismaClient;
+
+    
   }
 }
