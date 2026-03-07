@@ -1,3 +1,4 @@
+
 // Import fastify to create the server
 import Fastify from "fastify";
 // Import the Prisma plugin to connect to the database and use Prisma client
