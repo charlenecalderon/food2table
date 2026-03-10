@@ -2,6 +2,8 @@
 import type { FastifyInstance } from "fastify";
 
 // quick test
+// need to create actual routes for authentication
+// just create a test user to make sure that the database connection works
 export default async function authenticationRoutes(fastify: FastifyInstance) {
     // display message to show that the route has been loaded
     console.log("Authentication routes loaded");
