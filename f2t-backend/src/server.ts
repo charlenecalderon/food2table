@@ -1,3 +1,4 @@
+
 // Import fastify to create the server
 import Fastify from "fastify";
 // Import the Prisma plugin to connect to the database and use Prisma client
@@ -8,6 +9,7 @@ import authenticationRoutes from "./routes/authentication.js";
 // Import profile routes that handle user profile information
 import profileRoutes from "./routes/profile.js";
 // Import role routes that handle role control
+<<<<<<< HEAD
 import rolesRoutes from "./routes/roles.js";
 
 // Function to build and configure the Fastify server
@@ -33,3 +35,6 @@ const fastifyApp = await buildServer();
 // start the server and listen on port 3000 for request
 // the "0.0.0.0" address allows the server to accept requests from any IP address
 await fastifyApp.listen({ port: 3000, host: "0.0.0.0" });
+=======
+import rolesRoutes from "./routes/roles.js";
+>>>>>>> 0e9ad3f79897808ff18aba90d5c004c32cdf5342

@@ -15,7 +15,11 @@ export default async function authenticationRoutes(fastify: FastifyInstance) {
 
         }
     });
+<<<<<<< HEAD
 
     // display message to show that the user has been created
     console.log("User created:", user);
 }
+=======
+}
+>>>>>>> 0e9ad3f79897808ff18aba90d5c004c32cdf5342
