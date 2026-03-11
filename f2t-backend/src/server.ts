@@ -40,7 +40,7 @@ async function start() {
 
     console.log("Server running on local host 3000");
   } catch (error) {
-    fastify.log.error(error);
+    console.error(error);
     process.exit(1);
   }
 }

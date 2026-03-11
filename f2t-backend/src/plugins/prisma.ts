@@ -12,7 +12,7 @@ import "dotenv/config";
 import type { FastifyInstance } from "fastify";
 
 // Load varaibles form .env file into process.env
-process.loadEnvFile();
+//process.loadEnvFile();
 
 // database URL sting variable from .env file
 const connectionString = process.env.DATABASE_URL;
