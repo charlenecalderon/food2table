@@ -1,5 +1,5 @@
 // Import fastify-plugin helper to get the plugin to work
-import fp from "fastify-plugin";
+import fastifyPlugins from "fastify-plugin";
 
 // Add cookie support to Fastify
 import cookie from "@fastify/cookie";
@@ -8,8 +8,11 @@ import cookie from "@fastify/cookie";
 // JWT is a signed token that contains information about the user
 import jwt from "@fastify/jwt";
 
-// Export the Fastify plugin
-export default fp(async (fastifyApp) => {
+// Import the Fastify type so TypeScript understands the fastify object
+import type { FastifyInstance } from "fastify";
+
+// Create an authentication Plugin function so that we can use in fastifyPlugins
+async function authenticationPlugin(fastifyApp: FastifyInstance) {
   // Read secret keys from environment (.env) variables
   const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
   const COOKIE_SECRET_KEY = process.env.COOKIE_SECRET_KEY;
@@ -40,7 +43,10 @@ export default fp(async (fastifyApp) => {
       return reply.code(401).send({ error: "Unauthorized" });
     }
   });
-});
+}
+
+// Export the Fastify plugin
+export default fastifyPlugins(authenticationPlugin);
 
 // Let TypeScript know that the Fastify app has a "requireAuth" property
 // This allows TypeScript to acknowledge "app.requireAuth" in other files
