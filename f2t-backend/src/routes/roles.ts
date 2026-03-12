@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import type { FastifyInstance } from "fastify";
 import { Role } from "@prisma/client";
 import console from "node:console";
@@ -46,5 +47,16 @@ fastify.patch ("/users/:id/role", async (request, reply) => {
             });
         }
     });
+=======
+// Import the Fastify type so TypeScript understands the fastify object
+import type { FastifyInstance } from "fastify";
+
+// quick test
+export default async function rolesRoutes(fastify: FastifyInstance) {
+    
+    // display message to show that the route has been loaded
+    console.log("Roles routes loaded");
+    
+>>>>>>> juan
 
 }
