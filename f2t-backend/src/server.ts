@@ -23,6 +23,10 @@ async function buildServer() {
   // Register the authentication routes
   // the prefix option means that all routes in authenticationRoutes will be prefixed with "/authentication"
   await fastifyApp.register(authenticationRoutes, { prefix: "/authentication" });
+
+  // Register the roles routes
+  // the prefix option means that all routes in rolesRoutes will be prefixed with "/roles"
+  await fastifyApp.register(rolesRoutes, { prefix: "/roles" });
   
   // Return the configured Fastify server
   return fastifyApp;
