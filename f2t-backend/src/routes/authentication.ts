@@ -10,7 +10,7 @@ export default async function authenticationRoutes(fastify: FastifyInstance) {
     
     const user = await fastify.prisma.user.create({
         data: {
-            email: "user1@example.com",
+            email: "user3@example.com",
             passwordHash: "pass123word"
 
         }
