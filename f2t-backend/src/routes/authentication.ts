@@ -19,4 +19,3 @@ export default async function authenticationRoutes(fastify: FastifyInstance) {
     // display message to show that the user has been created
     console.log("User created:", user);
 }
-// test comment for push to github
