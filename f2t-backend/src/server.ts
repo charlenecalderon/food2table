@@ -5,7 +5,7 @@ import Fastify from "fastify";
 // Use the ".js" extension to avoid TypeScript errors
 import prismaPlugin from "./plugins/prisma.js";
 // Import authentication routes that handle user and login information
-import authenticationRoutes from "./routes/authentication.js";
+import authenticationRoutes from "./routes/user.js";
 // Import profile routes that handle user profile information
 import profileRoutes from "./routes/profile.js";
 // Import role routes that handle role control

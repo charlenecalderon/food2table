@@ -8,9 +8,12 @@ export default async function authenticationRoutes(fastify: FastifyInstance) {
     // display message to show that the route has been loaded
     console.log("Authentication routes loaded");
     
+    // delete all users in the database to avoid duplicate entries for testing
+    await fastify.prisma.user.deleteMany();
+
     const user = await fastify.prisma.user.create({
         data: {
-            email: "user3@example.com",
+            email: "user1@example.com",
             passwordHash: "pass123word"
 
         }

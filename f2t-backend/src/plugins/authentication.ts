@@ -34,36 +34,40 @@ async function authenticationPlugin(fastifyApp: FastifyInstance) {
   });
 
   // Add a new method that checks for authentication
-  fastifyApp.decorate("requireAuth", async (request: any, reply: any) => {
+  async function requireAuth(request: any, reply: any) {
     try {
-      // Verify JWT from the request from the cookie
+      // Verify JWT from the request cookie
       await request.jwtVerify();
     } catch {
-      // If verification fails, return an error message "Unauthorized"
+      // If verification fails return unauthorized
       return reply.code(401).send({ error: "Unauthorized" });
     }
-  });
+  }
+
+  // Attach the requireAuth method to the fastifyApp instance
+  // This allows us to use fastifyApp.requireAuth() in our routes to protect them with authentication
+  fastifyApp.decorate("requireAuth", requireAuth);
 }
 
 // Export the Fastify plugin
 export default fastifyPlugins(authenticationPlugin);
 
-// Let TypeScript know that the Fastify app has a "requireAuth" property
-// This allows TypeScript to acknowledge "app.requireAuth" in other files
+// This tells TypeScript that the Fastify server instance includes a
+// "requireAuth" function added by this plugin.
 declare module "fastify" {
   interface FastifyInstance {
     requireAuth: any;
   }
 }
 
-// Let TypeScript know what the JWT data looks like
-// This allows TypeScript to correctly type "req.user" and JWT payloads
+// This tells TypeScript what data exists inside the JWT token
+// and what data will appear on request.user after verification.
 declare module "@fastify/jwt" {
   interface FastifyJWT {
     // This is the data we store inside the token
     payload: { userId: string; roles: string[] };
 
-    // This is the data we get on "req.user" after verification
+    // This is the data available on request.user after jwtVerify() succeeds
     user: { userId: string; roles: string[] };
   }
 }
