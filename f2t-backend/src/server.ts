@@ -4,12 +4,14 @@ import Fastify from "fastify";
 // Import the Prisma plugin to connect to the database and use Prisma client
 // Use the ".js" extension to avoid TypeScript errors
 import prismaPlugin from "./plugins/prisma.js";
-// Import authentication routes that handle user and login information
-import authenticationRoutes from "./routes/user.js";
-// Import profile routes that handle user profile information
-import profileRoutes from "./routes/profile.js";
-// Import role routes that handle role control
+// Import users routes that handle user and login information
+import authenticationRoutes from "./routes/users.js";
+// Import profiles routes that handle user profile information
+import profileRoutes from "./routes/profiles.js";
+// Import roles routes that handle role control
 import rolesRoutes from "./routes/roles.js";
+// Import products routes that handle product information
+import productRoutes from "./routes/products.js";
 
 // Function to build and configure the Fastify server
 async function buildServer() {
