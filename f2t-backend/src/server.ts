@@ -1,36 +1,5 @@
-// Import fastify to create the server
-import Fastify from "fastify";
-// Import the Prisma plugin to connect to the database and use Prisma client
-// Use the ".js" extension to avoid TypeScript errors
-import prismaPlugin from "./plugins/prisma.js";
-// Import authentication routes that handle user and login information
-import authenticationRoutes from "./routes/authentication.js";
-// Import profile routes that handle user profile information
-import profileRoutes from "./routes/profile.js";
-// Import role routes that handle role control
-import rolesRoutes from "./routes/roles.js";
-
-// Function to build and configure the Fastify server
-async function buildServer() {
-  // Create a new Fastify server instance
-  // login is enabled
-  const fastifyApp = Fastify({ logger: true });
-
-  // Register the Prisma plugin to connect to the database and use Prisma client
-  // This must be done before registering any routes that use the database
-  await fastifyApp.register(prismaPlugin);
-  
-  // Register the authentication routes
-  // the prefix option means that all routes in authenticationRoutes will be prefixed with "/authentication"
-  await fastifyApp.register(authenticationRoutes, { prefix: "/authentication" });
-
-  // Register the roles routes
-  // the prefix option means that all routes in rolesRoutes will be prefixed with "/roles"
-  await fastifyApp.register(rolesRoutes, { prefix: "/roles" });
-  
-  // Return the configured Fastify server
-  return fastifyApp;
-}
+// Import the buildServer function to create and configure the Fastify server
+import buildServer from "./buildServer.js";
 
 // Build the server
 const fastifyApp = await buildServer();

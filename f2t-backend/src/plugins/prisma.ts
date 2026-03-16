@@ -13,7 +13,7 @@ import type { FastifyInstance } from "fastify";
 // Load varaibles form .env file into process.env
 process.loadEnvFile();
 
-// database URL sting variable from .env file
+// database URL string variable from .env file
 const databaseUrl = process.env.DATABASE_URL;
 
 // Display error message if database URL is empty
@@ -26,7 +26,7 @@ const adapter = new PrismaPg({ connectionString: databaseUrl });
 // Create a new Prisma client instance
   const prisma = new PrismaClient({ adapter });
 
-// Export the Fastify plugin
+// Function to export the Fastify plugin
 async function prismaPlugin(fastifyApp: FastifyInstance) {
   // Connect the prisma client to the database
   await prisma.$connect();
@@ -35,10 +35,13 @@ async function prismaPlugin(fastifyApp: FastifyInstance) {
   // Enables access of the prisma client everywhere by using fastifyApp.prisma
   fastifyApp.decorate("prisma", prisma);
 
-  // When the server gets close, then disconnect the prisma client from the database
-  fastifyApp.addHook("onClose", async () => {
+  // Function that disconnects Prisma when the server closes
+  async function disconnectPrisma() {
     await prisma.$disconnect();
-  });
+  }
+
+  // When the server gets close, then disconnect the prisma client from the database
+  fastifyApp.addHook("onClose", disconnectPrisma);
 };
 
 // Use fastify-plugin to export the prismaPlugin function as a Fastify plugin
