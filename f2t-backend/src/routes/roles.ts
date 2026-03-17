@@ -1,56 +1,36 @@
 import type { FastifyInstance } from "fastify";
 import { Role } from "@prisma/client";
-import console from "node:console";
 
-type user = {
-    userId: string;
-};
-type setRole = {
-    roles: string;
-}
-type updateRole = {
-    role: string[];
-};
-//const rolesAllowed = [Role.BUYER, Role.SELLER]as const;
-
-// Import the Fastify type so TypeScript understands the fastify object
 export default async function registerRoles(fastify: FastifyInstance) {
-    
-    // quick test
-    // display message to show that the route has been loaded
     console.log("Roles routes loaded");
-    
-    //update user role
+
     fastify.patch("/users/:id/role", async (request, reply) => {
         try {
             const params = request.params as { id: string };
             const { id } = params;
-       
+
             const updateRole = await fastify.prisma.user.update({
                 where: { id },
                 data: {
                     roles: [Role.BUYER, Role.SELLER],
-
                 },
                 select: {
                     id: true,
                     email: true,
-                    roles: true, 
-                    updatedAt: true
+                    roles: true,
+                    updatedAt: true,
                 },
             });
 
-            return reply.status(200).send({ //success
-                message: "user is set to buyer and seller !", 
+            return reply.status(200).send({
+                message: "User role was updated successfully.",
                 user: updateRole,
             });
-        }
-        catch (error) {
+        } catch (error) {
             console.error(error);
-            return reply.status(500).send({ // server errorr
-                error: "INTERNALL ERRRORR !!!",
+            return reply.status(500).send({
+                error: "Internal server error.",
             });
         }
     });
-
 }
