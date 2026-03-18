@@ -1,0 +1,17 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\.next",
+    "\\.next\\dev",
+    "\\src",
+    "\\src\\app",
+    "\\src\\app\\browse",
+    "\\src\\app\\cart",
+    "\\src\\app\\orders",
+    "\\src\\app\\vendor",
+    "\\src\\app\\vendor\\[id]",
+    "\\src\\components"
+  ],
+  "SelectedNode": "\\.next\\dev",
+  "PreviewInSolutionExplorer": false
+}
