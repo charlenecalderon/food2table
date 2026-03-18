@@ -1,17 +1,16 @@
 {
   "ExpandedNodes": [
     "",
-    "\\.next",
-    "\\.next\\dev",
     "\\src",
     "\\src\\app",
     "\\src\\app\\browse",
-    "\\src\\app\\cart",
     "\\src\\app\\orders",
     "\\src\\app\\vendor",
+    "\\src\\app\\vendor-dashboard",
     "\\src\\app\\vendor\\[id]",
-    "\\src\\components"
+    "\\src\\components",
+    "\\src\\lib"
   ],
-  "SelectedNode": "\\.next\\dev",
+  "SelectedNode": "\\package.json",
   "PreviewInSolutionExplorer": false
 }
