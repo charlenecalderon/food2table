@@ -37,4 +37,37 @@ export default async function userRoutes(fastify: FastifyInstance) {
         }
     });
 
+    // route to update user pw
+    fastify.patch("/:id/password", async (request, reply) => {
+        try {
+            const params = request.params as { id: string };
+            const { id } = params;
+
+            const { password } = request.body as {
+                password: string;
+            };
+
+            const updatedUser = await fastify.prisma.user.update({
+                where: { id },
+                data: {
+                    passwordHash: password, // hash later if bcrypt is added
+                },
+                select: {
+                    id: true,
+                    email: true,
+                },
+            });
+
+            return reply.status(200).send({
+                message: "User password updated successfully",
+                user: updatedUser,
+            });
+        } catch (error) {
+            console.error(error);
+            return reply.status(500).send({
+                error: "INTERNAL SERVER ERROR",
+            });
+        }
+    });
+
 }
