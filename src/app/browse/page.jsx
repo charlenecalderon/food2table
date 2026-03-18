@@ -1,9 +1,5 @@
 import React from 'react'
 import "tailwindcss/tailwind.css"
-import "tailwindcss/base.css"
-import "tailwindcss/utilities.css"
-import "tailwindcss/components.css"
-import "tailwindcss/variants.css"
 
 function ProductCard({ product }) {
   return (
