@@ -24,8 +24,7 @@ async function testCreateProductRoute() {
 
     // create a valid jwt token
     const token = fastifyApp.jwt.sign({
-      userId: user.id,
-      roles: ["SELLER"]
+      userId: user.id
     });
 
     const response = await fastifyApp.inject({

@@ -52,11 +52,24 @@ export default async function userRoutes(fastify: FastifyInstance) {
                 where: { email },
             });
 
+            // return an error response if the user is not found or the password is incorrect
             if (!user) {
                 return reply.status(404).send({
                     error: "USER NOT FOUND",
                 });
             }
+
+            // create a JWT token with the user's id and roles
+            const token = await reply.jwtSign({
+                userId: user.id
+            });
+
+            // store the token inside the signed "session" cookie
+            reply.setCookie("session", token, {
+                path: "/",
+                httpOnly: true,
+                signed: true,
+            });
 
             // return a success response if the user is found and the password is correct
             return reply.status(200).send({

@@ -65,9 +65,9 @@ declare module "fastify" {
 declare module "@fastify/jwt" {
   interface FastifyJWT {
     // This is the data we store inside the token
-    payload: { userId: string; roles: string[] };
+    payload: { userId: string};
 
     // This is the data available on request.user after jwtVerify() succeeds
-    user: { userId: string; roles: string[] };
+    user: { userId: string};
   }
 }
