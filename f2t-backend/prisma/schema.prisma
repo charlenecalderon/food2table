@@ -24,6 +24,18 @@ enum Role {
   SELLER
 }
 
+// Define the status of the order
+enum OrderStatus {
+  // Order is created and being updated with items
+  CART
+  // Order is finalized and ready to be processed
+  PLACED
+  // Buyer has paid in person and the seller provided the products to the buyer
+  COMPLETED
+  // Order is cancelled by the buyer or seller
+  CANCELLED
+}
+
 // Model (data table) to store login and role information
 model User {
   // Unique ID for each user
@@ -40,6 +52,8 @@ model User {
   profile Profile?
   // List of products that a user is selling
   products Product[]
+  // List of orders that a user is buying
+  orders Order[]
   // The date and time when a user creates an account
   createdAt DateTime @default(now())
   // The date and time when a user updates an account
@@ -85,8 +99,49 @@ model Product {
   // Reference back to the User model for the sellerId
   // onDelete: Cascade means that if a user is deleted, the associated products will also be deleted automatically
   seller User @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  // Reference to the orders that include this product
+  // onDelete: SetNull means that if a product is deleted, the reference in the orders will be set to null instead of deleting the orders
+  orderItems OrderItem[]
   // The date and time when a user creates a product
   createdAt DateTime @default(now())
   // The date and time when a user updates a product
   updatedAt DateTime @updatedAt
+}
+
+// Model (data table) to store an order information
+model Order {
+  // Unique ID for each order
+  id String @id @default(cuid())
+  // Reference to the buyer's id
+  buyerId String
+  // Reference back to the User model for the buyerId
+  // onDelete: Cascade means that if a user is deleted, the associated orders will also be deleted automatically
+  buyer User @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  // List of items in the order
+  items OrderItem[]
+  // The date and time when a user creates an order
+  createdAt DateTime @default(now())
+  // The date and time when a user updates an order
+  updatedAt DateTime @updatedAt
+}
+
+// Model (data table) to store an order item information
+model OrderItem {
+  // Unique ID for each order item
+  id String @id @default(cuid())
+  // Reference to the order's id
+  orderId String
+  // Reference back to the Order model for the orderId
+  // onDelete: Cascade means that if an order is deleted, the associated order items will also be deleted automatically
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  // Reference to the product's id
+  productId String
+  // Reference back to the Product model for the productId
+  // onDelete: Cascade means that if a product is deleted, the associated order items will also be deleted automatically
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  // Quantity of the product in the order item
+  quantity Int @default(1)
+  // Prevent the same product from being added to the same order multiple times
+  // this increases the quantity instead of creating a new order item
+  @@unique([orderId, productId])
 }
