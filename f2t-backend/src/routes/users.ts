@@ -1,5 +1,6 @@
 // Import the Fastify type so TypeScript understands the fastify object
 import type { FastifyInstance } from "fastify";
+import path from "node:path";
 
 // Function to register user routes
 export default async function userRoutes(fastify: FastifyInstance) {
@@ -88,6 +89,29 @@ export default async function userRoutes(fastify: FastifyInstance) {
             });
         }
     });
+
+    // route to log out a user
+    console.log("Registering /logout route");
+    fastify.post("/logout", async (request, reply) => {
+        try {
+            // Clear the "session" cookie to log out the user
+            reply.clearCookie("session", {
+                path: "/",
+                httpOnly: true,
+                signed: true,
+            });
+
+            // return a success response
+            return reply.status(200).send({
+                message: "Logout successful",
+            });
+        } catch (error) {
+            console.error(error);
+            return reply.status(500).send({
+                error: "INTERNAL SERVER ERROR",
+            });
+        }
+    });        
 
 
     // route to update user pw
