@@ -83,8 +83,9 @@ export default function ProductDetailPage() {
         <div className="bg-green-200 rounded-xl p-6 flex flex-col md:flex-row gap-6">
 
           {/* Image */}
-          <img
-            className="rounded-xl h-64 w-full md:w-72 object-cover"
+            <img
+            className="rounded-xl object-cover shrink-0"
+            style={{width: "150px", height: "150px"}}
             src={product.img}
             alt={product.name}
           />
