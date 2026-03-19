@@ -3,14 +3,8 @@
     "",
     "\\src",
     "\\src\\app",
-    "\\src\\app\\browse",
-    "\\src\\app\\orders",
-    "\\src\\app\\vendor",
-    "\\src\\app\\vendor-dashboard",
-    "\\src\\app\\vendor\\[id]",
-    "\\src\\components",
-    "\\src\\lib"
+    "\\src\\app\\vendor\\[id]"
   ],
-  "SelectedNode": "\\src\\app\\browse\\page.jsx",
+  "SelectedNode": "\\f2t-backend",
   "PreviewInSolutionExplorer": false
 }
