@@ -8,6 +8,7 @@ export default async function productRoutes(fastify: FastifyInstance) {
     console.log("Product routes loaded");
     
     // route to create a product
+    console.log("Registering new /products route for creating a product");
     fastify.post("/", { preHandler: fastify.requireAuth }, async (request, reply) => {
         try {
             const { name, description, price } = request.body as {
@@ -42,6 +43,7 @@ export default async function productRoutes(fastify: FastifyInstance) {
     });
 
     // route to edit a product
+    console.log("Registering /products/:id route for updating a product");
     fastify.put("/:id", { preHandler: fastify.requireAuth }, async (request, reply) => {
         try {
             const params = request.params as { id: string };
@@ -90,6 +92,7 @@ export default async function productRoutes(fastify: FastifyInstance) {
     });
 
     // route to delete a product
+    console.log("Registering /products/:id route for deleting a product");
     fastify.delete("/:id", { preHandler: fastify.requireAuth }, async (request, reply) => {
         try {
             const params = request.params as { id: string };
