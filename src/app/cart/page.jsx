@@ -30,6 +30,11 @@ export default function CartPage() {
         setCartItems(cartItems.filter(item => item.id !== id));
     };
 
+    // Function to reserve items in user's cart
+    const handleReserve = () => {
+        alert("Items reserved!"); // IMPORTANT NOTE TO SELF: IMPLEMENT BACKEND CONNECTION 
+    };
+
     return (
         <main>
             <h1>Your Cart</h1>
@@ -56,6 +61,11 @@ export default function CartPage() {
                     Total: ${cartItems.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2)}
                 </h2>
             </div>
+
+            {/* Reserve button to send items to cart through backend */}
+            <button onClick={handleReserve}>
+                Reserve Items
+            </button>
 
         </main>
     );
