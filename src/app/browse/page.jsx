@@ -1,5 +1,12 @@
-import React from 'react'
+import "tailwindcss/tailwind.css"
+import "tailwindcss/base.css"
+import "tailwindcss/utilities.css"
+import "tailwindcss/components.css"
+import "tailwindcss/variants.css"
+import NavBar from "../../components/NavBar";
+import Link from "next/link"
 
+{/*layout for the data to be shown as a card*/}
 function ProductCard({ product }) {
   return (
     <div className="bg-green-200 text-white rounded-xl w-72 p-4">
@@ -13,15 +20,17 @@ function ProductCard({ product }) {
         <span className="text-emerald-900 font-bold">{product.price}</span>
       </div>
       <div className="flex justify-between mt-2">
+        <Link href={`/vendor/${product.vendor.toLowerCase().replace(/\s+/g, '-')}`}>
         <button className="bg-emerald-900 hover:bg-emerald-700 rounded-full px-3 py-1 text-sm text-white">
           {product.vendor}
         </button>
+        </Link>
       </div>
       <p className="text-emerald-900 font-serif text-sm mt-2 line-clamp-4">{product.desc}</p>
     </div>
   )
 }
-
+{/*mock data */}
 function ProductsExamples() {
   const products = [
     {
@@ -37,7 +46,7 @@ function ProductsExamples() {
       name: 'Milk',
       price: '$2.49',
       vendor: 'Dairy Co',
-      img: 'https://images.unsplash.com/photo-1582719478180-1a0b6de9f2a3?w=800&q=80&auto=format&fit=crop&crop=entropy',
+      img: '/milk.jpg',
       desc: 'Creamy whole milk from pasture-raised cows.'
     },
     {
@@ -45,7 +54,7 @@ function ProductsExamples() {
       name: 'Apple Bag',
       price: '$4.50',
       vendor: 'Orchard',
-      img: 'https://images.unsplash.com/photo-1574226516831-e1dff420e10d?w=800&q=80&auto=format&fit=crop&crop=entropy',
+      img: '/apples.jpg',
       desc: 'Crisp, sweet apples picked this season.'
     },
     {
@@ -53,7 +62,7 @@ function ProductsExamples() {
       name: 'Sourdough Bread',
       price: '$5.00',
       vendor: 'Baker',
-      img: 'https://images.unsplash.com/photo-1546549039-7f8f1b6b3f7d?w=800&q=80&auto=format&fit=crop&crop=entropy',
+      img: '/sourdough.jpg',
       desc: 'Handmade sourdough with a crisp crust and chewy crumb.'
     }
   ]
@@ -68,53 +77,10 @@ function ProductsExamples() {
     </div>
   )
 }
-
-export default function Home() {
+export default function Browse() {
   return (
     <div className="bg-emerald-50 min-h-screen w-screen object-fill">
-
-      <div className="w-screen h-60 object-fill">
-        <img className="w-screen h-60" src="https://thumbs.dreamstime.com/b/day-life-pixelated-farm-dive-vibrant-world-charming-pixel-art-where-characters-tend-to-their-crops-332448133.jpg" />
-      </div>
-      
-      <div className="flex justify-between items-center w-screen p-4 bg-green-200">
-        <div className="flex w-1/3"></div>
-        <div className="w-1/3 justify-center items-center flex">
-          <span className="text-3xl font-serif font-bold text-center mt-4 text-emerald-900">fresh2table</span>
-        </div>
-        <div className="flex justify-end w-1/3">
-          <button className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2 px-4 rounded-full mt-4 ml-4 h-10 w-10">
-            ?
-          </button>
-          <button className="bg-emerald-800 rounded-full mt-3 ml-4 w-12 h-12 items-center flex justify-center">
-            <img className="rounded-full w-10 h-10 m-1" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyzTWQoCUbRNdiyorem5Qp1zYYhpliR9q0Bw&s" />
-          </button>
-        </div>
-      </div>
-
-      <div className="flex justify-between items-center w-full p-4">
-        <div className="flex w-1/6">
-          <span>
-            <button className="bg-emerald-400 hover:bg-emerald-500 text-white font-bold rounded-full mt-4 ml-4 h-20 w-40">
-              Browse
-            </button>
-          </span>
-        </div>
-        <div className="flex w-1/6 justify-center">
-          <span>
-            <button className="bg-emerald-400 hover:bg-emerald-500 text-white font-bold rounded-full mt-4 ml-4 h-20 w-40">
-              Cart
-            </button>
-          </span>
-        </div>
-        <div className="flex w-1/6 justify-end p-1">
-          <span>
-            <button className="bg-emerald-400 hover:bg-emerald-500 text-white font-bold rounded-full mt-4 ml-4 h-20 w-40">
-              Orders
-            </button>
-          </span>
-        </div>
-      </div>
+      <NavBar />
 
       {/* products section */}
       <ProductsExamples />
