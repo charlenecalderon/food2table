@@ -30,6 +30,9 @@ export default async function buildServer() {
   // Register the users routes
   // the prefix option means that all routes in userRoutes will be prefixed with "/users"
   await fastifyApp.register(userRoutes, { prefix: "/users" });
+  // Register the profiles routes
+  // the prefix option means that all routes in profileRoutes will be prefixed with "/profiles"
+  await fastifyApp.register(profileRoutes, { prefix: "/profiles" });
   // Register the products routes
   // the prefix option means that all routes in productRoutes will be prefixed with "/products"
   await fastifyApp.register(productRoutes, { prefix: "/products" });
