@@ -28,6 +28,8 @@ enum Role {
 enum OrderStatus {
   // Order is created and being updated with items
   CART
+  // Order is reserved and waiting for user to place the order
+  RESERVED
   // Order is finalized and ready to be processed
   PLACED
   // Buyer has paid in person and the seller provided the products to the buyer
@@ -92,6 +94,8 @@ model Product {
   // Product description
   // @db.Text allows for longer text than the default String type
   description String @db.Text
+  // Product reserved status
+  isReserved Boolean @default(false)
   // Product price
   price Float
   // Reference to the seller's id
