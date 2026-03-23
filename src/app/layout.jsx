@@ -1,3 +1,4 @@
+import '../app/globals.css';
 
 export const metadata = {
   title: "Food2Table",
@@ -7,7 +8,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className="bg-emerald-50">{children}</body>
     </html>
   );
 }
