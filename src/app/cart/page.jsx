@@ -36,37 +36,48 @@ export default function CartPage() {
     };
 
     return (
-        <main>
-            <h1>Your Cart</h1>
+        <main className="p-6">
+            <h1 className="text-3x1 font-serif font-bold text-emerald-900 mb-6">Your Cart</h1>
 
-            {/* Loop to go through each item in user's cart and then render a card */}
-            <div>
+            <div className="flex flex-col gap-4">
                 {cartItems.map((item) => (
-                    <div key={item.id}> {/* Key used to help with tracking each item */}
-                        <p>{item.name}</p>
-                        <p>${item.price.toFixed(2)}</p> {/* "toFixed(2)" used to show 2 decimal places for pricing */}
-                        <p>Quantity: {item.quantity}</p>
+                    <div key={item.id} className="bg-white rounded-x1 shadow p-4 flex flex-col gap-2">
+                        
+                        <p className="text-lg font-serif font-bold text-emerald-900">{item.name}</p>
+                        <p className="text-emerald-600 font-bold">${item.price.toFixed(2)}</p>
+                        <p className="text-gray-600">Quantity: {item.quantity}</p>
 
-                        {/* Quantity control functionality for users and the "Remove" button */}
-                        <button onClick={() => handleAdd(item.id)}>+</button>
-                        <button onClick={() => handleMinus(item.id)}>-</button>
-                        <button onClick={() => handleRemove(item.id)}>Remove</button>
+                        <div className="flex gap-2">
+                            <button
+                            onClick={() => handleAdd(item.id)}
+                            className="bg-emerald-500 text-white px-4 py-1 rounded-full font-bold hover:bg-emerald-600"
+                            >+</button>
+                            <button
+                            onClick={() => handleMinus(item.id)}
+                            className="bg-emerald-500 text-white px-4 py-1 rounded-full font-bold hover:bg-emerald-600"
+                            >-</button>
+                            <button
+                            onClick={() => handleRemove(item.id)}
+                            className="bg-red-400 text-white px-4 py-1 rounded-full font-bold hover:bg-red-500"
+                            >Remove</button>
+                        </div>
+
                     </div>
                 ))}
             </div>
-            {/* Calculates to show the total price of items in user's cart */}
-            {/* Uses reduce() to loop through each item and add the prices times the quantity */}
-            <div>
-                <h2>
+
+            <div className="mt-6 bg-white rounded-x1 shadow p-4">
+                <h2 className="text-x1 font-serif font-bold text-emerald-900">
                     Total: ${cartItems.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2)}
                 </h2>
             </div>
 
-            {/* Reserve button to send items to cart through backend */}
-            <button onClick={handleReserve}>
+            <button
+            onClick={handleReserve}
+            className="mt-4 bg-emerald-500 text-white px-8 py-2 rounded-full font-bold hover:bg-emerald-600"
+            >
                 Reserve Items
             </button>
-
         </main>
     );
 }
