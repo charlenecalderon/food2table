@@ -36,48 +36,49 @@ export default function OrdersPage() {
             order.id === id ? { ...order, status: "Started" } : order
         ));
     };
-
+    
     return (
-        <main>
-            <h1>Vendor Orders</h1>
+        <main className="p-6">
+            <h1 className="text-3x1 font-serif font-bold text-emerald-900 mb-6">Vendor Orders</h1>
+            
+            <div className="flex flex-col gap-4">
+                {orders.map((order) => (
+                    <div key={order.id} className="bg-white rounded-xl shadow p-4 flex flex-col gap-2">
+                        <h2 className="text-xl font-serif font-bold text-emerald-900">Order #{order.id}</h2>
+                        <p className="text-gray-600">Customer: {order.customerName}</p>
+                        <p className="text-gray-600">Email: {order.customerEmail}</p>
+                        <p className="text-gray-600">Date: {order.date}</p>
+                        <p className="text-gray-600">Status: <span className="text-emerald-600 font-bold">{order.status}</span></p>
 
-            {/* Loop to go through the orders and render the order card*/}
-            <div>
-                {orders.map((order)=> (
-                    <div key={order.id}> {/* The key to help track an order*/}
+
+                    <button
+                        onClick={() => handleMarkStarted(order.id)}
+                        disabled={order.status === "started"}
+                        className={`w-40 py-2 rounded-full font-bold text-white transition-all
+                            ${order.status === "started"
+                                ? "bg-gray-400 cursor-not-allowed"
+                                : "bg-emerald-500 hover:bg-emerald-600"}`}
+                    >
                         
-                        {/* All customer's order information */}
-                        <h2>Order #{order.id}</h2>
-                        <p>Customer: {order.customerName}</p>
-                        <p>Email: {order.customerEmail}</p>
-                        <p>Date: {order.date}</p>
-                        <p>Status: {order.status}</p>
+                        {order.status === "started" ? "Started" : "Mark Started"}
+                    </button>
 
-                        {/* This button marks orders as Started and then cannot be changed */}
-                        <button
-                          onClick={() => handleMarkStarted(order.id)}
-                          disabled={order.status === "Started"}
-                          >
-                            {order.status ==="Started?" ? "Started" : "Mark Started"}
-                            </button>  
-
-                        {/* Items in the order that are reserved */}
-                        <div>
-                            <h3>Reserved Items:</h3>
-
-                            {/* Loop to go through each item within an order and show order information */}
+                        <div className="mt-2">
+                            <h3 className="text-lg font-serif font-bold text-emerald-800 mb-2">Reserved Items:</h3>
+                            
                             {order.items.map((item) => (
-                                <div key={item.id}>
-                                    <p>{item.name}</p>
-                                    <p>${item.price.toFixed(2)}</p> {/* "toFixed(2) used to keep price at two decimal places only */}
-                                    <p>Quantity: {item.quantity}</p>
+                                <div key={item.id} className="bg-emerald-50 rounded-lg p-3 mb-2">
+                                    <p className="font-bold text-emerald-900">{item.name}</p>
+                                    <p className="text-emerald-600">${item.price.toFixed(2)}</p>
+                                    <p className="text-gray-600">Quantity: {item.quantity}</p>
                                 </div>
                             ))}
-                        </div>
-                    
                     </div>
+
+                </div>
                 ))}
             </div>
+            
         </main>
     );
 }
