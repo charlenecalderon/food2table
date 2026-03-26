@@ -39,6 +39,13 @@ export default function NavBar() {
             </button>
           </Link>
 
+          {/* CHECKOUT BUTTON */}
+          <Link href="/checkout">
+            <button className="bg-emerald-500 text-white px-8 py-2 rounded-full font-bold shadow-[0_4px_0_0_rgba(5,150,105,1)] hover:translate-y-0.5 active:shadow-none transition-all">
+              Checkout
+            </button>
+          </Link>
+
         </div>
 
         {/* ABOUT BUTTON */}

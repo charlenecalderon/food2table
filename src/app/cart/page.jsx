@@ -1,7 +1,8 @@
 "use client"; // Allows rendering for interactivity and useState from user-side
 
 import { useState } from "react"; // Imports useState to manage the user's cart data
-
+import NavBar from "../../Components/NavBar";
+import Link from 'next/link';
 export default function CartPage() {
 
     // Cart items state holds the list of items in the cart, each has an id/name/price/quantity
@@ -36,7 +37,9 @@ export default function CartPage() {
     };
 
     return (
+        
         <main className="p-6">
+            <NavBar/>
             <h1 className="text-3x1 font-serif font-bold text-emerald-900 mb-6">Your Cart</h1>
 
             <div className="flex flex-col gap-4">
@@ -72,12 +75,14 @@ export default function CartPage() {
                 </h2>
             </div>
 
+            <Link href="/checkout">
             <button
             onClick={handleReserve}
             className="mt-4 bg-emerald-500 text-white px-8 py-2 rounded-full font-bold hover:bg-emerald-600"
             >
                 Reserve Items
             </button>
+            </Link>
         </main>
     );
 }

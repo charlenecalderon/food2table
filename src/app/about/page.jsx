@@ -1,8 +1,8 @@
-import "tailwindcss/tailwind.css"
-import "tailwindcss/base.css"
-import "tailwindcss/utilities.css"
-import "tailwindcss/components.css"
-import "tailwindcss/variants.css"
+// import "tailwindcss/tailwind.css"
+// //import "tailwindcss/base.css"
+// import "tailwindcss/utilities.css"
+// import "tailwindcss/components.css"
+// //import "tailwindcss/variants.css"
 import NavBar from "../../components/NavBar";
 
 export default function About() {

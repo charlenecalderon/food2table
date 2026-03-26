@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import Link from 'next/link';
 
 // Placeholder cart data (will connect to backend later)
 const initialCart = [
@@ -79,12 +80,14 @@ export default function CheckoutPage() {
               </div>
             ))}
           </div>
+          <Link href="/browse">
           <button
             onClick={() => { setPlaced(false); setStep(1); setCart(initialCart); setPickupSelections({}); }}
             className="bg-emerald-900 hover:bg-emerald-700 text-white px-8 py-2 rounded-full font-bold"
           >
             Back to Browse
           </button>
+          </Link>
         </div>
       </div>
     );
