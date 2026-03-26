@@ -38,7 +38,6 @@ const initialCart = [
   },
 ];
 
-// Group cart items by vendor
 function groupByVendor(cart) {
   return cart.reduce((acc, item) => {
     if (!acc[item.vendor]) acc[item.vendor] = [];
@@ -49,7 +48,7 @@ function groupByVendor(cart) {
 
 export default function CheckoutPage() {
   const [cart, setCart] = useState(initialCart);
-  const [step, setStep] = useState(1); // 1 = Cart, 2 = Pickup, 3 = Confirm
+  const [step, setStep] = useState(1);
   const [pickupSelections, setPickupSelections] = useState({});
   const [placed, setPlaced] = useState(false);
 
@@ -65,79 +64,79 @@ export default function CheckoutPage() {
   // Success Screen
   if (placed) {
     return (
-      <main className="p-6">
-        <div className="bg-white rounded-xl shadow p-10 max-w-md mx-auto text-center">
+      <div className="bg-emerald-50 min-h-screen p-6">
+        <div className="bg-green-200 rounded-xl p-10 max-w-md mx-auto text-center">
           <div className="text-6xl mb-4">🎉</div>
           <h1 className="text-2xl font-serif font-bold text-emerald-900 mb-2">Order Placed!</h1>
-          <p className="text-gray-600 mb-6">
+          <p className="text-emerald-900 font-serif text-sm mb-6">
             Your reservation is confirmed! Check your Orders page to track your pickup.
           </p>
           <div className="bg-emerald-50 rounded-xl p-4 text-left mb-6">
-            {Object.entries(grouped).map(([vendor, items]) => (
+            {Object.entries(grouped).map(([vendor]) => (
               <div key={vendor} className="mb-2">
-                <p className="font-bold text-emerald-900">{vendor}</p>
-                <p className="text-gray-600 text-sm">Pickup: {pickupSelections[vendor]}</p>
+                <p className="font-bold text-emerald-900 text-sm">{vendor}</p>
+                <p className="text-emerald-900 font-serif text-xs">Pickup: {pickupSelections[vendor]}</p>
               </div>
             ))}
           </div>
           <button
             onClick={() => { setPlaced(false); setStep(1); setCart(initialCart); setPickupSelections({}); }}
-            className="bg-emerald-500 text-white px-8 py-2 rounded-full font-bold hover:bg-emerald-600"
+            className="bg-emerald-900 hover:bg-emerald-700 text-white px-8 py-2 rounded-full font-bold"
           >
             Back to Browse
           </button>
         </div>
-      </main>
+      </div>
     );
   }
 
   return (
-    <main className="p-6">
+    <div className="bg-emerald-50 min-h-screen p-6">
 
       {/* Step Indicators */}
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex items-center gap-3 mb-6 max-w-4xl mx-auto flex-wrap">
         {["Cart", "Pickup", "Confirm"].map((label, i) => (
           <div key={label} className="flex items-center gap-2">
             <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm
-              ${step > i + 1 ? "bg-emerald-500 text-white" :
-                step === i + 1 ? "bg-emerald-500 text-white ring-4 ring-emerald-200" :
-                "bg-white border-2 border-emerald-500 text-emerald-900"}`}>
+              ${step > i + 1 ? "bg-emerald-900 text-white" :
+                step === i + 1 ? "bg-emerald-900 text-white ring-4 ring-emerald-200" :
+                "bg-green-200 text-emerald-900"}`}>
               {step > i + 1 ? "✓" : i + 1}
             </div>
-            <span className={`font-serif font-bold text-sm ${step >= i + 1 ? "text-emerald-900" : "text-gray-400"}`}>
+            <span className={`font-serif font-bold text-sm ${step >= i + 1 ? "text-emerald-900" : "text-emerald-400"}`}>
               {label}
             </span>
-            {i < 2 && <div className={`w-8 h-1 rounded ${step > i + 1 ? "bg-emerald-500" : "bg-gray-200"}`} />}
+            {i < 2 && <div className={`w-8 h-1 rounded ${step > i + 1 ? "bg-emerald-900" : "bg-green-200"}`} />}
           </div>
         ))}
       </div>
 
       {/* STEP 1: Cart */}
       {step === 1 && (
-        <div className="flex flex-col gap-4">
-          <h1 className="text-3xl font-serif font-bold text-emerald-900">Your Cart</h1>
+        <div className="flex flex-col gap-4 max-w-4xl mx-auto">
+          <h1 className="text-2xl font-serif font-bold text-emerald-900">Your Cart</h1>
 
           {cart.length === 0 && (
-            <p className="text-gray-600">Your cart is empty.</p>
+            <p className="text-emerald-900 font-serif text-sm">Your cart is empty.</p>
           )}
 
           {cart.map((item) => (
-            <div key={item.id} className="bg-white rounded-xl shadow p-4 flex flex-col gap-2">
+            <div key={item.id} className="bg-green-200 rounded-xl p-4 flex flex-col gap-2">
               <p className="text-lg font-serif font-bold text-emerald-900">{item.name}</p>
-              <p className="text-emerald-600 font-bold">${item.price.toFixed(2)} / {item.unit}</p>
-              <p className="text-gray-600">Quantity: {item.qty}</p>
-              <div className="flex gap-2">
+              <p className="text-emerald-900 font-bold">${item.price.toFixed(2)} / {item.unit}</p>
+              <p className="text-emerald-900 font-serif text-sm">Quantity: {item.qty}</p>
+              <div className="flex gap-2 flex-wrap">
                 <button
-                  onClick={() => updateQty(item.id, +1)}
-                  className="bg-emerald-500 text-white px-4 py-1 rounded-full font-bold hover:bg-emerald-600"
+                  onClick={() => updateQty(item.id, 1)}
+                  className="bg-emerald-900 hover:bg-emerald-700 text-white px-4 py-1 rounded-full font-bold"
                 >+</button>
                 <button
                   onClick={() => updateQty(item.id, -1)}
-                  className="bg-emerald-500 text-white px-4 py-1 rounded-full font-bold hover:bg-emerald-600"
+                  className="bg-emerald-900 hover:bg-emerald-700 text-white px-4 py-1 rounded-full font-bold"
                 >-</button>
                 <button
                   onClick={() => removeItem(item.id)}
-                  className="bg-red-400 text-white px-4 py-1 rounded-full font-bold hover:bg-red-500"
+                  className="bg-red-400 hover:bg-red-500 text-white px-4 py-1 rounded-full font-bold"
                 >Remove</button>
               </div>
             </div>
@@ -145,14 +144,14 @@ export default function CheckoutPage() {
 
           {cart.length > 0 && (
             <>
-              <div className="bg-white rounded-xl shadow p-4">
-                <p className="text-gray-600">Subtotal: <span className="font-bold text-emerald-900">${subtotal.toFixed(2)}</span></p>
-                <p className="text-gray-600">Pickup fee: <span className="font-bold text-emerald-900">Free</span></p>
+              <div className="bg-green-200 rounded-xl p-4">
+                <p className="text-emerald-900 font-serif text-sm">Subtotal: <span className="font-bold">${subtotal.toFixed(2)}</span></p>
+                <p className="text-emerald-900 font-serif text-sm">Pickup fee: <span className="font-bold">Free</span></p>
                 <p className="font-serif font-bold text-emerald-900 text-lg mt-2">Total: ${subtotal.toFixed(2)}</p>
               </div>
               <button
                 onClick={() => setStep(2)}
-                className="mt-2 bg-emerald-500 text-white px-8 py-2 rounded-full font-bold hover:bg-emerald-600 w-fit"
+                className="bg-emerald-900 hover:bg-emerald-700 text-white px-8 py-2 rounded-full font-bold w-fit"
               >
                 Continue to Pickup →
               </button>
@@ -163,24 +162,24 @@ export default function CheckoutPage() {
 
       {/* STEP 2: Pickup */}
       {step === 2 && (
-        <div className="flex flex-col gap-4">
-          <h1 className="text-3xl font-serif font-bold text-emerald-900">Choose Pickup Times</h1>
-          <p className="text-gray-600">Select a pickup window for each vendor.</p>
+        <div className="flex flex-col gap-4 max-w-4xl mx-auto">
+          <h1 className="text-2xl font-serif font-bold text-emerald-900">Choose Pickup Times</h1>
+          <p className="text-emerald-900 font-serif text-sm">Select a pickup window for each vendor.</p>
 
           {Object.entries(grouped).map(([vendor, items]) => (
-            <div key={vendor} className="bg-white rounded-xl shadow p-4 flex flex-col gap-3">
+            <div key={vendor} className="bg-green-200 rounded-xl p-4 flex flex-col gap-3">
               <p className="text-lg font-serif font-bold text-emerald-900">{vendor}</p>
-              <p className="text-gray-600 text-sm">📍 {items[0].pickupLocation}</p>
+              <p className="text-emerald-900 text-sm">📍 {items[0].pickupLocation}</p>
 
               <div className="flex flex-wrap gap-2">
                 {items.map((i) => (
-                  <span key={i.id} className="bg-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                  <span key={i.id} className="bg-emerald-900 text-white text-xs font-bold px-3 py-1 rounded-full">
                     {i.name} ×{i.qty}
                   </span>
                 ))}
               </div>
 
-              <div className="bg-emerald-50 rounded-xl p-3 text-sm text-gray-600">
+              <div className="bg-emerald-50 rounded-xl p-3 text-sm text-emerald-900 font-serif">
                 📍 {items[0].pickupInstructions}
               </div>
 
@@ -192,8 +191,8 @@ export default function CheckoutPage() {
                     onClick={() => setPickupSelections((s) => ({ ...s, [vendor]: w }))}
                     className={`px-4 py-2 rounded-full font-bold text-sm transition
                       ${pickupSelections[vendor] === w
-                        ? "bg-emerald-500 text-white"
-                        : "bg-white border-2 border-emerald-500 text-emerald-900 hover:bg-emerald-50"}`}
+                        ? "bg-emerald-900 text-white"
+                        : "bg-emerald-50 text-emerald-900 hover:bg-emerald-100"}`}
                   >
                     🕐 {w}
                   </button>
@@ -202,16 +201,16 @@ export default function CheckoutPage() {
             </div>
           ))}
 
-          <div className="flex gap-3">
+          <div className="flex gap-3 flex-wrap">
             <button
               onClick={() => setStep(1)}
-              className="bg-white border-2 border-emerald-500 text-emerald-900 px-6 py-2 rounded-full font-bold hover:bg-emerald-50"
+              className="bg-green-200 text-emerald-900 px-6 py-2 rounded-full font-bold hover:bg-green-300"
             >← Back</button>
             <button
               onClick={() => setStep(3)}
               disabled={!canProceed}
               className={`px-8 py-2 rounded-full font-bold transition
-                ${canProceed ? "bg-emerald-500 text-white hover:bg-emerald-600" : "bg-gray-200 text-gray-400 cursor-not-allowed"}`}
+                ${canProceed ? "bg-emerald-900 hover:bg-emerald-700 text-white" : "bg-green-200 text-emerald-400 cursor-not-allowed"}`}
             >
               {canProceed ? "Review Order →" : "Select all pickup windows first"}
             </button>
@@ -221,57 +220,56 @@ export default function CheckoutPage() {
 
       {/* STEP 3: Confirm */}
       {step === 3 && (
-        <div className="flex flex-col gap-4">
-          <h1 className="text-3xl font-serif font-bold text-emerald-900">Review & Confirm</h1>
+        <div className="flex flex-col gap-4 max-w-4xl mx-auto">
+          <h1 className="text-2xl font-serif font-bold text-emerald-900">Review & Confirm</h1>
 
           {Object.entries(grouped).map(([vendor, items]) => (
-            <div key={vendor} className="bg-white rounded-xl shadow p-4 flex flex-col gap-3">
-              <div className="flex justify-between items-start">
+            <div key={vendor} className="bg-green-200 rounded-xl p-4 flex flex-col gap-3">
+              <div className="flex justify-between items-start flex-wrap gap-2">
                 <div>
                   <p className="text-lg font-serif font-bold text-emerald-900">{vendor}</p>
-                  <p className="text-gray-600 text-sm">📍 {items[0].pickupLocation}</p>
+                  <p className="text-emerald-900 text-sm">📍 {items[0].pickupLocation}</p>
                 </div>
-                <span className="bg-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                <span className="bg-emerald-900 text-white text-xs font-bold px-3 py-1 rounded-full">
                   🕐 {pickupSelections[vendor]}
                 </span>
               </div>
               {items.map((i) => (
-                <div key={i.id} className="flex justify-between">
+                <div key={i.id} className="flex justify-between gap-3">
                   <div>
-                    <p className="font-bold text-emerald-900">{i.name}</p>
-                    <p className="text-gray-600 text-sm">×{i.qty} {i.unit}</p>
+                    <p className="font-bold text-emerald-900 font-serif">{i.name}</p>
+                    <p className="text-emerald-900 font-serif text-sm">×{i.qty} {i.unit}</p>
                   </div>
-                  <p className="font-bold text-emerald-600">${(i.price * i.qty).toFixed(2)}</p>
+                  <p className="font-bold text-emerald-900">${(i.price * i.qty).toFixed(2)}</p>
                 </div>
               ))}
             </div>
           ))}
 
-          <div className="bg-white rounded-xl shadow p-4">
-            <p className="text-gray-600">Subtotal: <span className="font-bold text-emerald-900">${subtotal.toFixed(2)}</span></p>
-            <p className="text-gray-600">Pickup fee: <span className="font-bold text-emerald-900">Free</span></p>
+          <div className="bg-green-200 rounded-xl p-4">
+            <p className="text-emerald-900 font-serif text-sm">Subtotal: <span className="font-bold">${subtotal.toFixed(2)}</span></p>
+            <p className="text-emerald-900 font-serif text-sm">Pickup fee: <span className="font-bold">Free</span></p>
             <p className="font-serif font-bold text-emerald-900 text-lg mt-2">Total: ${subtotal.toFixed(2)}</p>
           </div>
 
-          <p className="text-gray-600 text-sm">
+          <p className="text-emerald-900 font-serif text-sm">
             💡 Payment is collected at pickup. Your order will show as Pending until the vendor confirms.
           </p>
 
-          <div className="flex gap-3">
+          <div className="flex gap-3 flex-wrap">
             <button
               onClick={() => setStep(2)}
-              className="bg-white border-2 border-emerald-500 text-emerald-900 px-6 py-2 rounded-full font-bold hover:bg-emerald-50"
+              className="bg-green-200 text-emerald-900 px-6 py-2 rounded-full font-bold hover:bg-green-300"
             >← Back</button>
             <button
               onClick={() => setPlaced(true)}
-              className="bg-emerald-500 text-white px-8 py-2 rounded-full font-bold hover:bg-emerald-600"
+              className="bg-emerald-900 hover:bg-emerald-700 text-white px-8 py-2 rounded-full font-bold"
             >
               Place Order 🌿
             </button>
           </div>
         </div>
       )}
-
-    </main>
+    </div>
   );
 }

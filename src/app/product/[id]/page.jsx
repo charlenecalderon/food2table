@@ -27,10 +27,10 @@ export default function ProductDetailPage() {
   };
 
   return (
-    <main className="p-6">
+    <div className="bg-emerald-50 min-h-screen p-6">
 
       {/* Product Card */}
-      <div className="bg-white rounded-xl shadow p-6 flex flex-col md:flex-row gap-6 mb-6">
+      <div className="bg-green-200 rounded-xl p-6 flex flex-col md:flex-row gap-6 mb-6 max-w-4xl mx-auto">
 
         {/* Image */}
         <img
@@ -45,22 +45,22 @@ export default function ProductDetailPage() {
 
           {/* Tags */}
           <div className="flex flex-wrap gap-2">
-            <span className="bg-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+            <span className="bg-emerald-900 text-white text-xs font-bold px-3 py-1 rounded-full">
               {product.category}
             </span>
             {product.dietaryTags.map((tag) => (
-              <span key={tag} className="bg-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+              <span key={tag} className="bg-emerald-900 text-white text-xs font-bold px-3 py-1 rounded-full">
                 {tag}
               </span>
             ))}
           </div>
 
-          <h1 className="text-3xl font-serif font-bold text-emerald-900">{product.name}</h1>
-          <p className="text-emerald-600 font-bold text-xl">${product.price.toFixed(2)} / lb</p>
-          <p className="text-gray-600">{product.desc}</p>
+          <h1 className="text-2xl font-serif font-bold text-emerald-900">{product.name}</h1>
+          <p className="text-emerald-900 font-bold text-lg">${product.price.toFixed(2)} / lb</p>
+          <p className="text-emerald-900 font-serif text-sm">{product.desc}</p>
 
           {/* Availability */}
-          <p className="text-gray-600">
+          <p className="text-emerald-900 text-sm font-semibold">
             {product.quantityAvailable > 0
               ? `✅ ${product.quantityAvailable} lbs available`
               : "❌ Sold Out"}
@@ -68,48 +68,47 @@ export default function ProductDetailPage() {
 
           {/* Quantity + Add to Cart */}
           {product.quantityAvailable > 0 && (
-            <div className="flex items-center gap-3 mt-2">
+            <div className="flex items-center gap-2 mt-1 flex-wrap">
               <button
                 onClick={() => setQty((q) => Math.max(1, q - 1))}
-                className="bg-emerald-500 text-white px-4 py-1 rounded-full font-bold hover:bg-emerald-600"
+                className="bg-emerald-900 hover:bg-emerald-700 text-white px-4 py-1 rounded-full font-bold"
               >-</button>
-              <span className="font-bold text-emerald-900">{qty}</span>
+              <span className="font-bold text-emerald-900 px-2">{qty}</span>
               <button
                 onClick={() => setQty((q) => Math.min(product.quantityAvailable, q + 1))}
-                className="bg-emerald-500 text-white px-4 py-1 rounded-full font-bold hover:bg-emerald-600"
+                className="bg-emerald-900 hover:bg-emerald-700 text-white px-4 py-1 rounded-full font-bold"
               >+</button>
               <button
                 onClick={handleAddToCart}
-                className="bg-emerald-500 text-white px-8 py-2 rounded-full font-bold hover:bg-emerald-600"
+                className="bg-emerald-900 hover:bg-emerald-700 text-white px-6 py-2 rounded-full font-bold text-sm"
               >
                 {added ? "✓ Added!" : "Add to Cart"}
               </button>
             </div>
           )}
-
         </div>
       </div>
 
       {/* Vendor Info Card */}
-      <div className="bg-white rounded-xl shadow p-6">
-        <h2 className="text-xl font-serif font-bold text-emerald-900 mb-4">Vendor Info</h2>
+      <div className="bg-green-200 rounded-xl p-6 max-w-4xl mx-auto">
+        <h2 className="text-lg font-serif font-bold text-emerald-900 mb-4">Vendor Info</h2>
 
-        <p className="text-lg font-serif font-bold text-emerald-900">{product.vendor}</p>
-        <p className="text-gray-600 mb-4">📍 {product.vendorLocation}</p>
+        <p className="text-base font-serif font-bold text-emerald-900">{product.vendor}</p>
+        <p className="text-emerald-900 text-sm mb-4">📍 {product.vendorLocation}</p>
 
         {/* Pickup Instructions */}
         <div className="bg-emerald-50 rounded-xl p-4 mb-4">
-          <p className="font-bold text-emerald-900 mb-1">Pickup Instructions</p>
-          <p className="text-gray-600">{product.vendorPickupInstructions}</p>
+          <p className="font-bold text-emerald-900 text-sm mb-1">Pickup Instructions</p>
+          <p className="text-emerald-900 font-serif text-sm">{product.vendorPickupInstructions}</p>
         </div>
 
         {/* Pickup Windows */}
-        <p className="font-bold text-emerald-900 mb-2">Available Pickup Windows</p>
+        <p className="font-bold text-emerald-900 text-sm mb-2">Available Pickup Windows</p>
         <div className="flex flex-wrap gap-2">
           {product.vendorPickupWindows.map((window) => (
             <span
               key={window}
-              className="bg-emerald-500 text-white text-sm font-bold px-4 py-2 rounded-full"
+              className="bg-emerald-900 text-white text-xs font-bold px-4 py-2 rounded-full"
             >
               🕐 {window}
             </span>
@@ -117,6 +116,6 @@ export default function ProductDetailPage() {
         </div>
       </div>
 
-    </main>
+    </div>
   );
 }
