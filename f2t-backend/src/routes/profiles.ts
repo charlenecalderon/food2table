@@ -22,8 +22,7 @@ export default async function profileRoutes(fastify: FastifyInstance) {
                 name: string;
                 location: string;
                 pickupInstructions: string;
-            
-            };  
+            };
 
             // if statement to check that the authenticated user information exists
             if (!request.user || !request.user.userId) {

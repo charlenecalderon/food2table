@@ -13,6 +13,10 @@ import profileRoutes from "./routes/profiles.js";
 import rolesRoutes from "./routes/roles.js";
 // Import products routes that handle product information
 import productRoutes from "./routes/products.js";
+// Import orders routes that handle order information
+import orderRoutes from "./routes/orders.js";
+// Import order Items routes that handle order item information
+import orderItemRoutes from "./routes/orderItems.js";
 
 // Function to build and configure the Fastify server
 export default async function buildServer() {
@@ -36,6 +40,12 @@ export default async function buildServer() {
   // Register the products routes
   // the prefix option means that all routes in productRoutes will be prefixed with "/products"
   await fastifyApp.register(productRoutes, { prefix: "/products" });
+  // Register the order routes
+  // the prefix option means that all routes in orderRoutes will be prefixed with "/orders"
+  await fastifyApp.register(orderRoutes, { prefix: "/orders" });
+  // Register the order items routes
+  // the prefix option means that all routes in orderItemRoutes will be prefixed with "/orderItems"
+  await fastifyApp.register(orderItemRoutes, { prefix: "/orderItems" });
 
   // Return the configured Fastify server
   return fastifyApp;

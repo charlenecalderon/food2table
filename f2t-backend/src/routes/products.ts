@@ -18,14 +18,46 @@ export default async function productRoutes(fastify: FastifyInstance) {
     fastify.post("/", { preHandler: fastify.requireAuth }, async (request, reply) => {
         // try-catch block to handle any errors that may occur during the product creation process
         try {
-            // constant to extract the name, description, and price from the request body
+            // constant to extract the name, description, price, and stock from the request body
             // Type assertion to specify the expected structure of the request body
-            const { name, description, price } = request.body as {
+            const { name, description, price, stock } = request.body as {
                 name: string;
                 description: string;
                 price: number;
-            
-            };  
+                stock: number;
+            };
+
+            // **** name variable needs input validation ****
+            // create an if statement to check that name is not empty
+            // profiles.ts have an example on the create route with the name variable validation
+            // display a message in the terminal using console.log()
+            // return a 400 HTTP status response if the name input is missing
+
+            // **** description variable needs input validation ****
+            // create an if statement to check that description is not empty
+            // display a message in the terminal using console.log()
+            // return a 400 HTTP status response if the description input is missing
+
+            // **** price variable needs input validation ****
+            // create an if statement to check that price was sent
+            // follow similar if statements as the required variable validation
+            // display a message in the terminal using console.log()
+            // return a 400 HTTP status response if the price input is missing
+
+            // **** stock variable needs input validation ****
+            // create an if statement to check that stock was sent
+            // follow similar if statements as the required variable validation
+            // display a message in the terminal using console.log()
+            // return a 400 HTTP status response if the stock input is missing
+
+            // **** name, description, price, and stock variables need data validation ****
+            // create an if statement to check that:
+            // name is a string
+            // description is a string
+            // price is a number
+            // stock is a number
+            // display a message in the terminal using console.log()
+            // return a 400 HTTP status response if one or more variables are the wrong data type
 
             // constant to create a new product in the database using Prisma's create method
             const product = await fastify.prisma.product.create({
@@ -34,6 +66,7 @@ export default async function productRoutes(fastify: FastifyInstance) {
                     name,
                     description,
                     price,
+                    stock,
                     sellerId: request.user.userId, // get the id of the currently authenticated user from the request object
                 },
             });
@@ -231,18 +264,29 @@ export default async function productRoutes(fastify: FastifyInstance) {
     fastify.put("/:id", { preHandler: fastify.requireAuth }, async (request, reply) => {
         // try-catch block to handle any errors that may occur during the product update process
         try {
-            // constant to extract the id from the request parameters and the id, name, description, and price from the request body
+            // constant to extract the id from the request parameters and the id, name, description, price, and stock from the request body
             const { id } = request.params as { id: string };
             const userId = request.user.userId;
-            const { name, description, price } = request.body as {
+            const { name, description, price, stock } = request.body as {
                 name?: string;
                 description?: string;
                 price?: number;
+                stock?: number;
             };
+
+            // **** name, description, price, and stock variables may need data validation ****
+            // only check the variables that were sent in the request body
+            // create an if statement to check that:
+            // name is a string if provided
+            // description is a string if provided
+            // price is a number if provided
+            // stock is a number if provided
+            // display a message in the terminal using console.log()
+            // return a 400 HTTP status response if one or more variables are the wrong data type
 
             // constant to find a specific product by id
             const existingProduct = await fastify.prisma.product.findUnique({
-                where: { id},
+                where: { id },
             });
             
             // if statement to check if the product exists
@@ -266,6 +310,7 @@ export default async function productRoutes(fastify: FastifyInstance) {
                 name?: string;
                 description?: string;
                 price?: number;
+                stock?: number;
             } = {};
 
             // if statements to check if each variable is defined before adding it to the updateData object
@@ -277,6 +322,9 @@ export default async function productRoutes(fastify: FastifyInstance) {
             }
             if (price !== undefined) {
                 updateData.price = price;
+            }
+            if (stock !== undefined) {
+                updateData.stock = stock;
             }
 
             // constant to update the product in the database using Prisma's update method
@@ -324,12 +372,12 @@ export default async function productRoutes(fastify: FastifyInstance) {
 
             // constant to finc the product by id
             const existingProduct = await  fastify.prisma.product.findUnique({
-                where: { id},
+                where: { id },
             });
 
             // if statement to check if the product exists
             if (!existingProduct) {
-                return reply.status(4404).send({
+                return reply.status(404).send({
                     error: "NOT FOUND",
                     message: "product not found.",
                 });
