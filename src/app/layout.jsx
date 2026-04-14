@@ -1,5 +1,5 @@
-import '../app/globals.css';
-import NavBar from '../components/NavBar';
+import "../app/globals.css";
+import LayoutWrapper from "../components/LayoutWrapper";
 
 export const metadata = {
   title: "Food2Table",
@@ -10,9 +10,8 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className="bg-emerald-50">
-        <NavBar />
-        {children}
-        </body>
+        <LayoutWrapper>{children}</LayoutWrapper>
+      </body>
     </html>
   );
 }
