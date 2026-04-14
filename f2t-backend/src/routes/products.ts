@@ -27,37 +27,25 @@ export default async function productRoutes(fastify: FastifyInstance) {
                 stock: number;
             };
 
-            // **** name variable needs input validation ****
-            // create an if statement to check that name is not empty
-            // profiles.ts have an example on the create route with the name variable validation
-            // display a message in the terminal using console.log()
-            // return a 400 HTTP status response if the name input is missing
+            //Input validation to make sure name, description, price and stock are not blank
+            if(!name||!description||!price||!stock)
+            {
+                console.log("ERROR: Missing arguments. Name, description, price, and stock are required.")
+                return reply.status(400).send({
+                    error:"MISSING INPUT",
+                    message:"Name, description, price and stock cannot be blank."
+                });
+            }
 
-            // **** description variable needs input validation ****
-            // create an if statement to check that description is not empty
-            // display a message in the terminal using console.log()
-            // return a 400 HTTP status response if the description input is missing
-
-            // **** price variable needs input validation ****
-            // create an if statement to check that price was sent
-            // follow similar if statements as the required variable validation
-            // display a message in the terminal using console.log()
-            // return a 400 HTTP status response if the price input is missing
-
-            // **** stock variable needs input validation ****
-            // create an if statement to check that stock was sent
-            // follow similar if statements as the required variable validation
-            // display a message in the terminal using console.log()
-            // return a 400 HTTP status response if the stock input is missing
-
-            // **** name, description, price, and stock variables need data validation ****
-            // create an if statement to check that:
-            // name is a string
-            // description is a string
-            // price is a number
-            // stock is a number
-            // display a message in the terminal using console.log()
-            // return a 400 HTTP status response if one or more variables are the wrong data type
+            //Input validation to make sure name and description are strings, and price and stock are numbers
+            if(typeof name!=="string"||typeof description!=="string"||typeof price!=="number"||typeof stock!=="number")
+            {
+                console.log("ERROR: INVALID DATATYPE");
+                return reply.status(400).send({
+                    error: "INVALID INPUT",
+                    message: "Name and description must be strings, and price and stock must be numbers"
+                });
+            }
 
             // constant to create a new product in the database using Prisma's create method
             const product = await fastify.prisma.product.create({
