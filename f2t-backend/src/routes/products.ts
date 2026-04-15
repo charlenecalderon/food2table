@@ -27,6 +27,9 @@ export default async function productRoutes(fastify: FastifyInstance) {
                 stock: number;
             };
 
+            //isAvailable is kept seperate from request body bc value is determined based on stock variable
+            let isAvailable: boolean;
+
             //Input validation to make sure name, description, price and stock are not blank
             if(!name||!description||!price||!stock)
             {
@@ -47,12 +50,23 @@ export default async function productRoutes(fastify: FastifyInstance) {
                 });
             }
 
+            //if stock is greater than 0, set isAvailable to true, otherwise isAvailable is false
+            if(stock>0)
+            {
+                isAvailable=true;
+            }
+            else 
+            {
+                isAvailable=false;
+            }
+
             // constant to create a new product in the database using Prisma's create method
             const product = await fastify.prisma.product.create({
                 // data object to specify the data for the new product
                 data: {
                     name,
                     description,
+                    isAvailable,
                     price,
                     stock,
                     sellerId: request.user.userId, // get the id of the currently authenticated user from the request object
@@ -262,6 +276,9 @@ export default async function productRoutes(fastify: FastifyInstance) {
                 stock?: number;
             };
 
+            //isAvailable is kept separate from request body bc its value is based on stock variable, not input
+            let isAvailable: boolean;
+
             //Input validation to make sure name, if being updated, is correct data type
             if(name&&typeof name!=="string")
             {
@@ -326,6 +343,7 @@ export default async function productRoutes(fastify: FastifyInstance) {
                 description?: string;
                 price?: number;
                 stock?: number;
+                isAvailable?: boolean;
             } = {};
 
             // if statements to check if each variable is defined before adding it to the updateData object
@@ -340,6 +358,12 @@ export default async function productRoutes(fastify: FastifyInstance) {
             }
             if (stock !== undefined) {
                 updateData.stock = stock;
+
+                //if stock is > 0, set availability to true, otherwise false
+                if (stock > 0) {
+                    updateData.isAvailable = true;
+                }
+                else updateData.isAvailable = false;
             }
 
             // constant to update the product in the database using Prisma's update method
