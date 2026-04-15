@@ -1,0 +1,36 @@
+# Docker Compose file for the backend database
+version: "3.9"
+
+services:
+  db:
+    # Use the official Postgres version 16
+    image: postgres:16
+
+    # name the container that will run the database
+    container_name: f2t_database
+
+    # Restart the database unless it is manually stopped
+    restart: unless-stopped
+
+    environment:
+      # Default Postgres database username
+      POSTGRES_USER: postgres
+
+      # Default Postgres database password (for development)
+      POSTGRES_PASSWORD: postgres
+
+      # Default Postgres name of the database that is created
+      POSTGRES_DB: produce_market
+
+    ports:
+      # Connect container port 5432 to host port 5432
+      # port 5432 is the default Postgres port
+      - "5432:5432"
+
+    volumes:
+      # Store database files on the computer
+      - produce_db_data:/var/lib/postgresql/data
+
+# Define the names of the volumes (a safe storage space)
+volumes:
+  produce_db_data:
