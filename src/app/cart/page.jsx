@@ -1,7 +1,7 @@
 "use client"; // Allows rendering for interactivity and useState from user-side
 
 import { useState } from "react"; // Imports useState to manage the user's cart data
-import NavBar from "../../Components/NavBar";
+import NavBar from "../../components/NavBar";
 import Link from 'next/link';
 export default function CartPage() {
 
