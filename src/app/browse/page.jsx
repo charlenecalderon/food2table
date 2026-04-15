@@ -1,0 +1,29 @@
+import NavBar from "../../components/NavBar";
+import Link from "next/link";
+
+function ProductCard({ product }) {
+  return (
+    <div className="bg-green-200 text-white rounded-xl w-72 p-4">
+      <img className="rounded-xl h-40 w-full object-cover" src={product.img} alt={product.name} />
+      <div className="flex justify-between items-center mt-2">
+        <h2 className="text-emerald-900 font-bold font-serif">{product.name}</h2>
+        <span className="text-emerald-900 font-bold">{product.price}</span>
+      </div>
+      <div className="flex justify-between mt-2">
+        <Link href={`/vendor/${product.vendor.toLowerCase().replace(/\s+/g, '-')}`}>
+          <button className="bg-emerald-900 hover:bg-emerald-700 rounded-full px-3 py-1 text-sm text-white">
+            {product.vendor}
+          </button>
+        </Link>
+      </div>
+      <p className="text-emerald-900 font-serif text-sm mt-2 line-clamp-4">{product.desc}</p>
+    </div>
+  )
+}
+
+function ProductsExamples() {
+  const products = [
+    { id: 1, name: 'Eggs', price: '$3.99', vendor: 'Local Farm', img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSdIC8P1fXIU3Au62klNg7tc_BmUEelpxvJ3Q&s', desc: 'Fresh, organic eggs from local farms.' },
+    { id: 2, name: 'Milk', price: '$2.49', vendor: 'Dairy Co', img: '/milk.jpg', desc: 'Creamy whole milk from pasture-raised cows.' },
+    { id: 3, name: 'Apple Bag', price: '$4.50', vendor: 'Orchard', img: '/apples.jpg', desc: 'Crisp, sweet apples picked this season.' },
+    { id: 4, name: 'Sourdough Bread', p
