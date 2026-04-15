@@ -262,15 +262,42 @@ export default async function productRoutes(fastify: FastifyInstance) {
                 stock?: number;
             };
 
-            // **** name, description, price, and stock variables may need data validation ****
-            // only check the variables that were sent in the request body
-            // create an if statement to check that:
-            // name is a string if provided
-            // description is a string if provided
-            // price is a number if provided
-            // stock is a number if provided
-            // display a message in the terminal using console.log()
-            // return a 400 HTTP status response if one or more variables are the wrong data type
+            //Input validation to make sure name, if being updated, is correct data type
+            if(name&&typeof name!=="string")
+            {
+                console.log("ERROR: INVALID DATATYPE");
+                return reply.status(400).send({
+                    error: "INVALID INPUT",
+                    message: "Name must be a string"
+                });
+            }
+            //Input validation to make sure description, if being updated, is correct data type
+            if(description&&typeof description!=="string")
+            {
+                console.log("ERROR: INVALID DATATYPE");
+                return reply.status(400).send({
+                    error: "INVALID INPUT",
+                    message: "Description must be a string"
+                });
+            }
+            //Input validation to make sure price, if being updated, is correct data type
+            if(price&&typeof price!=="number")
+                {
+                console.log("ERROR: INVALID DATATYPE");
+                return reply.status(400).send({
+                    error: "INVALID INPUT",
+                    message: "Price must be a number"
+                });
+            }
+            //Input validation to make sure stock, if being updated, is correct data type
+            if(stock&&typeof stock!=="number")
+            {
+                console.log("ERROR: INVALID DATATYPE");
+                return reply.status(400).send({
+                    error: "INVALID INPUT",
+                    message: "Stock must be a number"
+                });
+            }
 
             // constant to find a specific product by id
             const existingProduct = await fastify.prisma.product.findUnique({
