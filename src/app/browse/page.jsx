@@ -1,10 +1,7 @@
-// import "tailwindcss/tailwind.css"
-// import "tailwindcss/base.css"
-// import "tailwindcss/utilities.css"
-// import "tailwindcss/components.css"
-// import "tailwindcss/variants.css"
-import NavBar from "../../components/NavBar";
-import Link from "next/link";
+import NavBar from "../../../components/NavBar";
+import Link from "next/link"
+
+{/*layout for the data to be shown as a card*/}
 function ProductCard({ product }) {
   return (
     <div className="bg-green-200 text-white rounded-xl w-72 p-4">
@@ -19,15 +16,16 @@ function ProductCard({ product }) {
       </div>
       <div className="flex justify-between mt-2">
         <Link href={`/vendor/${product.vendor.toLowerCase().replace(/\s+/g, '-')}`}>
-        <button className="bg-emerald-900 hover:bg-emerald-700 rounded-full px-3 py-1 text-sm text-white">
-          {product.vendor}
-        </button>
+          <button className="bg-emerald-900 hover:bg-emerald-700 rounded-full px-3 py-1 text-sm text-white">
+            {product.vendor}
+          </button>
         </Link>
       </div>
       <p className="text-emerald-900 font-serif text-sm mt-2 line-clamp-4">{product.desc}</p>
     </div>
   )
 }
+
 {/*mock data */}
 function ProductsExamples() {
   const products = [
@@ -44,7 +42,7 @@ function ProductsExamples() {
       name: 'Milk',
       price: '$2.49',
       vendor: 'Dairy Co',
-      img: '/milk.jpg',
+      img: 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=800&q=80',
       desc: 'Creamy whole milk from pasture-raised cows.'
     },
     {
@@ -52,7 +50,7 @@ function ProductsExamples() {
       name: 'Apple Bag',
       price: '$4.50',
       vendor: 'Orchard',
-      img: '/apples.jpg',
+      img: 'https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=800&q=80',
       desc: 'Crisp, sweet apples picked this season.'
     },
     {
@@ -60,7 +58,7 @@ function ProductsExamples() {
       name: 'Sourdough Bread',
       price: '$5.00',
       vendor: 'Baker',
-      img: '/sourdough.jpg',
+      img: 'https://images.unsplash.com/photo-1585478259715-876acc5be8eb?w=800&q=80',
       desc: 'Handmade sourdough with a crisp crust and chewy crumb.'
     }
   ]
@@ -75,14 +73,12 @@ function ProductsExamples() {
     </div>
   )
 }
+
 export default function Browse() {
   return (
     <div className="bg-emerald-50 min-h-screen w-screen object-fill">
-      <NavBar />
-
       {/* products section */}
       <ProductsExamples />
-
     </div>
   )
 }
