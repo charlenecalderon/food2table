@@ -75,12 +75,12 @@ function ProductsExamples() {
 }
 export default function Browse() {
   return (
-    <div className="bg-emerald-50 min-h-screen w-screen object-fill">
+    <>
       <NavBar />
 
       {/* products section */}
       <ProductsExamples />
 
-    </div>
+    </>
   )
 }

@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function NavBar() {
   return (
-    <html className="min-w-screen">
+    <html className="min-w-screen bg-emerald-50 min-h-screen w-screen object-fill">
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </head>
