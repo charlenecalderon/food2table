@@ -1,10 +1,8 @@
-// import "tailwindcss/tailwind.css"
-// import "tailwindcss/base.css"
-// import "tailwindcss/utilities.css"
-// import "tailwindcss/components.css"
-// import "tailwindcss/variants.css"
+
 import NavBar from "../../components/NavBar";
-import Link from "next/link";
+import Link from "next/link"
+
+{/*layout for the data to be shown as a card*/}
 function ProductCard({ product }) {
   return (
     <div className="bg-green-200 text-white rounded-xl w-72 p-4">
@@ -77,12 +75,12 @@ function ProductsExamples() {
 }
 export default function Browse() {
   return (
-    <div className="bg-emerald-50 min-h-screen w-screen object-fill">
+    <>
       <NavBar />
 
       {/* products section */}
       <ProductsExamples />
 
-    </div>
+    </>
   )
 }
