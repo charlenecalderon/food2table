@@ -1,6 +1,14 @@
 
 import NavBar from "../../components/NavBar";
 import Link from "next/link"
+import VendNavBar from "../../components/VendNavBar";
+
+<script lang="ts">
+   const isVendor : boolean;
+   let isVendor = {false};
+
+</script>
+
 
 {/*layout for the data to be shown as a card*/}
 function ProductCard({ product }) {
@@ -73,6 +81,7 @@ function ProductsExamples() {
     </div>
   )
 }
+
 export default function Browse() {
   return (
     <>
