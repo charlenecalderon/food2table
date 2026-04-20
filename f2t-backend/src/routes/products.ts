@@ -20,33 +20,46 @@ export default async function productRoutes(fastify: FastifyInstance) {
         try {
             // constant to extract the name, description, price, and stock from the request body
             // Type assertion to specify the expected structure of the request body
-            const { name, description, price, stock } = request.body as {
+            const { name, description, stock } = request.body as {
                 name: string;
                 description: string;
-                price: number;
                 stock: number;
             };
 
             //isAvailable is kept seperate from request body bc value is determined based on stock variable
             let isAvailable: boolean;
 
+            //INPUT VALIDATION SECTION
+
+            // if statement to check that the anthenticated user exists
+            if (!request.user || !request.user.userId) {
+                // display a message in the terminal to indicate missing authentication data
+                console.log("Get my products failed: Authenticated user information is missing");
+
+                // return a 401 Unauthorized status response with an error message
+                return reply.status(401).send({
+                    error: "UNAUTHORIZED",
+                    message: "User authentication is required to access this resource.",
+                });
+            }
+
             //Input validation to make sure name, description, price and stock are not blank
-            if(!name||!description||!price||!stock)
+            if(name===undefined&&description===undefined&&stock===undefined)
             {
-                console.log("ERROR: Missing arguments. Name, description, price, and stock are required.")
+                console.log("ERROR: Missing arguments. Name, description, and stock are required.")
                 return reply.status(400).send({
                     error:"MISSING INPUT",
-                    message:"Name, description, price and stock cannot be blank."
+                    message:"Name, description, and stock cannot be blank."
                 });
             }
 
             //Input validation to make sure name and description are strings, and price and stock are numbers
-            if(typeof name!=="string"||typeof description!=="string"||typeof price!=="number"||typeof stock!=="number")
+            if(typeof name!=="string"||typeof description!=="string"||typeof stock!=="number")
             {
                 console.log("ERROR: INVALID DATATYPE");
                 return reply.status(400).send({
                     error: "INVALID INPUT",
-                    message: "Name and description must be strings, and price and stock must be numbers"
+                    message: "Name and description must be strings, and stock must be a number"
                 });
             }
 
@@ -67,7 +80,6 @@ export default async function productRoutes(fastify: FastifyInstance) {
                     name,
                     description,
                     isAvailable,
-                    price,
                     stock,
                     sellerId: request.user.userId, // get the id of the currently authenticated user from the request object
                 },
@@ -83,42 +95,6 @@ export default async function productRoutes(fastify: FastifyInstance) {
             });
         }
         
-        // catch block to handle any errors that may occur during the user creation process
-        catch (error) {
-            // display the error in the terminal for debugging purposes
-            console.error(error);
-            // return a 500 Internal Server Error response with an error message if an unexpected error occurs during the user creation process
-            return reply.status(500).send({
-                error: "INTERNAL SERVER ERROR",
-                message: "An unexpected error occurred while processing your request.",
-            });
-        }
-    });
-
-    // *********************************************************************************
-    // route to get list of all products
-    // *********************************************************************************
-
-    // display a message to show that the route has been registered
-    console.log("Registering /products route for getting a list of all products"); 
-    
-    // fastify.get() function to handle GET requests to the /products route
-    fastify.get("/", async (request, reply) => {
-        // try-catch block to handle any errors that may occur during the process of getting a list of all products
-        try {
-            // constant to get the list of all products from the database using Prisma's findMany method
-            const products = await fastify.prisma.product.findMany();
-
-            // display a message in the terminal to indicate that the products were retrieved successfully and show the list of products
-            console.log("Products retrieved successfully:", products);
-
-            // return a 200 OK Request status response with a message and the list of retrieved products in the response body
-            return reply.status(200).send({
-                message: "Products retrieved successfully",
-                products,
-            });
-        }
-
         // catch block to handle any errors that may occur during the user creation process
         catch (error) {
             // display the error in the terminal for debugging purposes
@@ -169,11 +145,11 @@ export default async function productRoutes(fastify: FastifyInstance) {
             });
         }
 
-        // catch block to handle any errors that may occur during the user creation process
+        // catch block to handle any errors that may occur during the retrieval process
         catch (error) {
             // display the error in the terminal for debugging purposes
             console.error(error);
-            // return a 500 Internal Server Error response with an error message if an unexpected error occurs during the user creation process
+            // return a 500 Internal Server Error response with an error message if an unexpected error occurs during the retrieval process
             return reply.status(500).send({
                 error: "INTERNAL SERVER ERROR",
                 message: "An unexpected error occurred while processing your request.",
@@ -189,9 +165,22 @@ export default async function productRoutes(fastify: FastifyInstance) {
     console.log("Registering /products/:id route for getting a single product by id");
 
     // fastify.get() function to handle GET requests to the /products/:id route
-    fastify.get("/:id", async (request, reply) => {
-        // try-catch block to handle any errors that may occur during the process of getting a single product by id
+    fastify.get("/:id", { preHandler: fastify.requireAuth }, async (request, reply) => {
+
+        // try-catch block to handle any errors that may occur during the process of getting a list of the current user's products
         try {
+            // if statement to check that the anthenticated user exists
+            if (!request.user || !request.user.userId) {
+                // display a message in the terminal to indicate missing authentication data
+                console.log("Get my products failed: Authenticated user information is missing");
+
+                // return a 401 Unauthorized status response with an error message
+                return reply.status(401).send({
+                    error: "UNAUTHORIZED",
+                    message: "User authentication is required to access this resource.",
+                });
+            }
+
             // constant to extract the product id from the request parameters
             const params = request.params as { id: string };
             const { id } = params;
@@ -263,25 +252,33 @@ export default async function productRoutes(fastify: FastifyInstance) {
     console.log("Registering /products/:id route for updating a product");
 
     // fastify.put() function to handle PUT requests to the /products/:id route, with a preHandler to require authentication
-    fastify.put("/:id", { preHandler: fastify.requireAuth }, async (request, reply) => {
+    fastify.patch("/:id", { preHandler: fastify.requireAuth }, async (request, reply) => {
         // try-catch block to handle any errors that may occur during the product update process
         try {
             // constant to extract the id from the request parameters and the id, name, description, price, and stock from the request body
             const { id } = request.params as { id: string };
             const userId = request.user.userId;
-            const { name, description, price, stock } = request.body as {
+            const { name, description, stock } = request.body as {
                 name?: string;
                 description?: string;
-                price?: number;
                 stock?: number;
             };
 
             //isAvailable is kept separate from request body bc its value is based on stock variable, not input
             let isAvailable: boolean;
 
+            //INPUT VALIDATION SECTION
+
+            //Make sure at least one variable has content
+            if(name===undefined&&description===undefined&&stock===undefined) {
+                console.log("ERROR: NO INPUT DETECTED");
+                return reply.status(400).send({
+                    error: "MISSING INPUT",
+                    message: "Please indicate which attribute(s) are being edited"
+                });
+            }
             //Input validation to make sure name, if being updated, is correct data type
-            if(name&&typeof name!=="string")
-            {
+            if(name&&typeof name!=="string") {
                 console.log("ERROR: INVALID DATATYPE");
                 return reply.status(400).send({
                     error: "INVALID INPUT",
@@ -289,26 +286,16 @@ export default async function productRoutes(fastify: FastifyInstance) {
                 });
             }
             //Input validation to make sure description, if being updated, is correct data type
-            if(description&&typeof description!=="string")
-            {
+            if(description&&typeof description!=="string") {
                 console.log("ERROR: INVALID DATATYPE");
                 return reply.status(400).send({
                     error: "INVALID INPUT",
                     message: "Description must be a string"
                 });
             }
-            //Input validation to make sure price, if being updated, is correct data type
-            if(price&&typeof price!=="number")
-                {
-                console.log("ERROR: INVALID DATATYPE");
-                return reply.status(400).send({
-                    error: "INVALID INPUT",
-                    message: "Price must be a number"
-                });
-            }
+            
             //Input validation to make sure stock, if being updated, is correct data type
-            if(stock&&typeof stock!=="number")
-            {
+            if(stock&&typeof stock!=="number") {
                 console.log("ERROR: INVALID DATATYPE");
                 return reply.status(400).send({
                     error: "INVALID INPUT",
@@ -341,7 +328,6 @@ export default async function productRoutes(fastify: FastifyInstance) {
             const updateData: {
                 name?: string;
                 description?: string;
-                price?: number;
                 stock?: number;
                 isAvailable?: boolean;
             } = {};
@@ -352,9 +338,6 @@ export default async function productRoutes(fastify: FastifyInstance) {
             }
             if (description !== undefined) {
                 updateData.description = description;
-            }
-            if (price !== undefined) {
-                updateData.price = price;
             }
             if (stock !== undefined) {
                 updateData.stock = stock;

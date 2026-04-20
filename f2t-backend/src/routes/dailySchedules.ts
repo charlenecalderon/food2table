@@ -9,7 +9,7 @@ export default async function dailyScheduleRoutes(fastify: FastifyInstance) {
     console.log("dailySchedule routes loaded");
     
     // ***********************************************************************
-    // route to build pickupTimes 
+    // route to create dailySchedule 
     // ***********************************************************************
 
     fastify.post("/", { preHandler: fastify.requireAuth }, async (request, reply) => {
@@ -62,12 +62,12 @@ export default async function dailyScheduleRoutes(fastify: FastifyInstance) {
                 },
             });
 
-            // display a message in the terminal to indicate that the schedule name was updated successfully
-            console.log(`Schedule updated successfully`);
+            // display a message in the terminal to indicate that the schedule was created successfully
+            console.log(`Schedule created successfully`);
 
             // return a 200 OK response with a success message and the updated schedule
             return reply.status(200).send({
-                message: "Schedule updated successfully",
+                message: "Schedule created successfully",
                 dailySchedule
             });
         }
@@ -85,7 +85,7 @@ export default async function dailyScheduleRoutes(fastify: FastifyInstance) {
     });
 
     // *********************************************************************************
-    // route to edit pickupTimes
+    // route to edit dailySchedule
     // *********************************************************************************
 
     fastify.patch("/", { preHandler: fastify.requireAuth }, async (request, reply) => {
@@ -141,7 +141,7 @@ export default async function dailyScheduleRoutes(fastify: FastifyInstance) {
 
             //Copy specified dailySchedule from database and store it in updateDay
             const updateDay = await fastify.prisma.dailySchedule.findUnique({
-                where: { profileDay: { profileId: Profile.id, day: editDay, },},
+                where: { profileDay: { profileId: Profile.id, day: editDay, }, },
             });
             
             //if statement to check if the dailySchedule exists
@@ -176,7 +176,7 @@ export default async function dailyScheduleRoutes(fastify: FastifyInstance) {
 
             // update the profile name in the database
             const dailySchedule = await fastify.prisma.dailySchedule.update({
-                where: { profileDay: { profileId: Profile.id, day: editDay, },},
+                where: { profileDay: { profileId: Profile.id, day: editDay, }, },
                 data: updateDay,
             });
 
