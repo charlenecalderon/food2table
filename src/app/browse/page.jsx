@@ -1,4 +1,4 @@
-import NavBar from "../../../components/NavBar";
+import NavBar from "../../components/NavBar";
 import Link from "next/link"
 
 {/*layout for the data to be shown as a card*/}
@@ -77,6 +77,7 @@ function ProductsExamples() {
 export default function Browse() {
   return (
     <div className="bg-emerald-50 min-h-screen w-screen object-fill">
+    <NavBar />
       {/* products section */}
       <ProductsExamples />
     </div>

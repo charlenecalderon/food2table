@@ -1,8 +1,36 @@
 "use client";
 
-import Link from "next/link";
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { useState } from 'react';
 
 export default function LoginPage() {
+  const router = useRouter();
+  const [formData, setFormData] = useState({ email: "", password: "" });
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+
+    const response = await fetch('http://localhost:3001/users/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: formData.email,
+        password: formData.password
+      }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      // data.token is the JWT Charlene's code generates on line 185
+      localStorage.setItem('token', data.token);
+      router.push('/');
+    } else {
+      alert(data.message);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-emerald-50 flex items-center justify-center">
       <div className="bg-white rounded-xl shadow p-8 w-full max-w-md flex flex-col gap-5">
@@ -10,38 +38,44 @@ export default function LoginPage() {
           Login
         </h1>
 
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-semibold text-emerald-900">
-            Email or Username
-          </label>
-          <input
-            type="text"
-            placeholder="Enter your email or username"
-            className="border border-emerald-200 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-emerald-400"
-          />
-        </div>
+        <form onSubmit={handleLogin} className="flex flex-col gap-5">
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-semibold text-emerald-900">
+              Email or Username
+            </label>
+            <input
+              type="text"
+              placeholder="Enter your email or username"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              className="border border-emerald-200 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+            />
+          </div>
 
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-semibold text-emerald-900">
-            Password
-          </label>
-          <input
-            type="password"
-            placeholder="Enter your password"
-            className="border border-emerald-200 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-emerald-400"
-          />
-        </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-semibold text-emerald-900">
+              Password
+            </label>
+            <input
+              type="password"
+              placeholder="Enter your password"
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              className="border border-emerald-200 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+            />
+          </div>
 
-        <button className="bg-emerald-500 text-white py-2 rounded-full font-bold hover:bg-emerald-600 transition">
-          Login
-        </button>
+          <button
+            type="submit"
+            className="bg-emerald-500 text-white py-2 rounded-full font-bold hover:bg-emerald-600 transition"
+          >
+            Login
+          </button>
+        </form>
 
         <p className="text-center text-sm text-gray-600">
-          Don’t have an account?{" "}
-          <Link
-            href="/signup"
-            className="text-emerald-600 font-semibold hover:underline"
-          >
+          Don't have an account?{" "}
+          <Link href="/signup" className="text-emerald-600 font-semibold hover:underline">
             Sign up
           </Link>
         </p>

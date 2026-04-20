@@ -23,7 +23,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
     console.log("Registering /user route");
 
     // fastify.post() function to handle POST requests to the /user route
-    fastify.post("/", async (request, reply) => {
+    fastify.post("", async (request, reply) => {
         // try-catch block to handle any errors that may occur during the user creation process
         try {
             // constant to extract the email and password from the request body

@@ -1,6 +1,22 @@
+"use client";
+
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function NavBar() {
+    const router = useRouter();
+    const handleProfileClick = () => {
+        const token = localStorage.getItem('token');
+  
+        if (token) {
+            // if the has a token, they are logged in
+            router.push('/profile');
+        } else {
+            // if empty, send them to login
+            router.push('/login');
+        }
+    };
+
   return (
     <div className="w-full">
       {/* BANNER */}
@@ -57,11 +73,12 @@ export default function NavBar() {
           </button>
           </Link>
         {/* USER PROFILE BUTTON */}
-        <Link href="/profile">
-          <button className="bg-emerald-800 rounded-full mt-3 ml-4 w-11 h-11 items-center flex justify-center">
+        <button 
+            onClick={handleProfileClick}
+            className="bg-emerald-800 rounded-full mt-3 ml-4 w-11 h-11 items-center flex justify-center"
+        >
             <img className="rounded-full w-10 h-10 m-1" src="/pfp.jpg" alt="Profile Picture" />
-          </button>
-        </Link>
+        </button>
         </div>
       </nav>
     </div>
