@@ -24,7 +24,7 @@ fastify.patch ("/users/:id/role", async (request, reply) => {
         const updateRole = await fastify.prisma.user.update({
             where:{id},
             data:{
-                roles: [Role.BUYER, Role.SELLER],
+                roles: [Role.USER, Role.ADMIN],
 
             },
             select: {
