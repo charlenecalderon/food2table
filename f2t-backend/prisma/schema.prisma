@@ -143,6 +143,8 @@ model ProductsToListings {
 }
 
 // Model (data table) to store an order information
+// this data table is also used to store a cart information
+// since a cart is an order with the status of CART
 model Order {
   // Unique ID for each order
   id String @id @default(cuid())
