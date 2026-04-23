@@ -15,15 +15,14 @@ export default async function profileRoutes(fastify: FastifyInstance) {
     // display a message to show that the route is being registered
     console.log("Registering /new profile route");
 
-    //need to receive input to fill name, location?, and pickupInstructions
+    //need to receive input to fill name, location, and pickupInstructions
     fastify.post("/", { preHandler: fastify.requireAuth }, async (request, reply) => {
         try {
             const { name, location, pickupInstructions } = request.body as {
                 name: string;
                 location: string;
                 pickupInstructions: string;
-            
-            };  
+            };
 
             // if statement to check that the authenticated user information exists
             if (!request.user || !request.user.userId) {
@@ -82,7 +81,6 @@ export default async function profileRoutes(fastify: FastifyInstance) {
                 });
             }
 
-            // create the new profile
             const profile = await fastify.prisma.profile.create({
                 data: {
                     name,
@@ -115,24 +113,30 @@ export default async function profileRoutes(fastify: FastifyInstance) {
     });
 
     // *********************************************************************************
-    //route to update profile name
+    //route to update profile info (updating pickupTimes is in a seperate route)
     // *********************************************************************************
 
     // display a message to show that the route is being registered
     console.log("Registering /update profile route");
 
     // fastify.patch() function to handle PATCH requests to the /:id/name route
-    fastify.patch("/:id/name", async (request, reply) => {
+    fastify.patch("/:id", async (request, reply) => {
         try {
             const params = request.params as { id: string };
             const { id } = params;
 
-            const { input } = request.body as {
-                input: string; //read in input for new name
+            //object to read in input. 
+            const { name, location, pickupInstructions } = request.body as {
+                name?: string; //read in input for new name
+                location?: string;//read in input for new location
+                pickupInstructions?: string//read in input for new instructions
             };
 
+            //NEED TO UPDATE INPUT VALIDATION TO INCLUDE THE POSSIBLE UPDATING OF LOCATION AND PICKUPINSTRUCTIONS!!!
+            //ONLY VALIDATE THE INPUT THAT IS PROVIDED, ALL 3 INPUTS ARE OPTIONAL
+
             // if statement to check that the id and input are not empty
-            if (!id || !input) {
+            if (!id || !name) {
                 // display a message in the terminal to indicate that the id or input is missing
                 console.log("Profile name update failed: Profile ID or new name input is missing");
 
@@ -144,7 +148,7 @@ export default async function profileRoutes(fastify: FastifyInstance) {
             }
 
             // if statement to check that the id and input are of the correct data type
-            if (typeof id !== "string" || typeof input !== "string") {
+            if (typeof id !== "string" || typeof name !== "string") {
                 // display a message in the terminal to indicate that the id or input is of the wrong data type
                 console.log("Profile name update failed: Profile ID or new name input is of the wrong data type");
 
@@ -155,6 +159,23 @@ export default async function profileRoutes(fastify: FastifyInstance) {
                 });
             }
 
+            //create object to hold input and to use for updating actual database object
+            const updateData: {
+                name?: string;
+                location?: string;
+                pickupInstructions?: string;
+            } = {};
+
+            //make sure the input variables aren't NULL before assigning them to this object
+            if(name!==undefined){
+                updateData.name=name;
+            }
+            if(location!==undefined){
+                updateData.location=location;
+            }
+            if(pickupInstructions!==undefined){
+                updateData.pickupInstructions=pickupInstructions;
+            }
             // check if the profile with the specified id exists in the database
             const existingProfile = await fastify.prisma.profile.findUnique({
                 where: { id },
@@ -175,14 +196,13 @@ export default async function profileRoutes(fastify: FastifyInstance) {
             // update the profile name in the database
             const updatedProfile = await fastify.prisma.profile.update({
                 where: { id },
-                data: {
-                    name: input, // store new name in the profile's name variable
-                },
+                data: updateData,
                 select: {
                     id: true,
                     userId: true,
                     name: true,
                     location: true,
+                    pickupInstructions: true,
                     updatedAt: true
                 },
             });
