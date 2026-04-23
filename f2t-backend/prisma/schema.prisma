@@ -16,6 +16,18 @@ datasource db {
   provider = "postgresql"
 }
 
+//enum for days of the week
+enum Day {
+  SUNDAY
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  NONE
+}
+
 // Define the roles the users can have
 enum Role {
   // Role for general users
@@ -56,6 +68,8 @@ model User {
   products Product[]
   // List of orders that a user is buying
   orders Order[]
+  // List of listings the seller has posted
+  listings Listing[]
   // The date and time when a user creates an account
   createdAt DateTime @default(now())
   // The date and time when a user updates an account
@@ -64,54 +78,68 @@ model User {
 
 // Model (data table) to store information about a user's profile
 model Profile {
-  // Unique ID for each user
-  id String @id @default(cuid())
-  // Link the profile to only one user (id)
-  userId String @unique
-  // Reference back to the User model
-  // onDelete: Cascade means that if a user is deleted, the associated profile will also be deleted automatically
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  // Name of the profile
-  name String
-  // User location
-  // Set to optional since not every user will be a seller
-  location String?
-  // Instructions for picking up orders
-  // Set to optional since not every user will be a seller
-  pickupInstructions String? @db.Text
-  // The date and time when a profile gets created
-  createdAt DateTime @default(now())
-  // The date and time when a profile gets updated
-  updatedAt DateTime @updatedAt
+  id                 String   @id @default(cuid()) // Unique ID for each user
+  userId             String   @unique              // Link the profile to only one user (id)
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)// user that made the profile
+  name               String                        // Name of the profile
+  location           String?                       // home base of creator. optional
+  pickupInstructions String?  @db.Text             // Instructions for picking up orders. optional
+                                                   // Set to optional since not every user will be a seller
+  pickupTimes        DailySchedule[]               // the pickup availability schedule for each day. One array index for each day of the week                                                  
+  createdAt          DateTime @default(now())      // The date and time when a profile gets created
+  updatedAt          DateTime @updatedAt           // The date and time when a profile gets updated
+}
+
+//data table to store a vendors available times for a specific day
+model DailySchedule {
+  profileId     String                                    // id of the profile the schedule is linked to
+  day           String                                    // enum to specify which day this schedule is for. TEMPORARILY SWITCHING TO STRING TO MAKE IT EASIER
+  @@id (fields: [profileId, day], name: "profileDay")     // unique identifier is both the profileId and the day together
+  profile       Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)//reference back to Profile model 
+  times         Boolean[] @default([false])               // 24 hour clock. element 0 is 00:00, element 1 is 01:00 etc.
+                                                          // available pickup times are set to true.
+  isOpen        Boolean   @default(false)                 // boolean to indicate whether a store is open on a given day  
 }
 
 // Model (data table) to store a product information
 model Product {
-  // Unique ID for each product
-  id String @id @default(cuid())
-  // Product name
-  name String
-  // Product description
-  // @db.Text allows for longer text than the default String type
-  description String @db.Text
-  // Product reserved status
-  isReserved Boolean @default(false)
-  // Product price
-  price Float
-  // Total quantity available in stock
-  stock Int @default(0)
-  // Reference to the seller's id
-  sellerId String
-  // Reference back to the User model for the sellerId
-  // onDelete: Cascade means that if a user is deleted, the associated products will also be deleted automatically
-  seller User @relation(fields: [sellerId], references: [id], onDelete: Cascade)
-  // Reference to the orders that include this product
-  // onDelete: SetNull means that if a product is deleted, the reference in the orders will be set to null instead of deleting the orders
-  orderItems OrderItem[]
-  // The date and time when a user creates a product
-  createdAt DateTime @default(now())
-  // The date and time when a user updates a product
-  updatedAt DateTime @updatedAt
+  id          String  @id @default(cuid()) // Unique ID for each product
+  name        String                       // Product name
+  description String  @db.Text             // Product description
+  isAvailable Boolean @default(false)      // Product availability status
+  isReserved  Boolean @default(false)      // Product reserved status
+  stock       Int     @default(0)          // Total quantity available in stock
+  listings    ProductsToListings[]         // Explicit many-to-many relation with Listing model
+                                           // One product can be available in multiple listings. (e.g. tomato can be purchased
+                                           // alone, or as part of a wholesale vegetable bundle)
+  orderItems  OrderItem[]                  // Reference to the orders that include this product
+                                           // onDelete: SetNull means that if a product is deleted,
+                                           // the reference in the orders will be set to null instead of deleting the orders
+  sellerId    String                       // Reference to the seller's id
+  seller      User    @relation(fields: [sellerId], references: [id], onDelete: Cascade) // User making the product                     
+}
+
+//Data table to store all of a vendor's listings
+model Listing {
+  id             String    @id @default(cuid()) // Unique ID for each listing
+  title          String                         // listing title
+  description    String    @db.Text             // listing description
+  products       ProductsToListings[]           // Explicit many-to-many relation with Product model
+                                                // one listing can have multiple products. (e.g. wholesale vegebatle bundle)
+  quantity       Int[]                          // parallel to array of products. quantity[0] is quantity of products[0] etc.
+  price          Float                          // listing price
+  isAvailable    Boolean   @default(false)      // bool is true only when all products' isAvailable bools are true
+  sellerId       String                         // Reference to the seller's id
+  seller         User      @relation(fields: [sellerId], references: [id], onDelete: Cascade)// User making the listing
+}
+
+//join table for Product and Listing
+model ProductsToListings {
+  product      Product    @relation(fields: [productId], references: [id], onDelete: Cascade) // Reference to Product model
+  productId    String                                                                         // id of linked prodect
+  listing      Listing    @relation(fields: [listingId], references: [id], onDelete: Cascade) // Reference to Listing Model
+  listingId    String                                                                         //id of linked listing
+  @@id ([listingId, productId])              
 }
 
 // Model (data table) to store an order information

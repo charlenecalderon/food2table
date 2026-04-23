@@ -3,7 +3,7 @@ import type { FastifyInstance } from "fastify";
 
 // Function to register order routes
 export default async function orderRoutes(fastify: FastifyInstance) {
-
+/*
     // display message to show that the order route has been loaded
     console.log("Order routes loaded");
     
@@ -664,5 +664,5 @@ export default async function orderRoutes(fastify: FastifyInstance) {
                 message: "An unexpected error occurred while processing your request.",
             });
         }
-    });
+    });*/
 }

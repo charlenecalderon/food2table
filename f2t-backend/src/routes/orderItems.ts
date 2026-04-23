@@ -3,7 +3,7 @@ import type { FastifyInstance } from "fastify";
 
 // Function to register order Item routes
 export default async function orderItemRoutes(fastify: FastifyInstance) {
-
+/*
     // display message to show that the order route has been loaded
     console.log("Order Items routes loaded");
     
@@ -376,5 +376,5 @@ export default async function orderItemRoutes(fastify: FastifyInstance) {
 
             // return a 500 Internal Server Error response
         }
-    });
+    });*/
 }

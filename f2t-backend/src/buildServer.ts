@@ -13,12 +13,14 @@ import profileRoutes from "./routes/profiles.js";
 import rolesRoutes from "./routes/roles.js";
 // Import products routes that handle product information
 import productRoutes from "./routes/products.js";
-// Import products routes that handle product information
+// Import listings routes that handle listing information
 import listingRoutes from "./routes/listings.js";
 // Import orders routes that handle order information
 import orderRoutes from "./routes/orders.js";
 // Import order Items routes that handle order item information
 import orderItemRoutes from "./routes/orderItems.js";
+//Import dailySchedules route that handles the creation of vendor pickup times
+import dailyScheduleRoutes from "./routes/dailySchedules.js";
 
 // Function to build and configure the Fastify server
 export default async function buildServer() {
@@ -39,12 +41,15 @@ export default async function buildServer() {
   // Register the profiles routes
   // the prefix option means that all routes in profileRoutes will be prefixed with "/profiles"
   await fastifyApp.register(profileRoutes, { prefix: "/profiles" });
+  // Register the dailySchedules routes
+  // the prefix option means that all routes in dailyScheduleRoutes will be prefixed with "/dailySchedules"
+  await fastifyApp.register(dailyScheduleRoutes, { prefix: "/dailySchedules" });
   // Register the products routes
   // the prefix option means that all routes in productRoutes will be prefixed with "/products"
   await fastifyApp.register(productRoutes, { prefix: "/products" });
-  // Register the listings routes
-  // the prefix option means that all routes in listingRoutes will be prefixed with "/products"
-  await fastifyApp.register(productRoutes, { prefix: "/listings" });
+  // Register the listing routes
+  // the prefix option means that all routes in listingRoutes will be prefixed with "/listings"
+  await fastifyApp.register(listingRoutes, { prefix: "/listings" });
   // Register the order routes
   // the prefix option means that all routes in orderRoutes will be prefixed with "/orders"
   await fastifyApp.register(orderRoutes, { prefix: "/orders" });
