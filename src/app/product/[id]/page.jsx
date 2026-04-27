@@ -1,121 +1,177 @@
 "use client";
-import { useState } from "react";
 
-// Placeholder product data (will connect to backend later)
-const product = {
-  id: 1,
-  name: "Heirloom Tomatoes",
-  price: 3.50,
-  vendor: "Sunrise Valley Farm",
-  vendorLocation: "Riverside, CA",
-  vendorPickupInstructions: "Text us when you arrive — use the side gate on Oak St.",
-  vendorPickupWindows: ["Mon 8am–12pm", "Wed 2pm–6pm", "Sat 7am–11am"],
-  category: "Vegetables",
-  dietaryTags: ["Organic", "Non-GMO"],
-  quantityAvailable: 18,
-  desc: "Sun-ripened heirloom tomatoes grown without pesticides on our family farm in Riverside County. Perfect for salads, sauces, or fresh slicing.",
-  img: "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=800&q=80",
-};
+import { useEffect, useState } from "react";
 
-export default function ProductDetailPage() {
+export default function ProductDetailPage({ params }) {
+  const { id } = params;
+
+  const [product, setProduct] = useState(null);
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const handleAddToCart = () => {
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   };
 
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        setLoading(true);
+        setError("");
+
+        const response = await fetch(`http://127.0.0.1:3000/products/${id}`);
+        const data = await response.json();
+
+        if (!response.ok) {
+          setError(data.message || "Failed to load product.");
+          return;
+        }
+
+        setProduct(data.product);
+      } catch (err) {
+        setError("Could not connect to the backend.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProduct();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <main className="p-4 max-w-5xl mx-auto">
+        <div className="bg-white rounded-xl shadow p-6 text-center text-emerald-900 font-semibold">
+          Loading product...
+        </div>
+      </main>
+    );
+  }
+
+  if (error) {
+    return (
+      <main className="p-4 max-w-5xl mx-auto">
+        <div className="bg-white rounded-xl shadow p-6 text-center text-red-600 font-semibold">
+          {error}
+        </div>
+      </main>
+    );
+  }
+
+  if (!product) {
+    return (
+      <main className="p-4 max-w-5xl mx-auto">
+        <div className="bg-white rounded-xl shadow p-6 text-center text-red-600 font-semibold">
+          Product not found.
+        </div>
+      </main>
+    );
+  }
+
   return (
-    <div className="bg-emerald-50 min-h-screen p-6">
-
-      {/* Product Card */}
-      <div className="bg-green-200 rounded-xl p-6 flex flex-col md:flex-row gap-6 mb-6 max-w-4xl mx-auto">
-
-        {/* Image */}
+    <main className="p-4 max-w-5xl mx-auto">
+      <div className="bg-white rounded-xl shadow p-4 flex flex-col md:flex-row gap-4 mb-4">
         <img
-          className="rounded-xl object-cover"
-          style={{ width: "200px", height: "200px" }}
-          src={product.img}
+          className="rounded-xl object-cover shrink-0"
+          style={{ width: "150px", height: "150px" }}
+          src="https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=800&q=80"
           alt={product.name}
         />
 
-        {/* Info */}
         <div className="flex flex-col gap-3 flex-1">
-
-          {/* Tags */}
           <div className="flex flex-wrap gap-2">
-            <span className="bg-emerald-900 text-white text-xs font-bold px-3 py-1 rounded-full">
-              {product.category}
+            <span className="bg-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+              Product
             </span>
-            {product.dietaryTags.map((tag) => (
-              <span key={tag} className="bg-emerald-900 text-white text-xs font-bold px-3 py-1 rounded-full">
-                {tag}
-              </span>
-            ))}
           </div>
 
-          <h1 className="text-2xl font-serif font-bold text-emerald-900">{product.name}</h1>
-          <p className="text-emerald-900 font-bold text-lg">${product.price.toFixed(2)} / lb</p>
-          <p className="text-emerald-900 font-serif text-sm">{product.desc}</p>
+          <h1 className="text-2xl font-serif font-bold text-emerald-900">
+            {product.name}
+          </h1>
 
-          {/* Availability */}
-          <p className="text-emerald-900 text-sm font-semibold">
-            {product.quantityAvailable > 0
-              ? `✅ ${product.quantityAvailable} lbs available`
-              : "❌ Sold Out"}
+          <p className="text-emerald-600 font-bold text-lg">
+            ${Number(product.price).toFixed(2)}
           </p>
 
-          {/* Quantity + Add to Cart */}
-          {product.quantityAvailable > 0 && (
-            <div className="flex items-center gap-2 mt-1 flex-wrap">
+          <p className="text-gray-600 text-sm">
+            {product.description || "No description available."}
+          </p>
+
+          <p className="text-emerald-800 text-sm font-semibold">
+            Seller ID: {product.sellerId}
+          </p>
+
+          <div className="flex items-center gap-2 mt-1 flex-wrap">
+            <div className="flex items-center bg-white rounded-full overflow-hidden border border-emerald-300">
               <button
                 onClick={() => setQty((q) => Math.max(1, q - 1))}
-                className="bg-emerald-900 hover:bg-emerald-700 text-white px-4 py-1 rounded-full font-bold"
-              >-</button>
-              <span className="font-bold text-emerald-900 px-2">{qty}</span>
-              <button
-                onClick={() => setQty((q) => Math.min(product.quantityAvailable, q + 1))}
-                className="bg-emerald-900 hover:bg-emerald-700 text-white px-4 py-1 rounded-full font-bold"
-              >+</button>
-              <button
-                onClick={handleAddToCart}
-                className="bg-emerald-900 hover:bg-emerald-700 text-white px-6 py-2 rounded-full font-bold text-sm"
+                className="px-3 py-1 text-emerald-900 font-bold hover:bg-emerald-100"
               >
-                {added ? "✓ Added!" : "Add to Cart"}
+                −
+              </button>
+              <span className="px-3 font-bold text-emerald-900 text-sm">{qty}</span>
+              <button
+                onClick={() => setQty((q) => q + 1)}
+                className="px-3 py-1 text-emerald-900 font-bold hover:bg-emerald-100"
+              >
+                +
               </button>
             </div>
-          )}
-        </div>
-      </div>
 
-      {/* Vendor Info Card */}
-      <div className="bg-green-200 rounded-xl p-6 max-w-4xl mx-auto">
-        <h2 className="text-lg font-serif font-bold text-emerald-900 mb-4">Vendor Info</h2>
-
-        <p className="text-base font-serif font-bold text-emerald-900">{product.vendor}</p>
-        <p className="text-emerald-900 text-sm mb-4">📍 {product.vendorLocation}</p>
-
-        {/* Pickup Instructions */}
-        <div className="bg-emerald-50 rounded-xl p-4 mb-4">
-          <p className="font-bold text-emerald-900 text-sm mb-1">Pickup Instructions</p>
-          <p className="text-emerald-900 font-serif text-sm">{product.vendorPickupInstructions}</p>
-        </div>
-
-        {/* Pickup Windows */}
-        <p className="font-bold text-emerald-900 text-sm mb-2">Available Pickup Windows</p>
-        <div className="flex flex-wrap gap-2">
-          {product.vendorPickupWindows.map((window) => (
-            <span
-              key={window}
-              className="bg-emerald-900 text-white text-xs font-bold px-4 py-2 rounded-full"
+            <button
+              onClick={handleAddToCart}
+              className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-6 py-2 rounded-full text-sm"
             >
-              🕐 {window}
-            </span>
-          ))}
+              {added ? "✓ Added!" : "Add to Cart"}
+            </button>
+          </div>
         </div>
       </div>
 
-    </div>
+      <div className="bg-white rounded-xl shadow p-4">
+        <h2 className="text-lg font-serif font-bold text-emerald-900 mb-3">
+          Vendor Info
+        </h2>
+
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center gap-3">
+            <div className="bg-emerald-800 rounded-full w-12 h-12 flex items-center justify-center text-xl">
+              🌻
+            </div>
+            <div>
+              <p className="text-emerald-900 font-bold font-serif text-base">
+                Vendor info coming soon
+              </p>
+              <p className="text-emerald-800 text-sm">
+                Seller ID: {product.sellerId}
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-emerald-50 rounded-xl p-3">
+            <p className="text-emerald-900 font-bold text-sm mb-1">
+              Pickup Instructions
+            </p>
+            <p className="text-gray-600 text-sm">
+              Vendor profile endpoint is still in progress, so this section is using placeholder text for now.
+            </p>
+          </div>
+
+          <div>
+            <p className="text-emerald-900 font-bold text-sm mb-2">
+              Available Pickup Windows
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <span className="bg-emerald-500 text-white text-xs font-bold px-3 py-2 rounded-full">
+                Pickup info coming soon
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
   );
 }
