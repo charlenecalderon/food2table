@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 
 
-const API_BASE = "http://localhost:3000/products";
+const API_BASE = "http://localhost:3000/listings";
 
 export default function MyListingsPage() {
 
@@ -12,7 +12,7 @@ export default function MyListingsPage() {
     const [error, setError] = useState(null);
 
     const [newListing, setNewListing] = useState({
-        name: "", price: "", quantity: "", description: ""
+        title: "", price: "", description: ""
     });
 
     const [showAddForm, setShowAddForm] =useState(false);
@@ -21,7 +21,10 @@ export default function MyListingsPage() {
         const fetchListings = async () => {
             try {
                 setLoading(true);
-                const res = await fetch('${API_BASE}/my-products', {
+
+                const userId = localStorage.getItem("userId");
+
+                const res = await fetch('${API_BASE}/vendorlistings/$userId}', {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
@@ -33,7 +36,7 @@ export default function MyListingsPage() {
                 if (!res.ok) throw new Error("Failed to fetch listings");
 
                 const data = await res.json();
-                setListings(data.products);
+                setListings(data.listings);
             } catch (err) {
                 console.error("Error fetching listings:" , err);
                 setError("Could not load listings. Please try again.");
@@ -72,13 +75,13 @@ export default function MyListingsPage() {
     const handleEditSave = async (id, updatedListing) => {
         try {
             const res = await fetch('${API_BASE}/${id}', {
-                method: "PUT",
+                method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": 'Bearer ${localStorage.getItem("token")',
                 },
                 body: JSON.stringify({
-                    name: updatedListing.name,
+                    title: updatedListing.title,
                     description: updatedListing.description,
                     price: parseFloat(updatedListing.price),
                 }),
@@ -89,7 +92,7 @@ export default function MyListingsPage() {
             const data = await res.json();
 
             setListings (listings.map(listing =>
-                listing.id === id ? data.product : listing
+                listing.id === id ? data.listing : listing
             ));
             setEditingId(null);
         } catch (err) {
@@ -108,7 +111,7 @@ export default function MyListingsPage() {
                     "Authorization": 'Bearer ${localStorage.getItem("token")}',
                 },
                 body: JSON.stringify({
-                    name: newListing.name,
+                    title: newListing.title,
                     description: newListing.description,
                     price: parseFloat(newListing.price),
                 }),
@@ -118,8 +121,8 @@ export default function MyListingsPage() {
 
             const data = await res.json();
 
-            setListings([...listings, data.product]);
-            setNewListing({ name: "", price: "", quantity: "", description: ""});
+            setListings([...listings, data.listing]);
+            setNewListing({ title: "", price: "", quantity: "", description: ""});
             setShowAddForm(false);
          } catch (err) {
             console.error("Error adding listing:", err);
@@ -145,9 +148,9 @@ export default function MyListingsPage() {
                     <div className="flex flex-col gap-2">
                         <input
                         type="text"
-                        placeholder="Item Name"
-                        value={newListing.name}
-                        onChange={(e) => setNewListing({ ...newListing, name: e.target.value })}
+                        placeholder="Listing Title"
+                        value={newListing.title}
+                        onChange={(e) => setNewListing({ ...newListing, title: e.target.value })}
                         className="border border-emerald-200 rounded-lg p-2"
                     />
                         <input
@@ -158,13 +161,6 @@ export default function MyListingsPage() {
                         className="border border-emerald-200 rounded-lg p-2"
                     />
                         <input
-                        type="number"
-                        placeholder="Quantity"
-                        value={newListing.quantity}
-                        onChange={(e) => setNewListing({ ...newListing, quantity: e.target.value})}
-                        className="border  border-emerald-200 rounded-lg p-2"
-                    />
-                        <input
                         type="text"
                         placeholder="Description"
                         value={newListing.description}
@@ -172,7 +168,8 @@ export default function MyListingsPage() {
                         className="border border-emerald-200 rounded-lg p-2"
                     />
                     <button
-                        onClick={handleAdd}className="bg-emerald-500 text-white px-6 py-2 rounded-full font-bold hover:bg-emerald-600 w-fit"
+                        onClick={handleAdd}
+                        className="bg-emerald-500 text-white px-6 py-2 rounded-full font-bold hover:bg-emerald-600 w-fit"
                     >
                         Add Listing
                     </button>
@@ -195,9 +192,8 @@ export default function MyListingsPage() {
                     />
                     ) : (
                         <div className="flex flex-col gap-1">
-                        <h2 className="text-xl font-serif font-bold text-emerald-900">{listing.name}</h2>
+                        <h2 className="text-xl font-serif font-bold text-emerald-900">{listing.title}</h2>
                         <p className="text-emerald-600 font-bold">${listing.price.toFixed(2)}</p>
-                        <p className="text-gray-600">Quantity: {listing.quantity}</p>
                         <p className="text-gray-600">{listing.description}</p>
 
                         <div className="flex gap-2 mt-2">
@@ -209,7 +205,7 @@ export default function MyListingsPage() {
                         </button>
                         <button
                         onClick={() => handleDelete(listing.id)}
-                        className="bg-red-400 text-whote px-4 py-1 rounded-full font-bold hover:bg-red-500"
+                        className="bg-red-400 text-white px-4 py-1 rounded-full font-bold hover:bg-red-500"
                     >
                             Delete
                         </button>
@@ -226,9 +222,8 @@ export default function MyListingsPage() {
 
 function EditForm({ listing, onSave, onCancel }) {
     const [form, setForm] = useState({
-        name: listing.name,
+        title: listing.title,
         price: listing.price,
-        quantity: listing.quantity,
         description: listing.description,
     });
 
@@ -236,20 +231,14 @@ function EditForm({ listing, onSave, onCancel }) {
         <div className="flex flex-col gap-2">
             <input
             type="text"
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            value={form.title}
+            onChange={(e) => setForm({ ...form, title: e.target.value })}
             className="border border-emerald-200 rounded-lg p-2"
         />
             <input
             type="number"
             value={form.price}
             onChange={(e) => setForm({ ...form, price: e.target.value })}
-            className="border border-emerald-200 rounded-lg p-2"
-        />
-            <input
-            type="number"
-            value={form.quantity}
-            onChange={(e) => setForm({ ...form, quantity: e.target.value })}
             className="border border-emerald-200 rounded-lg p-2"
         />
             <input
