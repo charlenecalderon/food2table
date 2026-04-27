@@ -1,55 +1,133 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+
+const API_BASE = "http://localhost:3000/products";
 
 export default function MyListingsPage() {
-    
-    const [listings, setListings] = useState([
-        {id: 1, name: "Potatoes", price: 0.99, quantity: 100, description: "Locally grown potatoes" },
-        {id: 2, name: "Tomatoes", price: 0.50, quantity: 150, description: "Freshly picked tomatoes" },
-    ]);
 
+    const [listings, setListings] = useState([]);
     const [editingId, setEditingId] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     const [newListing, setNewListing] = useState({
         name: "", price: "", quantity: "", description: ""
     });
 
-    const [showAddForm, setShowAddForm] = useState(false);
+    const [showAddForm, setShowAddForm] =useState(false);
 
-    const handleDelete = (id) => {
-        setListings(listings.filter(listing => listing.id !== id));
+    useEffect(() => {
+        const fetchListings = async () => {
+            try {
+                setLoading(true);
+                const res = await fetch('${API_BASE}/my-products', {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+
+                        "Authorization": 'Bearer ${localStorage.getItem("token")}',
+                    },
+                });
+
+                if (!res.ok) throw new Error("Failed to fetch listings");
+
+                const data = await res.json();
+                setListings(data.products);
+            } catch (err) {
+                console.error("Error fetching listings:" , err);
+                setError("Could not load listings. Please try again.");
+            } finally {
+                setLoading(false);
+            }
+    };
+
+        fetchListings();
+    }, []);
+
+    const handleDelete = async (id) => {
+        try { 
+            const res = await fetch ('${API_BASE}/${id}', {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": 'Bearer ${localStorage.getItem("token")}',
+                },
+            });
+
+            if(!res.ok) throw new Error ("Failed to delete listings");
+
+            setListings(listings.filter(listing => listing.id !== id));
+        } catch (err) {
+            console.error("Error deleting listing:", err);
+            alert("Could not delete listing. Please try again.");
+        }
     };
 
     const handleEditStart = (listing) => {
         setEditingId(listing.id);
     };
 
-    const handleEditSave =(id, updatedListing) => {
-        setListings(listings.map(listing =>
-            listing.id === id ? {
-                ...listing, 
-                name: updatedListing.name,
-            price: parseFloat(updatedListing.price),
-            quantity:parseInt(updatedListing.quantity),
-            description: updatedListing.description 
-        } : listing
-        ));
-        setEditingId(null);
+
+    const handleEditSave = async (id, updatedListing) => {
+        try {
+            const res = await fetch('${API_BASE}/${id}', {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": 'Bearer ${localStorage.getItem("token")',
+                },
+                body: JSON.stringify({
+                    name: updatedListing.name,
+                    description: updatedListing.description,
+                    price: parseFloat(updatedListing.price),
+                }),
+            });
+
+            if(!res.ok) throw new Error("Failed to update listing");
+
+            const data = await res.json();
+
+            setListings (listings.map(listing =>
+                listing.id === id ? data.product : listing
+            ));
+            setEditingId(null);
+        } catch (err) {
+            console.error("Error updating listing:", err);
+            alert("Could not update listing. Please try again.");
+        }
     };
 
-    const handleAdd = () => {
-        const newItem ={
-            id: listings.length + 1,
-            name: newListing.name,
-            price: parseFloat(newListing.price),
-            quantity: parseInt(newListing.quantity),
-            description: newListing.description,
-        };
-        setListings([...listings, newItem]);
-        setNewListing({ name: "", price: "", quantity: "", description: "" });
-        setShowAddForm(false);
+
+    const handleAdd = async () => {
+         try {
+            const res = await fetch('${API_BASE}/', {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": 'Bearer ${localStorage.getItem("token")}',
+                },
+                body: JSON.stringify({
+                    name: newListing.name,
+                    description: newListing.description,
+                    price: parseFloat(newListing.price),
+                }),
+            });
+
+            if (!res.ok) throw new Error("Failed to add listing");
+
+            const data = await res.json();
+
+            setListings([...listings, data.product]);
+            setNewListing({ name: "", price: "", quantity: "", description: ""});
+            setShowAddForm(false);
+         } catch (err) {
+            console.error("Error adding listing:", err);
+            alert("Could not add listing. Please try again.");
+         }
     };
 
+    
     return (
         <main className='p-6'>
             <h1 className="text-3x1 font-serif font-bold text-emerald-900 mb-6" >My Listings</h1>
@@ -101,6 +179,9 @@ export default function MyListingsPage() {
                     </div>
                 </div>
             )}
+
+            {loading && <p className="text-emerald-700">Loading listings....</p>}
+            {error && <p className="text-red-500">{error}</p>}
         
         <div className="flex flex-col gap-4">
             {listings.map((listing) => (
