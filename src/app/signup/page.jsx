@@ -1,15 +1,21 @@
 "use client";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function SignupPage() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+    setSuccess("");
 
     const response = await fetch('/api/users', {
       method: "POST",
@@ -22,10 +28,11 @@ export default function SignupPage() {
 
     if (response.status === 201) {
       console.log("Success!");
-      alert("Account created successfully!");
+      setSuccess("Account created successfully!");
+      setTimeout(() => router.push("/login"), 2000);
     } else {
       const errorData = await response.json();
-      alert(errorData.message);
+      setError(errorData.message);
     }
   };
 
@@ -60,6 +67,9 @@ export default function SignupPage() {
               className="border border-emerald-200 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-emerald-400"
             />
           </div>
+
+          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+          {success && <p className="text-emerald-600 text-sm text-center">{success}</p>}
 
           <button
             type="submit"

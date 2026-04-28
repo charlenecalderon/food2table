@@ -7,6 +7,7 @@ import { useState } from 'react';
 export default function LoginPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({ email: "", password: "" });
+  const [error, setError] = useState ("");
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -27,7 +28,7 @@ export default function LoginPage() {
       localStorage.setItem('token', data.token);
       router.push('/');
     } else {
-      alert(data.message);
+      setError(data.message);
     }
   };
 
