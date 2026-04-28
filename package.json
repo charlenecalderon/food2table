@@ -15,18 +15,15 @@
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "latest",
+    "@tailwindcss/postcss": "^4.2.4",
     "autoprefixer": "latest",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
-    "@tailwindcss/postcss": "latest",
-    "autoprefixer": "latest",
     "headlessui": "^0.0.0",
     "next": "^16.2.4",
     "postcss": "latest",
-    "postcss": "latest",
     "react": "latest",
     "react-dom": "latest",
-    "tailwindcss": "^3.4.19"
+    "tailwindcss": "^4.2.4"
   }
 }

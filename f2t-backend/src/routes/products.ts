@@ -14,6 +14,23 @@ export default async function productRoutes(fastify: FastifyInstance) {
     // display a message to show that the route has been registered
     console.log("Registering new /products route for creating a product");
 
+    // Public route to get all available products for the browse page
+    fastify.get("/", async (request, reply) => {
+        try {
+            const products = await fastify.prisma.product.findMany();
+            return reply.status(200).send({
+                message: "Products retrieved successfully",
+                products,
+            });
+        } catch (error) {
+            console.error(error);
+            return reply.status(500).send({
+                error: "INTERNAL SERVER ERROR",
+                message: "An unexpected error occurred while processing your request.",
+            });
+        }
+    });
+
     // fastify.post() function to handle POST requests to the /products route, with a preHandler to require authentication
     fastify.post("/", { preHandler: fastify.requireAuth }, async (request, reply) => {
         // try-catch block to handle any errors that may occur during the product creation process
