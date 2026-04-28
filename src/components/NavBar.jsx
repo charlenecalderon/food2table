@@ -1,21 +1,33 @@
+"use client";
+
 'use client';
 <script src="https://cdn.jsdelivr.net/npm/@tailwindplus/elements@1" type="module"></script>
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { useRouter } from 'next/navigation';
 
 export default function NavBar() {
-  return(
-      <>
-      <html className="min-w-screen bg-emerald-50 min-h-screen w-screen object-fill">
-      <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      </head>
-      <body className="min-w-screen">
-        {/* BANNER */}
-        <img
-          className="w-screen border-b-4 overflow-hidden overflow-y-scroll border-emerald-900 h-40 object-cover"
-          src="/banneropt3.png"
-          alt="Website Banner description etc"
+    const router = useRouter();
+    const handleProfileClick = () => {
+        const token = localStorage.getItem('token');
+  
+        if (token) {
+            // if the has a token, they are logged in
+            router.push('/profile');
+        } else {
+            // if empty, send them to login
+            router.push('/login');
+        }
+    };
+
+  return (
+    <div className="w-full">
+      {/* BANNER */}
+      <div className="w-full h-40 md:h-52 overflow-hidden border-b-4 border-emerald-900">
+        <img 
+          className="w-full h-full object-cover" 
+          src="/banneropt3.png" 
+          alt="Website Banner description etc" 
         />
       </body>
       {/* NAVIGATION BAR */}
@@ -67,16 +79,17 @@ export default function NavBar() {
               </button>
             </Link>
             {/* USER PROFILE BUTTON */}
-            <Link href="/profile">
-              <button className="bg-emerald-800 rounded-full mt-3 mr-6 w-10 h-10 items-center flex justify-center">
+            <button 
+            onClick={handleProfileClick}
+                className="bg-emerald-800 rounded-full mt-3 mr-6 w-10 h-10 items-center flex justify-center"
+        >
                 <img
                   className="rounded-full w-9 h-9"
                   src="/pfp.jpg"
                   alt="Profile Picture"
                 />
-              </button>
-            </Link>
-          </div>
+            </button>
+              </div>
         </div>
       </nav>
     </html>
