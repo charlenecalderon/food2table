@@ -5,15 +5,16 @@ const API_URL = "http://localhost:3001";
 
 function groupByVendor(items) {
   return items.reduce((acc, item) => {
-    const vendorName = item.product?.vendorId || "Unknown Vendor";
-    if (!acc[vendorName]) acc[vendorName] = [];
-    acc[vendorName].push(item);
+    const vendorId = item.product?.sellerId || "Unknown Vendor";
+    if (!acc[vendorId]) acc[vendorId] = [];
+    acc[vendorId].push(item);
     return acc;
   }, {});
 }
 
 export default function CheckoutPage() {
   const [cart, setCart] = useState(null);
+  const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [step, setStep] = useState(1);
@@ -21,12 +22,28 @@ export default function CheckoutPage() {
   const [placed, setPlaced] = useState(false);
   const [placing, setPlacing] = useState(false);
 
-  // Get token from localStorage
   const getToken = () => localStorage.getItem("token");
 
-  // Fetch current cart from backend
+  // Get price for a product by matching to listings
+  const getPriceForProduct = (productId) => {
+    for (const listing of listings) {
+      // listings API returns sellerId - we match by checking if product is in any listing
+      if (listing.price) return listing.price;
+    }
+    return 0;
+  };
+
+  // Get item price
+  const getItemPrice = (item) => {
+    // Try to find a listing that matches this product's seller
+    const matchedListing = listings.find(
+      (l) => l.sellerId === item.product?.sellerId
+    );
+    return matchedListing?.price || 0;
+  };
+
   useEffect(() => {
-    const fetchCart = async () => {
+    const fetchData = async () => {
       try {
         const token = getToken();
         if (!token) {
@@ -35,20 +52,30 @@ export default function CheckoutPage() {
           return;
         }
 
-        const res = await fetch(`${API_URL}/carts/current`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        // Fetch cart and listings at the same time
+        const [cartRes, listingsRes] = await Promise.all([
+          fetch(`${API_URL}/carts/current`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          fetch(`${API_URL}/listings`),
+        ]);
 
-        if (res.status === 404) {
+        // Handle cart
+        if (cartRes.status === 404) {
           setCart({ items: [] });
-          setLoading(false);
-          return;
+        } else if (cartRes.ok) {
+          const cartData = await cartRes.json();
+          setCart(cartData.currentCart);
+        } else {
+          throw new Error("Failed to fetch cart");
         }
 
-        if (!res.ok) throw new Error("Failed to fetch cart");
+        // Handle listings
+        if (listingsRes.ok) {
+          const listingsData = await listingsRes.json();
+          setListings(listingsData.listings || []);
+        }
 
-        const data = await res.json();
-        setCart(data.currentCart);
       } catch (err) {
         setError("Could not load your cart. Please try again.");
       } finally {
@@ -56,11 +83,11 @@ export default function CheckoutPage() {
       }
     };
 
-    fetchCart();
+    fetchData();
   }, []);
 
   const items = cart?.items || [];
-  const subtotal = items.reduce((s, i) => s + (i.product?.price || 0) * i.quantity, 0);
+  const subtotal = items.reduce((s, i) => s + getItemPrice(i) * i.quantity, 0);
   const grouped = groupByVendor(items);
   const canProceed = Object.keys(grouped).every((v) => pickupSelections[v]);
 
@@ -130,10 +157,7 @@ export default function CheckoutPage() {
           <p className="text-emerald-900 font-serif text-sm mb-6">
             Your reservation is confirmed! Check your Orders page to track your pickup.
           </p>
-          <a
-            href="/orders"
-            className="bg-emerald-900 hover:bg-emerald-700 text-white px-8 py-2 rounded-full font-bold inline-block"
-          >
+          <a href="/orders" className="bg-emerald-900 hover:bg-emerald-700 text-white px-8 py-2 rounded-full font-bold inline-block">
             View Orders
           </a>
         </div>
@@ -162,7 +186,7 @@ export default function CheckoutPage() {
         ))}
       </div>
 
-      {/* STEP 1: Cart Review */}
+      {/* STEP 1: Cart */}
       {step === 1 && (
         <div className="flex flex-col gap-4 max-w-4xl mx-auto">
           <h1 className="text-2xl font-serif font-bold text-emerald-900">Your Cart</h1>
@@ -182,9 +206,12 @@ export default function CheckoutPage() {
                 {item.product?.name || "Unknown Product"}
               </p>
               <p className="text-emerald-900 font-bold">
-                ${item.product?.price?.toFixed(2) || "0.00"} / {item.product?.unit || "unit"}
+                ${getItemPrice(item).toFixed(2)} / unit
               </p>
               <p className="text-emerald-900 font-serif text-sm">Quantity: {item.quantity}</p>
+              <p className="text-emerald-900 font-serif text-sm">
+                Subtotal: <span className="font-bold">${(getItemPrice(item) * item.quantity).toFixed(2)}</span>
+              </p>
             </div>
           ))}
 
@@ -212,14 +239,14 @@ export default function CheckoutPage() {
         </div>
       )}
 
-      {/* STEP 2: Pickup Selection */}
+      {/* STEP 2: Pickup */}
       {step === 2 && (
         <div className="flex flex-col gap-4 max-w-4xl mx-auto">
           <h1 className="text-2xl font-serif font-bold text-emerald-900">Choose Pickup Times</h1>
           <p className="text-emerald-900 font-serif text-sm">Select a pickup window for each vendor.</p>
 
-          {Object.entries(grouped).map(([vendor, vendorItems]) => (
-            <div key={vendor} className="bg-green-200 rounded-xl p-4 flex flex-col gap-3">
+          {Object.entries(grouped).map(([vendorId, vendorItems]) => (
+            <div key={vendorId} className="bg-green-200 rounded-xl p-4 flex flex-col gap-3">
               <p className="text-lg font-serif font-bold text-emerald-900">Vendor</p>
 
               <div className="flex flex-wrap gap-2">
@@ -235,9 +262,9 @@ export default function CheckoutPage() {
                 {["Mon 8am–12pm", "Wed 2pm–6pm", "Sat 7am–11am"].map((w) => (
                   <button
                     key={w}
-                    onClick={() => setPickupSelections((s) => ({ ...s, [vendor]: w }))}
+                    onClick={() => setPickupSelections((s) => ({ ...s, [vendorId]: w }))}
                     className={`px-4 py-2 rounded-full font-bold text-sm transition
-                      ${pickupSelections[vendor] === w
+                      ${pickupSelections[vendorId] === w
                         ? "bg-emerald-900 text-white"
                         : "bg-emerald-50 text-emerald-900 hover:bg-emerald-100"}`}
                   >
@@ -249,10 +276,9 @@ export default function CheckoutPage() {
           ))}
 
           <div className="flex gap-3 flex-wrap">
-            <button
-              onClick={() => setStep(1)}
-              className="bg-green-200 text-emerald-900 px-6 py-2 rounded-full font-bold hover:bg-green-300"
-            >← Back</button>
+            <button onClick={() => setStep(1)} className="bg-green-200 text-emerald-900 px-6 py-2 rounded-full font-bold hover:bg-green-300">
+              ← Back
+            </button>
             <button
               onClick={handleReserve}
               disabled={!canProceed}
@@ -270,22 +296,22 @@ export default function CheckoutPage() {
         <div className="flex flex-col gap-4 max-w-4xl mx-auto">
           <h1 className="text-2xl font-serif font-bold text-emerald-900">Review & Confirm</h1>
 
-          {Object.entries(grouped).map(([vendor, vendorItems]) => (
-            <div key={vendor} className="bg-green-200 rounded-xl p-4 flex flex-col gap-3">
+          {Object.entries(grouped).map(([vendorId, vendorItems]) => (
+            <div key={vendorId} className="bg-green-200 rounded-xl p-4 flex flex-col gap-3">
               <div className="flex justify-between items-start flex-wrap gap-2">
                 <p className="text-lg font-serif font-bold text-emerald-900">Vendor</p>
                 <span className="bg-emerald-900 text-white text-xs font-bold px-3 py-1 rounded-full">
-                  🕐 {pickupSelections[vendor]}
+                  🕐 {pickupSelections[vendorId]}
                 </span>
               </div>
               {vendorItems.map((i) => (
                 <div key={i.id} className="flex justify-between gap-3">
                   <div>
                     <p className="font-bold text-emerald-900 font-serif">{i.product?.name}</p>
-                    <p className="text-emerald-900 font-serif text-sm">×{i.quantity} {i.product?.unit}</p>
+                    <p className="text-emerald-900 font-serif text-sm">×{i.quantity} unit</p>
                   </div>
                   <p className="font-bold text-emerald-900">
-                    ${((i.product?.price || 0) * i.quantity).toFixed(2)}
+                    ${(getItemPrice(i) * i.quantity).toFixed(2)}
                   </p>
                 </div>
               ))}
@@ -309,10 +335,9 @@ export default function CheckoutPage() {
           </p>
 
           <div className="flex gap-3 flex-wrap">
-            <button
-              onClick={() => setStep(2)}
-              className="bg-green-200 text-emerald-900 px-6 py-2 rounded-full font-bold hover:bg-green-300"
-            >← Back</button>
+            <button onClick={() => setStep(2)} className="bg-green-200 text-emerald-900 px-6 py-2 rounded-full font-bold hover:bg-green-300">
+              ← Back
+            </button>
             <button
               onClick={handlePlaceOrder}
               disabled={placing}
