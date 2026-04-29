@@ -2,7 +2,7 @@
 
 import NavBar from "../../components/NavBar";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
 function ProductCard({ product }) {
@@ -98,7 +98,9 @@ export default function Browse() {
   return (
     <>
       <NavBar />
-      <ProductsList />
+      <Suspense fallback={<div className="p-5 text-emerald-900">Loading products...</div>}>
+        <ProductsList />
+      </Suspense>
     </>
   );
 }
