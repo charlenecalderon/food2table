@@ -1,88 +1,98 @@
-// import "tailwindcss/tailwind.css"
-// import "tailwindcss/base.css"
-// import "tailwindcss/utilities.css"
-// import "tailwindcss/components.css"
-// import "tailwindcss/variants.css"
+
+'use client';
+
 import NavBar from "../../components/NavBar";
 import Link from "next/link";
+import { useState, useEffect } from "react";
+
+{/*layout for the data to be shown as a card*/}
 function ProductCard({ product }) {
   return (
     <div className="bg-green-200 text-white rounded-xl w-72 p-4">
       <img
         className="rounded-xl h-40 w-full object-cover"
-        src={product.img}
+        src={product.img || "/placeholder.jpg"}
         alt={product.name}
       />
       <div className="flex justify-between items-center mt-2">
         <h2 className="text-emerald-900 font-bold font-serif">{product.name}</h2>
-        <span className="text-emerald-900 font-bold">{product.price}</span>
+        <span className="text-emerald-900 font-bold">${product.price}</span>
       </div>
       <div className="flex justify-between mt-2">
-        <Link href={`/vendor/${product.vendor.toLowerCase().replace(/\s+/g, '-')}`}>
-        <button className="bg-emerald-900 hover:bg-emerald-700 rounded-full px-3 py-1 text-sm text-white">
-          {product.vendor}
-        </button>
+        <Link href={`/product/${product.id}`}>
+          <button className="bg-emerald-900 hover:bg-emerald-700 rounded-full px-3 py-1 text-sm text-white">
+            View Product
+          </button>
         </Link>
       </div>
-      <p className="text-emerald-900 font-serif text-sm mt-2 line-clamp-4">{product.desc}</p>
+      <p className="text-emerald-900 font-serif text-sm mt-2 line-clamp-4">{product.description}</p>
     </div>
   )
 }
-{/*mock data */}
-function ProductsExamples() {
-  const products = [
-    {
-      id: 1,
-      name: 'Eggs',
-      price: '$3.99',
-      vendor: 'Local Farm',
-      img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSdIC8P1fXIU3Au62klNg7tc_BmUEelpxvJ3Q&s',
-      desc: 'Fresh, organic eggs from local farms. Perfect for breakfast or baking.'
-    },
-    {
-      id: 2,
-      name: 'Milk',
-      price: '$2.49',
-      vendor: 'Dairy Co',
-      img: '/milk.jpg',
-      desc: 'Creamy whole milk from pasture-raised cows.'
-    },
-    {
-      id: 3,
-      name: 'Apple Bag',
-      price: '$4.50',
-      vendor: 'Orchard',
-      img: '/apples.jpg',
-      desc: 'Crisp, sweet apples picked this season.'
-    },
-    {
-      id: 4,
-      name: 'Sourdough Bread',
-      price: '$5.00',
-      vendor: 'Baker',
-      img: '/sourdough.jpg',
-      desc: 'Handmade sourdough with a crisp crust and chewy crumb.'
-    }
-  ]
+
+{/*fetch products from backend */}
+function ProductsList() {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch('http://localhost:3001/products');
+        if (!response.ok) {
+          throw new Error('Failed to fetch products');
+        }
+        const data = await response.json();
+        setProducts(data.products);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="p-5">
+        <div className="flex justify-center items-center">
+          <p className="text-emerald-900">Loading products...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-5">
+        <div className="flex justify-center items-center">
+          <p className="text-red-600">Error: {error}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-5">
       <div className="flex flex-wrap gap-6 justify-start">
-        {products.map((p) => (
-          <ProductCard key={p.id} product={p} />
+        {products.map((product) => (
+          <ProductCard key={product.id} product={product} />
         ))}
       </div>
     </div>
-  )
+  );
 }
+
 export default function Browse() {
   return (
-    <div className="bg-emerald-50 min-h-screen w-screen object-fill">
-      <NavBar />
-
+    <>
+    <NavBar/>
       {/* products section */}
-      <ProductsExamples />
-
-    </div>
-  )
+      <ProductsList />
+</>
+   
+  );
 }
