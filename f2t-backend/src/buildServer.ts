@@ -1,5 +1,6 @@
 // Import fastify to create the server
 import Fastify from "fastify";
+import cors from "@fastify/cors";
 // Import the Prisma plugin to connect to the database and use Prisma client
 // Use the ".js" extension to avoid TypeScript errors
 import prismaPlugin from "./plugins/prisma.js";
@@ -29,6 +30,8 @@ export default async function buildServer() {
   // Create a new Fastify server instance
   // login is enabled
   const fastifyApp = Fastify({ logger: true });
+
+  await fastifyApp.register(cors, { origin: "http://localhost:3000", credentials: true });
 
   // Register the Prisma plugin to connect to the database and use Prisma client
   // This must be done before registering any routes that use the database
