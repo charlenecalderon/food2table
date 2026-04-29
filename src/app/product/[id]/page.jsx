@@ -1,204 +1,161 @@
 "use client";
-
-import { useEffect, useMemo, useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+const API_URL = "http://localhost:3001";
 
-export default function ProductPage() {
+export default function ProductDetailPage() {
   const params = useParams();
-  const id = useMemo(() => {
-    if (!params?.id) return "";
-    return Array.isArray(params.id) ? params.id[0] : params.id;
-  }, [params]);
+  const id = params?.id;
 
-  const [product, setProduct] = useState(null);
-  const [vendor, setVendor] = useState(null);
+  const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [vendorLoading, setVendorLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(null);
+  const [qty, setQty] = useState(1);
+  const [added, setAdded] = useState(false);
+  const [adding, setAdding] = useState(false);
 
+  // Fetch listing from backend
   useEffect(() => {
-    if (!id) return;
-
-    const fetchProduct = async () => {
+    const fetchListing = async () => {
       try {
-        setLoading(true);
-        setError("");
-        setProduct(null);
-        setVendor(null);
-
-        const res = await fetch(`${API_BASE}/products/${id}`, {
-          method: "GET",
-          cache: "no-store",
-        });
-
-        const data = await res.json();
+        const res = await fetch(`${API_URL}/listings/${id}`);
 
         if (!res.ok) {
-          throw new Error(data.message || "Failed to fetch product.");
+          setError("Listing not found.");
+          setLoading(false);
+          return;
         }
 
-        const fetchedProduct = data.product;
-        setProduct(fetchedProduct);
-
-        if (fetchedProduct?.sellerId) {
-          try {
-            setVendorLoading(true);
-
-            const vendorRes = await fetch(
-              `${API_BASE}/profiles/${fetchedProduct.sellerId}`,
-              {
-                method: "GET",
-                cache: "no-store",
-              }
-            );
-
-            if (vendorRes.ok) {
-              const vendorData = await vendorRes.json();
-              setVendor(vendorData.profile || vendorData.vendor || vendorData);
-            }
-          } catch {
-            // leave vendor as null if endpoint does not exist yet
-          } finally {
-            setVendorLoading(false);
-          }
-        }
+        const data = await res.json();
+        setListing(data.listing);
       } catch (err) {
-        setError(err.message || "Something went wrong.");
+        setError("Could not load listing. Please try again.");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProduct();
+    if (id) fetchListing();
   }, [id]);
 
+  // Add to cart
+  const handleAddToCart = async () => {
+    try {
+      setAdding(true);
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        alert("Please log in to add items to your cart.");
+        return;
+      }
+
+      const res = await fetch(`${API_URL}/orderItems`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ productId: id, quantity: qty }),
+      });
+
+      if (!res.ok) throw new Error("Failed to add to cart");
+
+      setAdded(true);
+      setTimeout(() => setAdded(false), 2000);
+    } catch (err) {
+      alert("Could not add to cart. Please try again.");
+    } finally {
+      setAdding(false);
+    }
+  };
+
+  // Loading state
   if (loading) {
     return (
-      <main className="min-h-screen bg-[#f8faf7] px-6 py-10">
-        <div className="mx-auto max-w-4xl rounded-2xl bg-white p-8 shadow-sm">
-          <p className="text-lg font-medium text-gray-700">Loading product...</p>
-        </div>
-      </main>
+      <div className="bg-emerald-50 min-h-screen p-6 flex items-center justify-center">
+        <p className="text-emerald-900 font-serif text-lg">Loading listing...</p>
+      </div>
     );
   }
 
+  // Error state
   if (error) {
     return (
-      <main className="min-h-screen bg-[#f8faf7] px-6 py-10">
-        <div className="mx-auto max-w-4xl rounded-2xl border border-red-200 bg-white p-8 shadow-sm">
-          <h1 className="mb-2 text-2xl font-bold text-red-600">
-            Could not load product
-          </h1>
-          <p className="text-gray-700">{error}</p>
+      <div className="bg-emerald-50 min-h-screen p-6">
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4 max-w-md mx-auto">
+          <p className="text-red-700 font-bold">Error</p>
+          <p className="text-red-600 text-sm">{error}</p>
+          <a href="/browse" className="text-emerald-600 font-bold text-sm hover:underline mt-2 inline-block">
+            ← Back to Browse
+          </a>
         </div>
-      </main>
-    );
-  }
-
-  if (!product) {
-    return (
-      <main className="min-h-screen bg-[#f8faf7] px-6 py-10">
-        <div className="mx-auto max-w-4xl rounded-2xl bg-white p-8 shadow-sm">
-          <h1 className="mb-2 text-2xl font-bold text-gray-900">
-            Product not found
-          </h1>
-          <p className="text-gray-600">
-            We could not find a product for this page.
-          </p>
-        </div>
-      </main>
+      </div>
     );
   }
 
   return (
-    <main className="min-h-screen bg-[#f8faf7] px-6 py-10">
-      <div className="mx-auto max-w-5xl">
-        <div className="grid gap-8 md:grid-cols-2">
-          <section className="rounded-3xl bg-white p-8 shadow-sm">
-            <div className="mb-6 flex h-72 items-center justify-center rounded-2xl bg-[#e8f3e6] text-center text-gray-500">
-              Product image coming soon
-            </div>
+    <div className="bg-emerald-50 min-h-screen p-6">
 
-            <div className="inline-flex rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-700">
-              {product.isAvailable ? "Available" : "Out of stock"}
-            </div>
+      {/* Product Card */}
+      <div className="bg-green-200 rounded-xl p-6 flex flex-col md:flex-row gap-6 mb-6 max-w-4xl mx-auto">
 
-            <h1 className="mt-4 text-3xl font-bold text-gray-900">
-              {product.name}
-            </h1>
+        {/* Info */}
+        <div className="flex flex-col gap-3 flex-1">
 
-            <p className="mt-4 text-base leading-7 text-gray-700">
-              {product.description || "No description available."}
-            </p>
-          </section>
+          {/* Availability tag */}
+          <div className="flex flex-wrap gap-2">
+            <span className={`text-white text-xs font-bold px-3 py-1 rounded-full ${listing.isAvailable ? "bg-emerald-900" : "bg-red-400"}`}>
+              {listing.isAvailable ? "Available" : "Unavailable"}
+            </span>
+          </div>
 
-          <aside className="space-y-6">
-            <section className="rounded-3xl bg-white p-8 shadow-sm">
-              <h2 className="mb-4 text-xl font-semibold text-gray-900">
-                Product details
-              </h2>
+          <h1 className="text-2xl font-serif font-bold text-emerald-900">{listing.title}</h1>
+          <p className="text-emerald-900 font-bold text-xl">${listing.price?.toFixed(2)}</p>
+          <p className="text-emerald-900 font-serif text-sm">{listing.description}</p>
 
-              <div className="space-y-3 text-gray-700">
-                <div className="flex items-center justify-between border-b pb-3">
-                  <span className="font-medium">Stock</span>
-                  <span>{product.stock ?? "N/A"}</span>
-                </div>
-
-                <div className="flex items-center justify-between border-b pb-3">
-                  <span className="font-medium">Status</span>
-                  <span>{product.isAvailable ? "In stock" : "Unavailable"}</span>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <span className="font-medium">Seller ID</span>
-                  <span className="break-all text-right text-sm">
-                    {product.sellerId}
-                  </span>
-                </div>
-              </div>
-
+          {/* Quantity + Add to Cart */}
+          {listing.isAvailable && (
+            <div className="flex items-center gap-2 mt-1 flex-wrap">
               <button
-                className="mt-6 w-full rounded-xl bg-green-600 px-4 py-3 font-semibold text-white transition hover:bg-green-700"
-                disabled={!product.isAvailable}
+                onClick={() => setQty((q) => Math.max(1, q - 1))}
+                className="bg-emerald-900 hover:bg-emerald-700 text-white px-4 py-1 rounded-full font-bold"
+              >-</button>
+              <span className="font-bold text-emerald-900 px-2">{qty}</span>
+              <button
+                onClick={() => setQty((q) => q + 1)}
+                className="bg-emerald-900 hover:bg-emerald-700 text-white px-4 py-1 rounded-full font-bold"
+              >+</button>
+              <button
+                onClick={handleAddToCart}
+                disabled={adding}
+                className="bg-emerald-900 hover:bg-emerald-700 text-white px-6 py-2 rounded-full font-bold text-sm disabled:opacity-50"
               >
-                {product.isAvailable ? "Add to Cart" : "Unavailable"}
+                {added ? "✓ Added!" : adding ? "Adding..." : "Add to Cart"}
               </button>
-            </section>
-
-            <section className="rounded-3xl bg-white p-8 shadow-sm">
-              <h2 className="mb-4 text-xl font-semibold text-gray-900">
-                Vendor information
-              </h2>
-
-              {vendorLoading ? (
-                <p className="text-gray-600">Loading vendor info...</p>
-              ) : vendor ? (
-                <div className="space-y-3 text-gray-700">
-                  <p>
-                    <span className="font-medium">Name:</span>{" "}
-                    {vendor.businessName || vendor.name || "N/A"}
-                  </p>
-                  <p>
-                    <span className="font-medium">Bio:</span>{" "}
-                    {vendor.bio || "No vendor bio available."}
-                  </p>
-                  <p>
-                    <span className="font-medium">Location:</span>{" "}
-                    {vendor.location || vendor.address || "N/A"}
-                  </p>
-                </div>
-              ) : (
-                <p className="text-gray-600">
-                  Vendor details are not available yet.
-                </p>
-              )}
-            </section>
-          </aside>
+            </div>
+          )}
         </div>
       </div>
-    </main>
+
+      {/* Vendor Info Card */}
+      <div className="bg-green-200 rounded-xl p-6 max-w-4xl mx-auto">
+        <h2 className="text-lg font-serif font-bold text-emerald-900 mb-4">Vendor Info</h2>
+        <p className="text-emerald-900 font-serif text-sm">
+          Vendor ID: <span className="font-bold">{listing.sellerId}</span>
+        </p>
+        <p className="text-emerald-900 font-serif text-sm mt-2">
+          💡 More vendor details coming soon once the Vendor Info API is ready.
+        </p>
+      </div>
+
+      {/* Back link */}
+      <div className="max-w-4xl mx-auto mt-4">
+        <a href="/browse" className="text-emerald-900 font-bold hover:underline text-sm">
+          ← Back to Browse
+        </a>
+      </div>
+
+    </div>
   );
 }
