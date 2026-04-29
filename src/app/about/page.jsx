@@ -1,8 +1,3 @@
-import "tailwindcss/tailwind.css"
-import "tailwindcss/base.css"
-import "tailwindcss/utilities.css"
-import "tailwindcss/components.css"
-import "tailwindcss/variants.css"
 import NavBar from "../../components/NavBar";
 
 export default function About() {
@@ -21,26 +16,20 @@ export default function About() {
           a friendly community in which we can support each other. Our farmers
           receive profits that can go towards their lifestyle and produce
           quality, while our customers receive exceptional products and live a
-          healthier lifestyle that doesn’t include extra additives. Our belief
+          healthier lifestyle that does not include extra additives. Our belief
           is that hosting this site will help benefit both parties and allow for
           easier access to local foods. We sincerely hope you join our growing
           community and continue to support us!
         </p>
         <h2 className="text-xl font-bold font-serif text-emerald-900 text-center py-4">
           Contact Us:{" "}
-          <a
-            href="mailto:@fresh2table@gmail.com"
-            className="text-emerald-600 hover:underline"
-          >
+          <a href="mailto:fresh2table@gmail.com" className="text-emerald-600 hover:underline">
             fresh2table@gmail.com
           </a>
         </h2>
         <h2 className="text-xl font-bold font-serif text-emerald-900 text-center py-4">
           Tag Us:{" "}
-          <a
-            href="https://www.instagram.com/fresh2table/"
-            className="text-emerald-600 hover:underline"
-          >
+          <a href="https://www.instagram.com/fresh2table/" className="text-emerald-600 hover:underline">
             @fresh2table
           </a>
         </h2>
