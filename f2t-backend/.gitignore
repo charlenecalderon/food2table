@@ -1,0 +1,7 @@
+node_modules
+# Keep environment variables out of version control
+.env
+# Do not Ignore the .env.sample file, it is used as a template for environment variables
+!.env.sample
+
+/generated/prisma
