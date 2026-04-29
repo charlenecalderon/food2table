@@ -31,7 +31,7 @@ export default async function buildServer() {
   // login is enabled
   const fastifyApp = Fastify({ logger: true });
 
-  await fastifyApp.register(cors, { origin: "http://localhost:3000", credentials: true });
+  await fastifyApp.register(cors, { origin: "http://localhost:3000", credentials: true, methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"] });
 
   // Register the Prisma plugin to connect to the database and use Prisma client
   // This must be done before registering any routes that use the database
