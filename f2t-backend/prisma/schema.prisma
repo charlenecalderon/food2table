@@ -31,6 +31,7 @@ enum Day {
 // Define the roles the users can have
 enum Role {
   // Role for general users
+  BUYER
   USER
   // Role to manage the website
   ADMIN
@@ -60,7 +61,7 @@ model User {
   passwordHash String
   // List of roles for the user
   // Set BUYER role as default
-  roles Role[] @default([USER])
+  roles Role[] @default([BUYER])
   // Unique profile
   // Set to optional so that a user can exist first
   profile Profile?
@@ -106,6 +107,7 @@ model Product {
   id          String  @id @default(cuid()) // Unique ID for each product
   name        String                       // Product name
   description String  @db.Text             // Product description
+  price       Float   @default(0)          // Product price
   isAvailable Boolean @default(false)      // Product availability status
   isReserved  Boolean @default(false)      // Product reserved status
   stock       Int     @default(0)          // Total quantity available in stock

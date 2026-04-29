@@ -1,7 +1,10 @@
+"use client";
 import NavBar from "../../components/NavBar";
 import OrderCard from "../../components/BuyersOrders";
+import useRequireAuth from "../../lib/useRequireAuth";
 
 export default function OrdersPage() {
+  useRequireAuth();
   // PRISMA PLACEHOLDER
   const sampleOrders = [
     { id: 1, itemName: "Milk", vendorName: "Dairy Co", price: 2.49, status: "PAID", timeLeft: 24, paymentType: "DIGITAL" },

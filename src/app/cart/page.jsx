@@ -2,8 +2,10 @@
 
 import { useState } from "react"; // Imports useState to manage the user's cart data
 import NavBar from "../../components/NavBar";
+import useRequireAuth from "../../lib/useRequireAuth";
 import Link from 'next/link';
 export default function CartPage() {
+  useRequireAuth();
 
     // Cart items state holds the list of items in the cart, each has an id/name/price/quantity
     const [cartItems, setCartItems] = useState([

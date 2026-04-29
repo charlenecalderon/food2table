@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import NavBar from "../../components/NavBar";
 
 export default function VendorDashboardPage() {
 
@@ -11,7 +12,9 @@ export default function VendorDashboardPage() {
     ]);
 
     return (
-        <main className="p-6">
+        <main>
+        <NavBar />
+        <div className="p-6">
             <h1 className="text-3x1 font-serif font-bold text-emerald-900 mb-6">Vendor Dashboard</h1>
 
             <div className="bg-white rounded-x1 shadow p-4 mb-6">
@@ -52,6 +55,7 @@ export default function VendorDashboardPage() {
                 </a>
             </div>
 
+        </div>
         </main>
     );
 }

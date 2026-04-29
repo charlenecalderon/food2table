@@ -182,22 +182,10 @@ export default async function productRoutes(fastify: FastifyInstance) {
     console.log("Registering /products/:id route for getting a single product by id");
 
     // fastify.get() function to handle GET requests to the /products/:id route
-    fastify.get("/:id", { preHandler: fastify.requireAuth }, async (request, reply) => {
+    fastify.get("/:id", async (request, reply) => {
 
         // try-catch block to handle any errors that may occur during the process of getting a list of the current user's products
         try {
-            // if statement to check that the anthenticated user exists
-            if (!request.user || !request.user.userId) {
-                // display a message in the terminal to indicate missing authentication data
-                console.log("Get my products failed: Authenticated user information is missing");
-
-                // return a 401 Unauthorized status response with an error message
-                return reply.status(401).send({
-                    error: "UNAUTHORIZED",
-                    message: "User authentication is required to access this resource.",
-                });
-            }
-
             // constant to extract the product id from the request parameters
             const params = request.params as { id: string };
             const { id } = params;
