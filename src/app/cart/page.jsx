@@ -1,6 +1,7 @@
 "use client"; // Allows rendering for interactivity and useState from user-side
 
 import { useState } from "react"; // Imports useState to manage the user's cart data
+import Link from "next/link";
 
 export default function CartPage() {
 
@@ -12,7 +13,7 @@ export default function CartPage() {
     ]);
 
     // Function to increase item quantity by 1
-    const handleAdd =  (id) => {
+    const handleAdd = (id) => {
         setCartItems(cartItems.map(item =>
             item.id === id ? { ...item, quantity: item.quantity + 1 } : item
         ));
@@ -26,7 +27,7 @@ export default function CartPage() {
     };
 
     // Function to remove an item from the user's cart
-    const handleRemove  = (id) => {
+    const handleRemove = (id) => {
         setCartItems(cartItems.filter(item => item.id !== id));
     };
 
@@ -37,11 +38,11 @@ export default function CartPage() {
 
     return (
         <main className="p-6">
-            <h1 className="text-3x1 font-serif font-bold text-emerald-900 mb-6">Your Cart</h1>
+            <h1 className="text-3xl font-serif font-bold text-emerald-900 mb-6">Your Cart</h1>
 
             <div className="flex flex-col gap-4">
                 {cartItems.map((item) => (
-                    <div key={item.id} className="bg-white rounded-x1 shadow p-4 flex flex-col gap-2">
+                    <div key={item.id} className="bg-white rounded-xl shadow p-4 flex flex-col gap-2">
                         
                         <p className="text-lg font-serif font-bold text-emerald-900">{item.name}</p>
                         <p className="text-emerald-600 font-bold">${item.price.toFixed(2)}</p>
@@ -49,16 +50,16 @@ export default function CartPage() {
 
                         <div className="flex gap-2">
                             <button
-                            onClick={() => handleAdd(item.id)}
-                            className="bg-emerald-500 text-white px-4 py-1 rounded-full font-bold hover:bg-emerald-600"
+                                onClick={() => handleAdd(item.id)}
+                                className="bg-emerald-500 text-white px-4 py-1 rounded-full font-bold hover:bg-emerald-600"
                             >+</button>
                             <button
-                            onClick={() => handleMinus(item.id)}
-                            className="bg-emerald-500 text-white px-4 py-1 rounded-full font-bold hover:bg-emerald-600"
+                                onClick={() => handleMinus(item.id)}
+                                className="bg-emerald-500 text-white px-4 py-1 rounded-full font-bold hover:bg-emerald-600"
                             >-</button>
                             <button
-                            onClick={() => handleRemove(item.id)}
-                            className="bg-red-400 text-white px-4 py-1 rounded-full font-bold hover:bg-red-500"
+                                onClick={() => handleRemove(item.id)}
+                                className="bg-red-400 text-white px-4 py-1 rounded-full font-bold hover:bg-red-500"
                             >Remove</button>
                         </div>
 
@@ -66,18 +67,27 @@ export default function CartPage() {
                 ))}
             </div>
 
-            <div className="mt-6 bg-white rounded-x1 shadow p-4">
-                <h2 className="text-x1 font-serif font-bold text-emerald-900">
+            <div className="mt-6 bg-white rounded-xl shadow p-4">
+                <h2 className="text-xl font-serif font-bold text-emerald-900">
                     Total: ${cartItems.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2)}
                 </h2>
             </div>
 
-            <button
-            onClick={handleReserve}
-            className="mt-4 bg-emerald-500 text-white px-8 py-2 rounded-full font-bold hover:bg-emerald-600"
-            >
-                Reserve Items
-            </button>
+            <div className="flex gap-3 mt-4">
+                <button
+                    onClick={handleReserve}
+                    className="bg-emerald-500 text-white px-8 py-2 rounded-full font-bold hover:bg-emerald-600"
+                >
+                    Reserve Items
+                </button>
+
+                {/* Checkout button - links to checkout page */}
+                <Link href="/checkout">
+                    <button className="bg-emerald-900 text-white px-8 py-2 rounded-full font-bold hover:bg-emerald-700">
+                        Checkout →
+                    </button>
+                </Link>
+            </div>
         </main>
     );
 }
