@@ -1,51 +1,34 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-
-const API_URL = "http://localhost:3001";
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { useState } from 'react';
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [error, setError] = useState ("");
 
-  const handleLogin = async () => {
-    setError("");
-    if (!email || !password) {
-      setError("Please enter your email and password.");
-      return;
-    }
+  const handleLogin = async (e) => {
+    e.preventDefault();
 
-    try {
-      setLoading(true);
-      const res = await fetch(`${API_URL}/users/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+    const response = await fetch('/api/users/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: formData.email,
+        password: formData.password
+      }),
+    });
 
-      const data = await res.json();
+    const data = await response.json();
 
-      if (!res.ok) {
-        setError(data.message || "Login failed. Please try again.");
-        return;
-      }
-
-      // Save token to localStorage
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
-
-      // Redirect to browse page
-      router.push("/browse");
-
-    } catch (err) {
-      setError("Could not connect to server. Please try again.");
-    } finally {
-      setLoading(false);
+    if (response.ok) {
+      // data.token is the JWT Charlene's code generates on line 185
+      localStorage.setItem('token', data.token);
+      router.push('/');
+    } else {
+      setError(data.message);
     }
   };
 
@@ -56,46 +39,40 @@ export default function LoginPage() {
           Login
         </h1>
 
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-            <p className="text-red-600 text-sm">{error}</p>
+        <form onSubmit={handleLogin} className="flex flex-col gap-5">
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-semibold text-emerald-900">
+              Email or Username
+            </label>
+            <input
+              type="text"
+              placeholder="Enter your email or username"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              className="border border-emerald-200 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+            />
           </div>
-        )}
 
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-semibold text-emerald-900">
-            Email
-          </label>
-          <input
-            type="email"
-            placeholder="Enter your email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="border border-emerald-200 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-emerald-400"
-          />
-        </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-semibold text-emerald-900">
+              Password
+            </label>
+            <input
+              type="password"
+              placeholder="Enter your password"
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              className="border border-emerald-200 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+            />
+          </div>
 
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-semibold text-emerald-900">
-            Password
-          </label>
-          <input
-            type="password"
-            placeholder="Enter your password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-            className="border border-emerald-200 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-emerald-400"
-          />
-        </div>
-
-        <button
-          onClick={handleLogin}
-          disabled={loading}
-          className="bg-emerald-500 text-white py-2 rounded-full font-bold hover:bg-emerald-600 transition disabled:opacity-50"
-        >
-          {loading ? "Logging in..." : "Login"}
-        </button>
+          <button
+            type="submit"
+            className="bg-emerald-500 text-white py-2 rounded-full font-bold hover:bg-emerald-600 transition"
+          >
+            Login
+          </button>
+        </form>
 
         <p className="text-center text-sm text-gray-600">
           Don't have an account?{" "}
