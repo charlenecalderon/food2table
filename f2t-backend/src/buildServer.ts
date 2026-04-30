@@ -29,8 +29,9 @@ export default async function buildServer() {
   });
 
   await fastifyApp.register(cors, {
-        origin: "http://localhost:3000",
-        methods: ["POST", "GET"]
+        origin: true,
+        methods: ["POST", "GET", "PUT", "DELETE", "PATCH", "OPTIONS"],
+        credentials: true
   });
 
   // Register the Prisma plugin to connect to the database and use Prisma client
