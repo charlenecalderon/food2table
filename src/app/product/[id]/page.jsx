@@ -14,7 +14,7 @@ export default function ProductDetailPage() {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await fetch(`http://localhost:3001/products/${id}`);
+        const response = await fetch(`https://food2table-production.up.railway.app/products/${id}`);
         if (!response.ok) throw new Error("Product not found");
         const data = await response.json();
         setProduct(data.product);

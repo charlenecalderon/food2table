@@ -17,7 +17,7 @@ export default function SignupPage() {
     setError("");
     setSuccess("");
 
-    const response = await fetch('http://localhost:3001/users', {
+    const response = await fetch('https://food2table-production.up.railway.app/users', {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
