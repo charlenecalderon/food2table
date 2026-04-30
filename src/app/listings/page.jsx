@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 
 
-const API_BASE = "http://localhost:3000/listings";
+const API_BASE = "https://food2table-production.up.railway.app/listings";
 
 export default function MyListingsPage() {
 
@@ -24,12 +24,11 @@ export default function MyListingsPage() {
 
                 const userId = localStorage.getItem("userId");
 
-                const res = await fetch('${API_BASE}/vendorlistings/$userId}', {
+                const res = await fetch(`${API_BASE}/vendorlistings/${userId}`, {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
-
-                        "Authorization": 'Bearer ${localStorage.getItem("token")}',
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`,
                     },
                 });
 
@@ -50,11 +49,11 @@ export default function MyListingsPage() {
 
     const handleDelete = async (id) => {
         try { 
-            const res = await fetch ('${API_BASE}/${id}', {
+            const res = await fetch(`${API_BASE}/${id}`, {
                 method: "DELETE",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": 'Bearer ${localStorage.getItem("token")}',
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`,
                 },
             });
 
@@ -74,11 +73,11 @@ export default function MyListingsPage() {
 
     const handleEditSave = async (id, updatedListing) => {
         try {
-            const res = await fetch('${API_BASE}/${id}', {
+            const res = await fetch(`${API_BASE}/${id}`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": 'Bearer ${localStorage.getItem("token")',
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`,
                 },
                 body: JSON.stringify({
                     title: updatedListing.title,
@@ -104,11 +103,11 @@ export default function MyListingsPage() {
 
     const handleAdd = async () => {
          try {
-            const res = await fetch('${API_BASE}/', {
+            const res = await fetch(`${API_BASE}`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": 'Bearer ${localStorage.getItem("token")}',
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`,
                 },
                 body: JSON.stringify({
                     title: newListing.title,
