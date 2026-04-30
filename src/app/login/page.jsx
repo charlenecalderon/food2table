@@ -12,7 +12,7 @@ export default function LoginPage() {
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    const response = await fetch('/api/users/login', {
+    const response = await fetch('https://food2table-production.up.railway.app/users/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -24,8 +24,8 @@ export default function LoginPage() {
     const data = await response.json();
 
     if (response.ok) {
-      // data.token is the JWT Charlene's code generates on line 185
       localStorage.setItem('token', data.token);
+      localStorage.setItem('userId', data.userId);
       router.push('/');
     } else {
       setError(data.message);
@@ -65,6 +65,8 @@ export default function LoginPage() {
               className="border border-emerald-200 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-emerald-400"
             />
           </div>
+
+          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
 
           <button
             type="submit"
