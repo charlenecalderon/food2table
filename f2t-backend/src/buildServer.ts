@@ -16,6 +16,8 @@ import productRoutes from "./routes/products.js";
 // Import listings routes that handle listing information
 import listingRoutes from "./routes/listings.js";
 // Import orders routes that handle order information
+import cartRoutes from "./routes/carts.js";
+// Import orders routes that handle order information
 import orderRoutes from "./routes/orders.js";
 // Import order Items routes that handle order item information
 import orderItemRoutes from "./routes/orderItems.js";
@@ -50,6 +52,9 @@ export default async function buildServer() {
   // Register the listing routes
   // the prefix option means that all routes in listingRoutes will be prefixed with "/listings"
   await fastifyApp.register(listingRoutes, { prefix: "/listings" });
+  // Register the carts routes
+  // the prefix option means that all routes in cartRoutes will be prefixed with "/cartss"
+  await fastifyApp.register(cartRoutes, { prefix: "/carts" });
   // Register the order routes
   // the prefix option means that all routes in orderRoutes will be prefixed with "/orders"
   await fastifyApp.register(orderRoutes, { prefix: "/orders" });
