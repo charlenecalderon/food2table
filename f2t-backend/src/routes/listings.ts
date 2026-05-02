@@ -42,8 +42,6 @@ export default async function listingRoutes(fastify: FastifyInstance) {
             };
             //INPUT VALIDATION SECTION
 
-            //NEEDS INPUT VALIDATION. ESPECIALLY MAKE SURE PRODUCTID AND QUANTITY ARE SAME LENGTH
-
             //make sure all necessary data was provided in request body
             if(!(title&&description&&price&&productId&&quantity)) {
                 return reply.status(400).send({

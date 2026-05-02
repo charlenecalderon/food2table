@@ -82,6 +82,7 @@ model Profile {
   userId             String   @unique              // Link the profile to only one user (id)
   user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)// user that made the profile
   name               String                        // Name of the profile
+  contactInfo        String                        // Name, phone# etc.
   location           String?                       // home base of creator. optional
   pickupInstructions String?  @db.Text             // Instructions for picking up orders. optional
                                                    // Set to optional since not every user will be a seller
