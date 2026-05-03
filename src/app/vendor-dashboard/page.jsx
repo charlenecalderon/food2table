@@ -15,7 +15,7 @@ export default function VendorDashboardPage() {
         async function fetchUser() {
             try {
                 const res = await fetch("http://localhost:3001/users/me", {
-                    headers: {Authorization: 'Bearer ${token}' },
+                    headers: {Authorization: `Bearer ${token}` },
                 });
                 const data = await res.json();
                 if (res.ok) {
@@ -29,7 +29,7 @@ export default function VendorDashboardPage() {
         async function fetchProfile(){
             try {
                 const res = await fetch ("http://localhost:3001/profiles/me", {
-                    headers: { Authorization: 'Bearer ${token}' },
+                    headers: { Authorization: `Bearer ${token}` },
                 });
                 const data = await res.json();
                 if (res.ok) {
@@ -42,8 +42,8 @@ export default function VendorDashboardPage() {
 
         async function fetchVendorItems(userId) {
             try {
-                const res =await fetch('http://localhost:3001/listings/vendorlistings/${userId}', {
-                    headers : { Authorization: 'Bearer ${token}' },
+                const res =await fetch(`http://localhost:3001/listings/vendorlistings/${userId}`, {
+                    headers : { Authorization: `Bearer ${token}` },
                 });
                 const data = await res.json();
                 if (res.ok) {
