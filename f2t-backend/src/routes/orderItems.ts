@@ -26,29 +26,41 @@ export default async function orderItemRoutes(fastify: FastifyInstance) {
                 quantity: number;
             }
 
-            // **** productId variable needs input validation ****
-            // create an if statement to check that productId is not empty
-            // profiles.ts have an example on the create route with the name variable validation
-            // display a message in the terminal using console.log()
-            // return a 400 HTTP status response if the productId input is missing
+            // make sure data is provided for both productId and quantity
+            if (!productId||!quantity) {
+                // display a message in the terminal to indicate missing authentication data
+                console.log("Error: productId or quantity were not provided");
 
-            // **** quantity variable needs input validation ****
-            // create an if statement to check that quantity was sent
-            // follow similar if statements as the required variable validation
-            // display a message in the terminal using console.log()
-            // return a 400 HTTP status response if the quantity input is missing
+                // return a 400 bad request status response with an error message
+                return reply.status(400).send({
+                    error: "BAD REQUEST",
+                    message: "productId or quantity were not provided.",
+                });
+            }
 
-            // **** productId and quantity variables need data type validation ****
-            // create an if statement to check that:
-            // productId is a string
-            // quantity is a number
-            // display a message in the terminal using console.log()
-            // return a 400 HTTP status response if one or more variables are the wrong data type
+            // make sure productId is a string and quantity is a number
+            if (typeof productId !== "string" || typeof quantity !== "number") {
+                // display a message in the terminal to indicate faulty data
+                console.log("Error: productId or quantity are wrong data type");
 
-            // **** quantity variable needs input value validation. We cannot have a quantity of 0 or less ****
-            // create an if statement to check that quantity is greater than 0
-            // display a message in the terminal using console.log()
-            // return a 400 HTTP status response if quantity is 0 or less
+                // return a 400 bad request status response with an error message
+                return reply.status(400).send({
+                    error: "BAD REQUEST",
+                    message: "productId or quantity are wrong data type.",
+                });
+            }
+
+            //make sure quantity being added to cart is > 0
+            if (quantity <= 0) {
+                // display a message in the terminal to indicate faulty data
+                console.log("Error: quantity must be > 0");
+
+                // return a 400 bad request status response with an error message
+                return reply.status(400).send({
+                    error: "BAD REQUEST",
+                    message: "quantity must be > 0.",
+                });
+            }
 
             // variable to check if the CART was created when placing the first order item
             let cartCreated = false;
@@ -58,13 +70,6 @@ export default async function orderItemRoutes(fastify: FastifyInstance) {
                 // data object to specify the data for the new product
                 where: { id: productId },
             });
-
-            // **** productId variable needs existence/database validation ****
-            // create an if statement to check if the product exists in the database
-            // orders.ts have an example on the create order route with the existingCart variable validation
-            // utilize a constant to find the peoduct in the database using Prisma's findUnique method and the productId from the request body
-            // display a message in the terminal using console.log()
-            // return a 404 HTTP status response if the product does not exist
 
             // if statment to check if the product exists
             if (!product) {
@@ -172,29 +177,46 @@ export default async function orderItemRoutes(fastify: FastifyInstance) {
 
     // fastify.get() function to handle GET requests to the /orderItems route, with a preHandler to require authentication
     fastify.get("/", { preHandler: fastify.requireAuth }, async (request, reply) => {
-        // try-catch block to handle any errors that may occur during the process
+        // try-catch block to handle any errors that may occur during the product creation process
         try {
             // get the logged in user's id
+            const userId = request.user.userId;
 
-            // constant to find the current user's active cart in the database
-            // make sure the order status is CART
-            // also include the order items and related product information
+            // constant to find the current user's active cart
+            let currentCart = await fastify.prisma.order.findFirst({
+                where: { buyerId: userId, status: "CART", },
+                include: { items: { include: { product: true, }, }, }, 
+            });
 
-            // **** current cart needs existence/database validation ****
-            // create an if statement to check if the current user's CART exists in the database
-            // display a message in the terminal using console.log()
-            // return a 404 HTTP status response if the current cart does not exist
+            // if statement to check if the current cart does not exist
+            // if the cart does not exist, then return error
+            if (!currentCart) {
+                // display a message in the terminal to indicate missing authentication data
+                console.log("fetch failure: could not find an existing cart");
 
-            // display a message in the terminal to indicate that the cart items were retrieved successfully
+                // return a 401 Unauthorized status response with an error message
+                return reply.status(404).send({
+                    error: "NOT FOUND",
+                    message: "Could not find existing cart.",
+                });
+            };
 
-            // return a 200 OK response with a message and the cart/order items in the response body
+            // return a 200 OK Request status response with a message and the orderItems
+            return reply.status(200).send({
+                message: "orderItems retrieved successfully",
+                items: currentCart.items,
+            });
         }
-
-        // catch block to handle any errors that may occur
+        
+        // catch block to handle any errors that may occur during the user creation process
         catch (error) {
             // display the error in the terminal for debugging purposes
-
-            // return a 500 Internal Server Error response
+            console.error(error);
+            // return a 500 Internal Server Error response with an error message if an unexpected error occurs during the user creation process
+            return reply.status(500).send({
+                error: "INTERNAL SERVER ERROR",
+                message: "An unexpected error occurred while processing your request.",
+            });
         }
     });
 
@@ -207,36 +229,45 @@ export default async function orderItemRoutes(fastify: FastifyInstance) {
 
     // fastify.get() function to handle GET requests to the /orderItems/:productId route, with a preHandler to require authentication
     fastify.get("/:productId", { preHandler: fastify.requireAuth }, async (request, reply) => {
-        // try-catch block to handle any errors that may occur during the process
+        // try-catch block to handle any errors that may occur during the product creation process
         try {
-            // get the logged in user's id
+            const userId = request.user.userId;
+            const { productId } = request.params as { productId: string };
 
-            // get the product id from the request params
+            // Query the OrderItem directly, filtering by the parent Order's attributes
+            const desiredOrderItem = await fastify.prisma.orderItem.findFirst({
+                where: {
+                    productId: productId, // Match the specific product
+                    order: {
+                        buyerId: userId,  // ONLY if the parent order belongs to this user
+                        status: "CART"    // ONLY if the parent order is an active cart
+                    }
+                },
+                include: { 
+                    product: true, 
+                },
+            });
 
-            // constant to find the current user's active cart in the database
+            // If the query returns null, the item isn't in the cart (or the cart doesn't exist)
+            if (!desiredOrderItem) {
+                return reply.status(404).send({
+                    error: "NOT FOUND",
+                    message: "Item not found in your active cart.",
+                });
+            }
 
-            // **** current cart needs existence/database validation ****
-            // create an if statement to check if the current user's CART exists in the database
-            // display a message in the terminal using console.log()
-            // return a 404 HTTP status response if the current cart does not exist
+            // Return a 200 OK status response with the requested item
+            return reply.status(200).send({
+                message: "Order item retrieved successfully",
+                item: desiredOrderItem,
+            });
 
-            // constant to find the specific order item in the current cart using the product id
-
-            // **** order item needs existence/database validation ****
-            // create an if statement to check if the order item exists in the current cart
-            // display a message in the terminal using console.log()
-            // return a 404 HTTP status response if the order item does not exist
-
-            // display a message in the terminal to indicate that the order item was retrieved successfully
-
-            // return a 200 OK response with a message and the retrieved order item
-        }
-
-        // catch block to handle any errors that may occur
-        catch (error) {
-            // display the error in the terminal for debugging purposes
-
-            // return a 500 Internal Server Error response
+        } catch (error) {
+            console.error(error);
+            return reply.status(500).send({
+                error: "INTERNAL SERVER ERROR",
+                message: "An unexpected error occurred while processing your request.",
+            });
         }
     });
 
@@ -251,37 +282,52 @@ export default async function orderItemRoutes(fastify: FastifyInstance) {
     fastify.patch("/:productId/increase", { preHandler: fastify.requireAuth }, async (request, reply) => {
         // try-catch block to handle any errors that may occur during the process
         try {
-            // get the logged in user's id
+            const userId = request.user.userId;
+            const { productId } = request.params as { productId: string };
 
-            // get the product id from the request params
+            // Query the OrderItem directly, filtering by the parent Order's attributes
+            const desiredOrderItem = await fastify.prisma.orderItem.findFirst({
+                where: {
+                    productId: productId, // Match the specific product
+                    order: {
+                        buyerId: userId,  // ONLY if the parent order belongs to this user
+                        status: "CART"    // ONLY if the parent order is an active cart
+                    }
+                },
+                include: { 
+                    product: true, 
+                },
+            });
 
-            // constant to find the current user's active cart in the database
+            // If the query returns null, the item isn't in the cart (or the cart doesn't exist)
+            if (!desiredOrderItem) {
+                return reply.status(404).send({
+                    error: "NOT FOUND",
+                    message: "Item not found in your active cart.",
+                });
+            }
 
-            // **** current cart needs existence/database validation ****
-            // create an if statement to check if the current user's CART exists in the database
-            // display a message in the terminal using console.log()
-            // return a 404 HTTP status response if the current cart does not exist
+            //increment quantity of the desiredOrderItem
+            desiredOrderItem.quantity++;
 
-            // constant to find the existing order item in the current cart
+            //update the orderItems quantity
+            await fastify.prisma.orderItem.update({
+                    where: { id: desiredOrderItem.id },
+                    data: { quantity: desiredOrderItem.quantity,},
+                }); 
 
-            // **** order item needs existence/database validation ****
-            // create an if statement to check if the order item exists in the current cart
-            // display a message in the terminal using console.log()
-            // return a 404 HTTP status response if the order item does not exist
+            // Return a 200 OK status response with the requested item
+            return reply.status(200).send({
+                message: "Order item incremented successfully",
+                item: desiredOrderItem,
+            });
 
-            // update the order item quantity in the database by incrementing it by 1
-            // include the related product information
-
-            // display a message in the terminal to indicate that the quantity was increased successfully
-
-            // return a 200 OK response with a message and the updated order item
-        }
-
-        // catch block to handle any errors that may occur
-        catch (error) {
-            // display the error in the terminal for debugging purposes
-
-            // return a 500 Internal Server Error response
+        } catch (error) {
+            console.error(error);
+            return reply.status(500).send({
+                error: "INTERNAL SERVER ERROR",
+                message: "An unexpected error occurred while processing your request.",
+            });
         }
     });
 
@@ -296,40 +342,52 @@ export default async function orderItemRoutes(fastify: FastifyInstance) {
     fastify.patch("/:productId/decrease", { preHandler: fastify.requireAuth }, async (request, reply) => {
         // try-catch block to handle any errors that may occur during the process
         try {
-            // get the logged in user's id
+            const userId = request.user.userId;
+            const { productId } = request.params as { productId: string };
 
-            // get the product id from the request params
+            // Query the OrderItem directly, filtering by the parent Order's attributes
+            const desiredOrderItem = await fastify.prisma.orderItem.findFirst({
+                where: {
+                    productId: productId, // Match the specific product
+                    order: {
+                        buyerId: userId,  // ONLY if the parent order belongs to this user
+                        status: "CART"    // ONLY if the parent order is an active cart
+                    }
+                },
+                include: { 
+                    product: true, 
+                },
+            });
 
-            // constant to find the current user's active cart in the database
+            // If the query returns null, the item isn't in the cart (or the cart doesn't exist)
+            if (!desiredOrderItem) {
+                return reply.status(404).send({
+                    error: "NOT FOUND",
+                    message: "Item not found in your active cart.",
+                });
+            }
 
-            // **** current cart needs existence/database validation ****
-            // create an if statement to check if the current user's CART exists in the database
-            // display a message in the terminal using console.log()
-            // return a 404 HTTP status response if the current cart does not exist
+            //decrement quantity of the desiredOrderItem
+            desiredOrderItem.quantity--;
 
-            // constant to find the existing order item in the current cart
+            //update the orderItems quantity
+            await fastify.prisma.orderItem.update({
+                    where: { id: desiredOrderItem.id },
+                    data: { quantity: desiredOrderItem.quantity,},
+                }); 
 
-            // **** order item needs existence/database validation ****
-            // create an if statement to check if the order item exists in the current cart
-            // display a message in the terminal using console.log()
-            // return a 404 HTTP status response if the order item does not exist
+            // Return a 200 OK status response with the requested item
+            return reply.status(200).send({
+                message: "Order item incremented successfully",
+                item: desiredOrderItem,
+            });
 
-            // if statement to check the current quantity of the order item
-            // if the quantity is greater than 1, then decrement the quantity by 1
-            // else if the quantity is 1, then optionally delete the order item from the cart
-
-            // display a message in the terminal to indicate that the quantity was decreased successfully
-            // or that the order item was removed from the cart if quantity reached 0
-
-            // return a 200 OK response with a message and the updated order item
-            // or return a message indicating that the item was removed from the cart
-        }
-
-        // catch block to handle any errors that may occur
-        catch (error) {
-            // display the error in the terminal for debugging purposes
-
-            // return a 500 Internal Server Error response
+        } catch (error) {
+            console.error(error);
+            return reply.status(500).send({
+                error: "INTERNAL SERVER ERROR",
+                message: "An unexpected error occurred while processing your request.",
+            });
         }
     });
 
@@ -344,36 +402,44 @@ export default async function orderItemRoutes(fastify: FastifyInstance) {
     fastify.delete("/:productId", { preHandler: fastify.requireAuth }, async (request, reply) => {
         // try-catch block to handle any errors that may occur during the process
         try {
-            // get the logged in user's id
+            const userId = request.user.userId;
+            const { productId } = request.params as { productId: string };
 
-            // get the product id from the request params
+            // Query the OrderItem directly, filtering by the parent Order's attributes
+            const desiredOrderItem = await fastify.prisma.orderItem.findFirst({
+                where: {
+                    productId: productId, // Match the specific product
+                    order: {
+                        buyerId: userId,  // ONLY if the parent order belongs to this user
+                        status: "CART"    // ONLY if the parent order is an active cart
+                    }
+                },
+            });
 
-            // constant to find the current user's active cart in the database
+            // If the query returns null, the item isn't in the cart (or the cart doesn't exist)
+            if (!desiredOrderItem) {
+                return reply.status(404).send({
+                    error: "NOT FOUND",
+                    message: "Item not found in your active cart.",
+                });
+            }
 
-            // **** current cart needs existence/database validation ****
-            // create an if statement to check if the current user's CART exists in the database
-            // display a message in the terminal using console.log()
-            // return a 404 HTTP status response if the current cart does not exist
+            //delete the orderItems from the cart
+            await fastify.prisma.orderItem.delete({
+                    where: {id: desiredOrderItem.id}
+                }); 
 
-            // constant to find the existing order item in the current cart
+            // Return a 200 OK status response with the requested item
+            return reply.status(200).send({
+                message: "Order item deleted successfully",
+            });
 
-            // **** order item needs existence/database validation ****
-            // create an if statement to check if the order item exists in the current cart
-            // display a message in the terminal using console.log()
-            // return a 404 HTTP status response if the order item does not exist
-
-            // delete the order item from the database
-
-            // display a message in the terminal to indicate that the order item was deleted successfully
-
-            // return a 200 OK response with a message
-        }
-
-        // catch block to handle any errors that may occur
-        catch (error) {
-            // display the error in the terminal for debugging purposes
-
-            // return a 500 Internal Server Error response
+        } catch (error) {
+            console.error(error);
+            return reply.status(500).send({
+                error: "INTERNAL SERVER ERROR",
+                message: "An unexpected error occurred while processing your request.",
+            });
         }
     });
 }
