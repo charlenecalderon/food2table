@@ -24,6 +24,8 @@ import orderRoutes from "./routes/orders.js";
 import orderItemRoutes from "./routes/orderItems.js";
 //Import dailySchedules route that handles the creation of vendor pickup times
 import dailyScheduleRoutes from "./routes/dailySchedules.js";
+// You'll never guess what this line below does!
+import vendorRoutes from "./routes/vendor.js";
 
 // Function to build and configure the Fastify server
 export default async function buildServer() {
@@ -68,6 +70,8 @@ export default async function buildServer() {
   // Register the order items routes
   // the prefix option means that all routes in orderItemRoutes will be prefixed with "/orderItems"
   await fastifyApp.register(orderItemRoutes, { prefix: "/orderItems" });
+
+  await fastifyApp.register(vendorRoutes, { prefix: "/vendor" });
 
   // Return the configured Fastify server
   return fastifyApp;
