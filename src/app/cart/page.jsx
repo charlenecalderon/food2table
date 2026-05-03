@@ -43,19 +43,17 @@ export default function CartPage() {
     // Function to increase item quantity by 1
     const handleAdd = async (id) => {
         const token = localStorage.getItem("token");
-        const item = cartItems.find((i) => i.id === id);
         try {
-            const res = await fetch('http://localhost:3001/carts/${id}', {
-                method: "PUT",
+            const res = await fetch('http://localhost:3001/orderItems/${id}/increase', {
+                method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
                     Authorization:'Bearer ${token}',
                 },
-                body:JSON.stringify({ quantity:item.quantity + 1}),
             });
             if (res.ok){
-                setCartItems(cartItems.map(item =>
-                    item.id === id ? { ...i, quantity: i.quantity + 1 } : i
+                setCartItems(cartItems.map((i) =>
+                    i.id === id ? { ...i, quantity: i.quantity + 1 } : i
                 ));
             }
         } catch (err) {
@@ -66,16 +64,13 @@ export default function CartPage() {
     // Function to decrease item quantity by 1, minimum quantity of 1
     const handleMinus = async (id) => {
         const token = localStorage.getItem("token");
-        const item = cartItems.find((i) => i.id === id);
-        if (item.quantity <= 1) return;
         try {
-            const res = await fetch ('http://localhost:3001/carts/${id}', {
-                method: "PUT",
+            const res = await fetch ('http://localhost:3001/orderItems/${id}/decrease', {
+                method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: 'Bearer ${token}',
-                };
-                body: JSON.stringify({ quantity: item.quantity - 1 }),
+                },
             });
             if (res.ok) {
                 setCartItems(cartItems.map((i) =>
@@ -91,7 +86,7 @@ export default function CartPage() {
     const handleRemove  = async (id) => {
         const token = localStorage.getItem("token");
         try {
-            const res = await fetch('fetch://localhost:3001/carts/${id}', {
+            const res = await fetch('fetch://localhost:3001/orderItems/${id}', {
                 method: "DELETE",
                 headers: {
                     "Content-Type": "application/json",
