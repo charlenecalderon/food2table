@@ -14,7 +14,7 @@ export default function VendorDashboardPage() {
 
         async function fetchUser() {
             try {
-                const res = await fetch("http://localhost:3001/users/me", {
+                const res = await fetch("https://food2table-production.up.railway.app/users/me", {
                     headers: {Authorization: `Bearer ${token}` },
                 });
                 const data = await res.json();
@@ -28,7 +28,7 @@ export default function VendorDashboardPage() {
         
         async function fetchProfile(){
             try {
-                const res = await fetch ("http://localhost:3001/profiles/me", {
+                const res = await fetch ("https://food2table-production.up.railway.app/profiles/me", {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 const data = await res.json();
@@ -42,7 +42,7 @@ export default function VendorDashboardPage() {
 
         async function fetchVendorItems(userId) {
             try {
-                const res =await fetch(`http://localhost:3001/listings/vendorlistings/${userId}`, {
+                const res =await fetch(`https://food2table-production.up.railway.app/listings/vendorlistings/${userId}`, {
                     headers : { Authorization: `Bearer ${token}` },
                 });
                 const data = await res.json();
