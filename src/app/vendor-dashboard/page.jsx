@@ -100,12 +100,18 @@ export default function VendorDashboardPage() {
                 </table>
             </div>
 
-            <div>
+            <div className="flex gap-3">
                 <a
                     href="/orders"
                     className="bg-emerald-500 text-white px-8 py-2 rounded-full font-bold hover:bg-emerald-600 transition-all"
                 >
                     View Orders
+                </a>
+                <a
+                    href="/listings"
+                    className="bg-emerald-900 text-white px-8 py-2 rounded-full font-bold hover:bg-emerald-700 transition-all"
+                >
+                    My Listings
                 </a>
             </div>
 
