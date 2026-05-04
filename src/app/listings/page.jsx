@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../../lib/supabase";
 
-const API_BASE = "https://food2table-production.up.railway.app/listings";
+const API_BASE = "https://food2table-production.up.railway.app/products";
 
 export default function MyListingsPage() {
 
@@ -26,7 +26,7 @@ export default function MyListingsPage() {
 
                 const userId = localStorage.getItem("userId");
 
-                const res = await fetch(`${API_BASE}/vendorlistings/${userId}`, {
+                const res = await fetch(`${API_BASE}/my-products`, {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
@@ -37,7 +37,7 @@ export default function MyListingsPage() {
                 if (!res.ok) throw new Error("Failed to fetch listings");
 
                 const data = await res.json();
-                setListings(data.listings);
+                setListings(data.products.map(p => ({ ...p, title: p.name })));
             } catch (err) {
                 console.error("Error fetching listings:", err);
                 setError("Could not load listings. Please try again.");
@@ -108,7 +108,7 @@ export default function MyListingsPage() {
                     "Authorization": `Bearer ${localStorage.getItem("token")}`,
                 },
                 body: JSON.stringify({
-                    title: updatedListing.title,
+                    name: updatedListing.title,
                     description: updatedListing.description,
                     price: parseFloat(updatedListing.price),
                     imageUrl: updatedListing.imageUrl,
@@ -120,7 +120,7 @@ export default function MyListingsPage() {
             const data = await res.json();
 
             setListings(listings.map(listing =>
-                listing.id === id ? data.listing : listing
+                listing.id === id ? { ...data.product, title: data.product.name } : listing
             ));
             setEditingId(null);
         } catch (err) {
@@ -140,12 +140,11 @@ export default function MyListingsPage() {
                     "Authorization": `Bearer ${localStorage.getItem("token")}`,
                 },
                 body: JSON.stringify({
-                    title: newListing.title,
+                    name: newListing.title,
                     description: newListing.description,
                     price: parseFloat(newListing.price),
-                    imageUrl: newListing.imageUrl || null,
-                    productId: [],
-                    quantity: newListing.quantity ? [parseInt(newListing.quantity)] : [],
+                    imageUrl: newListing.imageUrl || "",
+                    stock: newListing.quantity ? parseInt(newListing.quantity) : 0,
                 }),
             });
 
@@ -153,7 +152,7 @@ export default function MyListingsPage() {
 
             const data = await res.json();
 
-            setListings([...listings, data.listing]);
+            setListings([...listings, { ...data.product, title: data.product.name }]);
             setNewListing({ title: "", price: "", quantity: "", description: "", imageUrl: "" });
             setShowAddForm(false);
         } catch (err) {
