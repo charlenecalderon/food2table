@@ -1,23 +1,42 @@
 "use client";
-import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { useState, useEffect, use } from "react";
 import NavBar from "../../../components/NavBar";
 
-export default function ProductDetailPage() {
-  const { id } = useParams();
-  const [product, setProduct] = useState(null);
+const API_URL = "https://food2table-production.up.railway.app";
+
+export default function ProductDetailPage({ params }) {
+  const { id } = use(params);
+  const [listing, setListing] = useState(null);
+  const [vendor, setVendor] = useState(null);
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const fetchProduct = async () => {
+    const fetchListing = async () => {
       try {
-        const response = await fetch(`https://food2table-production.up.railway.app/products/${id}`);
-        if (!response.ok) throw new Error("Product not found");
+        const response = await fetch(`${API_URL}/listings/${id}`);
+        if (!response.ok) throw new Error("Listing not found");
         const data = await response.json();
-        setProduct(data.product);
+        setListing(data.listing);
+
+        // Try to fetch vendor profile
+        try {
+          const token = localStorage.getItem("token");
+          if (token) {
+            const vendorRes = await fetch(`${API_URL}/profiles/me`, {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            if (vendorRes.ok) {
+              const vendorData = await vendorRes.json();
+              setVendor(vendorData.profile);
+            }
+          }
+        } catch (e) {
+          // vendor info optional
+        }
+
       } catch (err) {
         setError(err.message);
       } finally {
@@ -25,7 +44,7 @@ export default function ProductDetailPage() {
       }
     };
 
-    if (id) fetchProduct();
+    if (id) fetchListing();
   }, [id]);
 
   const handleAddToCart = async () => {
@@ -36,11 +55,11 @@ export default function ProductDetailPage() {
     }
 
     try {
-      const res = await fetch("https://food2table-production.up.railway.app/orderItems", {
+      const res = await fetch(`${API_URL}/orderItems`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ productId: id, quantity: qty }),
       });
@@ -60,24 +79,22 @@ export default function ProductDetailPage() {
 
   if (loading) {
     return (
-      <div className="bg-emerald-50 min-h-screen p-6 flex justify-center items-center">
-        <p className="text-emerald-900">Loading product...</p>
+      <div className="bg-emerald-50 min-h-screen">
+        <NavBar />
+        <div className="p-6 flex justify-center items-center">
+          <p className="text-emerald-900">Loading listing...</p>
+        </div>
       </div>
     );
   }
 
-  if (error) {
+  if (error || !listing) {
     return (
-      <div className="bg-emerald-50 min-h-screen p-6 flex justify-center items-center">
-        <p className="text-red-600">{error}</p>
-      </div>
-    );
-  }
-
-  if (!product) {
-    return (
-      <div className="bg-emerald-50 min-h-screen p-6 flex justify-center items-center">
-        <p className="text-red-600">Product not found.</p>
+      <div className="bg-emerald-50 min-h-screen">
+        <NavBar />
+        <div className="p-6 flex justify-center items-center">
+          <p className="text-red-600">{error || "Listing not found."}</p>
+        </div>
       </div>
     );
   }
@@ -87,38 +104,39 @@ export default function ProductDetailPage() {
       <NavBar />
       <div className="p-6">
 
-        {/* Product Card */}
+        {/* Listing Card */}
         <div className="bg-green-200 rounded-xl p-6 flex flex-col md:flex-row gap-6 mb-6 max-w-4xl mx-auto">
 
           {/* Image */}
-          <img
-            className="rounded-xl object-cover"
-            style={{ width: "200px", height: "200px" }}
-            src={product.imageUrl || "/placeholder.jpg"}
-            alt={product.name}
-          />
+          {listing.imageUrl && (
+            <img
+              className="rounded-xl object-cover"
+              style={{ width: "200px", height: "200px" }}
+              src={listing.imageUrl}
+              alt={listing.title}
+            />
+          )}
 
           <div className="flex flex-col gap-3 flex-1">
-            <h1 className="text-2xl font-serif font-bold text-emerald-900">{product.name}</h1>
-            <p className="text-emerald-900 font-bold text-lg">${Number(product.price).toFixed(2)} / lb</p>
-            <p className="text-emerald-900 font-serif text-sm">{product.description || "No description available."}</p>
+            <h1 className="text-2xl font-serif font-bold text-emerald-900">{listing.title}</h1>
+            <p className="text-emerald-900 font-bold text-lg">${Number(listing.price).toFixed(2)}</p>
+            <p className="text-emerald-900 font-serif text-sm">{listing.description || "No description available."}</p>
 
             {/* Availability */}
             <p className="text-emerald-900 text-sm font-semibold">
-              {product.stock > 0
-                ? `✅ ${product.stock} available`
-                : "❌ Sold Out"}
+              {listing.isAvailable ? "✅ Available" : "❌ Sold Out"}
             </p>
 
             {/* Quantity + Add to Cart */}
-            <div className="flex items-center gap-2 mt-1 flex-wrap">
+            {listing.isAvailable && (
+              <div className="flex items-center gap-2 mt-1 flex-wrap">
                 <button
                   onClick={() => setQty((q) => Math.max(1, q - 1))}
                   className="bg-emerald-900 hover:bg-emerald-700 text-white px-4 py-1 rounded-full font-bold"
                 >-</button>
                 <span className="font-bold text-emerald-900 px-2">{qty}</span>
                 <button
-                  onClick={() => setQty((q) => Math.min(product.stock, q + 1))}
+                  onClick={() => setQty((q) => q + 1)}
                   className="bg-emerald-900 hover:bg-emerald-700 text-white px-4 py-1 rounded-full font-bold"
                 >+</button>
                 <button
@@ -127,7 +145,8 @@ export default function ProductDetailPage() {
                 >
                   {added ? "✓ Added!" : "Add to Cart"}
                 </button>
-            </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -144,10 +163,10 @@ export default function ProductDetailPage() {
               </div>
               <div>
                 <p className="text-emerald-900 font-bold font-serif text-base">
-                  Vendor info coming soon
+                  {vendor?.name || "Vendor info coming soon"}
                 </p>
                 <p className="text-emerald-800 text-sm">
-                  Seller ID: {product.sellerId}
+                  📍 {vendor?.location || "Location not available"}
                 </p>
               </div>
             </div>
@@ -157,19 +176,8 @@ export default function ProductDetailPage() {
                 Pickup Instructions
               </p>
               <p className="text-gray-600 text-sm">
-                Vendor profile endpoint is still in progress, so this section is using placeholder text for now.
+                {vendor?.pickupInstructions || "Pickup instructions coming soon."}
               </p>
-            </div>
-
-            <div>
-              <p className="text-emerald-900 font-bold text-sm mb-2">
-                Available Pickup Windows
-              </p>
-              <div className="flex flex-wrap gap-2">
-                <span className="bg-emerald-500 text-white text-xs font-bold px-3 py-2 rounded-full">
-                  Pickup info coming soon
-                </span>
-              </div>
             </div>
           </div>
         </div>

@@ -44,4 +44,4 @@ next-env.d.ts
 .vs/
 *.user
 *.suo
-*.db
+*.dbf2t-backend/node_modules/
