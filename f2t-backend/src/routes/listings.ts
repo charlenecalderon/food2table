@@ -55,8 +55,8 @@ export default async function listingRoutes(fastify: FastifyInstance) {
             if(typeof title!=="string"||
                typeof description!=="string"||
                typeof price!=="number"||
-               typeof productId[0]!=="string"||
-               typeof quantity[0]!=="number") {
+               (productId.length > 0 && typeof productId[0]!=="string")||
+               (quantity.length > 0 && typeof quantity[0]!=="number")) {
                 return reply.status(400).send({
                     error: "BAD REQUEST",
                     message: "Incorrect data types in request body. title, description, and productIds must be strings, and price and quantity are numbers."
