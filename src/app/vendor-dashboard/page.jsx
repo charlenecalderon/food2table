@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import NavBar from "../../components/NavBar";
 
 export default function VendorDashboardPage() {
@@ -8,9 +9,16 @@ export default function VendorDashboardPage() {
     const [vendorItems, setVendorItems] = useState([]);
     const [email, setEmail] = useState("");
     const [name, setName] = useState("");
+    const router = useRouter();
 
     useEffect(() => {
         const token = localStorage.getItem("token");
+
+        // redirect to login if not logged in
+        if (!token) {
+            router.push("/login");
+            return;
+        }
 
         async function fetchUser() {
             try {
@@ -90,7 +98,7 @@ export default function VendorDashboardPage() {
                         ) : (
                         vendorItems.map((item) => (
                             <tr key={item.id} className="border-b border-emerald-50">
-                                <td className="py-2 text-gray-700">{item.name}</td>
+                                <td className="py-2 text-gray-700">{item.title}</td>
                                 <td className="py-2 text-emerald-600 font-bold">${item.price.toFixed(2)}</td>
                                 <td className="py-2 text-gray-700">{item.quantity}</td>
                             </tr>
