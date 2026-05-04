@@ -94,7 +94,7 @@ export default function ProductDetailPage() {
           <img
             className="rounded-xl object-cover"
             style={{ width: "200px", height: "200px" }}
-            src={product.img || "/placeholder.jpg"}
+            src={product.imageUrl || "/placeholder.jpg"}
             alt={product.name}
           />
 
@@ -111,8 +111,7 @@ export default function ProductDetailPage() {
             </p>
 
             {/* Quantity + Add to Cart */}
-            {product.stock > 0 && (
-              <div className="flex items-center gap-2 mt-1 flex-wrap">
+            <div className="flex items-center gap-2 mt-1 flex-wrap">
                 <button
                   onClick={() => setQty((q) => Math.max(1, q - 1))}
                   className="bg-emerald-900 hover:bg-emerald-700 text-white px-4 py-1 rounded-full font-bold"
@@ -128,8 +127,7 @@ export default function ProductDetailPage() {
                 >
                   {added ? "✓ Added!" : "Add to Cart"}
                 </button>
-              </div>
-            )}
+            </div>
           </div>
         </div>
 

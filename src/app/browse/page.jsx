@@ -39,14 +39,13 @@ function ProductsList() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        // fetch from listings so we get imageUrl for each card
-        const response = await fetch('https://food2table-production.up.railway.app/listings');
+        const response = await fetch('https://food2table-production.up.railway.app/products');
         if (!response.ok) throw new Error('Failed to fetch products');
         const data = await response.json();
         // map listings to the product shape the rest of this component expects
-        const mapped = (data.listings || []).map((l) => ({
+        const mapped = (data.products || []).map((l) => ({
           id: l.id,
-          name: l.title,
+          name: l.name,
           price: l.price,
           description: l.description,
           imageUrl: l.imageUrl,
