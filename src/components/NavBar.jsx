@@ -143,11 +143,6 @@ export default function NavBar() {
 
             {profileMenuOpen && (
               <div className="absolute right-0 mt-3 w-44 bg-white rounded-xl shadow-lg border border-emerald-100 z-50 overflow-hidden">
-                <Link href="/profile" onClick={() => setProfileMenuOpen(false)}>
-                  <div className="px-5 py-3 text-sm font-semibold text-emerald-900 hover:bg-green-100 transition-colors cursor-pointer">
-                    Your Profile
-                  </div>
-                </Link>
                 <button
                   onClick={handleLogOut}
                   className="w-full text-left px-5 py-3 text-sm font-semibold text-red-500 hover:bg-green-100 transition-colors cursor-pointer"
