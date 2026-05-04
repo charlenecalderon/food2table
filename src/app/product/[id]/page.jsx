@@ -28,9 +28,34 @@ export default function ProductDetailPage() {
     if (id) fetchProduct();
   }, [id]);
 
-  const handleAddToCart = () => {
-    setAdded(true);
-    setTimeout(() => setAdded(false), 2000);
+  const handleAddToCart = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Please log in to add items to your cart.");
+      return;
+    }
+
+    try {
+      const res = await fetch("https://food2table-production.up.railway.app/orderItems", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({ productId: id, quantity: qty }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        alert(data.message || "Could not add to cart. Please try again.");
+        return;
+      }
+
+      setAdded(true);
+      setTimeout(() => setAdded(false), 2000);
+    } catch (err) {
+      alert("Could not add to cart. Please try again.");
+    }
   };
 
   if (loading) {
