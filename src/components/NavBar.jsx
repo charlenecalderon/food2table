@@ -10,6 +10,7 @@ export default function NavBar() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [cartCount, setCartCount] = useState(0);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -25,10 +26,17 @@ export default function NavBar() {
   const handleProfileClick = () => {
     const token = localStorage.getItem("token");
     if (token) {
-      router.push("/profile");
+      setProfileMenuOpen(!profileMenuOpen);
     } else {
       router.push("/login");
     }
+  };
+
+  const handleLogOut = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("userId");
+    setProfileMenuOpen(false);
+    router.push("/login");
   };
 
   const menuLinks = [
@@ -124,13 +132,31 @@ export default function NavBar() {
             </button>
           </Link>
 
-          {/* Account icon */}
-          <button
-            onClick={handleProfileClick}
-            className="text-emerald-800 hover:text-emerald-600 transition-colors"
-          >
-            <User size={20} />
-          </button>
+          {/* Account icon with dropdown */}
+          <div className="relative">
+            <button
+              onClick={handleProfileClick}
+              className="text-emerald-800 hover:text-emerald-600 transition-colors"
+            >
+              <User size={20} />
+            </button>
+
+            {profileMenuOpen && (
+              <div className="absolute right-0 mt-3 w-44 bg-white rounded-xl shadow-lg border border-emerald-100 z-50 overflow-hidden">
+                <Link href="/profile" onClick={() => setProfileMenuOpen(false)}>
+                  <div className="px-5 py-3 text-sm font-semibold text-emerald-900 hover:bg-green-100 transition-colors cursor-pointer">
+                    Your Profile
+                  </div>
+                </Link>
+                <button
+                  onClick={handleLogOut}
+                  className="w-full text-left px-5 py-3 text-sm font-semibold text-red-500 hover:bg-green-100 transition-colors cursor-pointer"
+                >
+                  Log Out
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </nav>
     </div>
