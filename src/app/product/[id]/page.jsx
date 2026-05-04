@@ -16,16 +16,16 @@ export default function ProductDetailPage({ params }) {
   useEffect(() => {
     const fetchListing = async () => {
       try {
-        const response = await fetch(`${API_URL}/listings/${id}`);
+        const response = await fetch(`${API_URL}/products/${id}`);
         if (!response.ok) throw new Error("Listing not found");
         const data = await response.json();
-        setListing(data.listing);
+        setListing(data.product);
 
         // Try to fetch vendor profile
         try {
           const token = localStorage.getItem("token");
           if (true) {
-            const vendorRes = await fetch(`${API_URL}/vendor/${data.listing.sellerId}`, {
+            const vendorRes = await fetch(`${API_URL}/vendor/${data.product.sellerId}`, {
               headers: { Authorization: `Bearer ${token}` },
             });
             if (vendorRes.ok) {
@@ -113,12 +113,12 @@ export default function ProductDetailPage({ params }) {
               className="rounded-xl object-cover"
               style={{ width: "200px", height: "200px" }}
               src={listing.imageUrl}
-              alt={listing.title}
+              alt={listing.name}
             />
           )}
 
           <div className="flex flex-col gap-3 flex-1">
-            <h1 className="text-2xl font-serif font-bold text-emerald-900">{listing.title}</h1>
+            <h1 className="text-2xl font-serif font-bold text-emerald-900">{listing.name}</h1>
             <p className="text-emerald-900 font-bold text-lg">${Number(listing.price).toFixed(2)}</p>
             <p className="text-emerald-900 font-serif text-sm">{listing.description || "No description available."}</p>
 
