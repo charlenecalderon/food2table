@@ -1,11 +1,11 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import NavBar from "../../../components/NavBar";
 
 const API_URL = "https://food2table-production.up.railway.app";
 
 export default function ProductDetailPage({ params }) {
-  const { id } = params;
+  const { id } = use(params);
   const [listing, setListing] = useState(null);
   const [vendor, setVendor] = useState(null);
   const [qty, setQty] = useState(1);
@@ -14,26 +14,28 @@ export default function ProductDetailPage({ params }) {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const fetchListing = async () => {
+    const fetchListingAndVendor = async () => {
       try {
+        // 1. Fetch the listing first
         const response = await fetch(`${API_URL}/listings/${id}`);
         if (!response.ok) throw new Error("Listing not found");
         const data = await response.json();
-        setListing(data.listing);
+        const currentListing = data.listing;
+        setListing(currentListing);
 
-// Fetch vendor info
-try {
-  if (data.listing?.sellerId) {
-    const vendorRes = await fetch(`${API_URL}/vendor/${data.listing.sellerId}`);
-
-    if (vendorRes.ok) {
-      const vendorData = await vendorRes.json();
-      setVendor(vendorData);
-    }
-  }
-} catch (e) {
-  console.error("Vendor info optional:", e);
-}
+        // 2. Fetch vendor info using the sellerId from the listing
+        if (currentListing?.sellerId) {
+          try {
+            const vendorRes = await fetch(`${API_URL}/vendor/${currentListing.sellerId}`);
+            if (vendorRes.ok) {
+              const vendorData = await vendorRes.json();
+              // The endpoint returns { message, name, location, pickupInstructions }
+              setVendor(vendorData); 
+            }
+          } catch (vErr) {
+            console.error("Vendor fetch failed:", vErr);
+          }
+        }
 
       } catch (err) {
         setError(err.message);
@@ -42,7 +44,7 @@ try {
       }
     };
 
-    if (id) fetchListing();
+    if (id) fetchListingAndVendor();
   }, [id]);
 
   const handleAddToCart = async () => {
