@@ -37,10 +37,11 @@ export default async function productRoutes(fastify: FastifyInstance) {
         try {
             // constant to extract the name, description, price, and stock from the request body
             // Type assertion to specify the expected structure of the request body
-            const { name, description, stock } = request.body as {
+            const { name, description, stock, imageUrl } = request.body as {
                 name: string;
                 description: string;
                 stock: number;
+                imageUrl: string;
             };
 
             //isAvailable is kept seperate from request body bc value is determined based on stock variable
@@ -98,6 +99,7 @@ export default async function productRoutes(fastify: FastifyInstance) {
                     description,
                     isAvailable,
                     stock,
+                    imageUrl,
                     sellerId: request.user.userId, // get the id of the currently authenticated user from the request object
                 },
             });
@@ -263,10 +265,11 @@ export default async function productRoutes(fastify: FastifyInstance) {
             // constant to extract the id from the request parameters and the id, name, description, price, and stock from the request body
             const { id } = request.params as { id: string };
             const userId = request.user.userId;
-            const { name, description, stock } = request.body as {
+            const { name, description, stock, imageUrl } = request.body as {
                 name?: string;
                 description?: string;
                 stock?: number;
+                imageUrl?: string;
             };
 
             //isAvailable is kept separate from request body bc its value is based on stock variable, not input
@@ -335,6 +338,7 @@ export default async function productRoutes(fastify: FastifyInstance) {
                 description?: string;
                 stock?: number;
                 isAvailable?: boolean;
+                imageUrl?: string;
             } = {};
 
             // if statements to check if each variable is defined before adding it to the updateData object
@@ -352,6 +356,9 @@ export default async function productRoutes(fastify: FastifyInstance) {
                     updateData.isAvailable = true;
                 }
                 else updateData.isAvailable = false;
+            }
+            if (imageUrl !== undefined) {
+                updateData.imageUrl = imageUrl;
             }
 
             // constant to update the product in the database using Prisma's update method

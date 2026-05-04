@@ -112,6 +112,7 @@ model Product {
   isAvailable Boolean @default(false)      // Product availability status
   isReserved  Boolean @default(false)      // Product reserved status
   stock       Int     @default(0)          // Total quantity available in stock
+  imageUrl    String  @default("")         // Product image URL
   listings    ProductsToListings[]         // Explicit many-to-many relation with Listing model
                                            // One product can be available in multiple listings. (e.g. tomato can be purchased
                                            // alone, or as part of a wholesale vegetable bundle)
