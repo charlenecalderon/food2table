@@ -5,44 +5,38 @@ import Link from "next/link";
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
-function ProductCard({ product }) {
+function ListingCard({ listing }) {
   return (
     <div className="bg-green-200 text-white rounded-xl w-72 p-4">
       <img
         className="rounded-xl h-40 w-full object-cover"
-        src={product.img || "/placeholder.jpg"}
-        alt={product.name}
+        src={listing.imageUrl || "/placeholder.jpg"}
+        alt={listing.title}
       />
       <div className="flex justify-between items-center mt-2">
-        <h2 className="text-emerald-900 font-bold font-serif">{product.name}</h2>
-        <span className="text-emerald-900 font-bold">${Number(product.price).toFixed(2)}</span>
+        <h2 className="text-emerald-900 font-bold font-serif">{listing.title}</h2>
+        <span className="text-emerald-900 font-bold">${Number(listing.price).toFixed(2)}</span>
       </div>
-      <div className="flex justify-between mt-2">
-        <Link href={`/product/${product.id}`}>
-          <button className="bg-emerald-900 hover:bg-emerald-700 rounded-full px-3 py-1 text-sm text-white">
-            View Product
-          </button>
-        </Link>
-      </div>
-      <p className="text-emerald-900 font-serif text-sm mt-2 line-clamp-4">{product.description}</p>
+      <p className="text-emerald-900 font-serif text-sm mt-2 line-clamp-4">{listing.description}</p>
     </div>
   );
 }
 
-function ProductsList() {
-  const [products, setProducts] = useState([]);
+function ListingsList() {
+  const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const searchParams = useSearchParams();
   const query = searchParams.get("q") || "";
 
+  // fetch all available listings to display on the browse page
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchListings = async () => {
       try {
-        const response = await fetch('https://food2table-production.up.railway.app/products');
-        if (!response.ok) throw new Error('Failed to fetch products');
+        const response = await fetch('https://food2table-production.up.railway.app/listings');
+        if (!response.ok) throw new Error('Failed to fetch listings');
         const data = await response.json();
-        setProducts(data.products);
+        setListings(data.listings);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -50,7 +44,7 @@ function ProductsList() {
       }
     };
 
-    fetchProducts();
+    fetchListings();
   }, []);
 
   if (loading) {
@@ -69,12 +63,13 @@ function ProductsList() {
     );
   }
 
+  // filter listings by search query if one exists
   const filtered = query
-    ? products.filter((p) =>
-        p.name.toLowerCase().includes(query.toLowerCase()) ||
-        p.description.toLowerCase().includes(query.toLowerCase())
+    ? listings.filter((l) =>
+        l.title.toLowerCase().includes(query.toLowerCase()) ||
+        l.description.toLowerCase().includes(query.toLowerCase())
       )
-    : products;
+    : listings;
 
   return (
     <div className="p-5">
@@ -86,8 +81,8 @@ function ProductsList() {
         </p>
       )}
       <div className="flex flex-wrap gap-6 justify-start">
-        {filtered.map((product) => (
-          <ProductCard key={product.id} product={product} />
+        {filtered.map((listing) => (
+          <ListingCard key={listing.id} listing={listing} />
         ))}
       </div>
     </div>
@@ -99,7 +94,7 @@ export default function Browse() {
     <>
       <NavBar />
       <Suspense fallback={<div className="p-5 text-emerald-900">Loading products...</div>}>
-        <ProductsList />
+        <ListingsList />
       </Suspense>
     </>
   );
