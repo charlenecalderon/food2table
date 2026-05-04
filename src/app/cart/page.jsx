@@ -25,7 +25,7 @@ export default function CartPage() {
                 const data = await res.json();
                 if (res.ok) {
                     const mapped = data.currentCart.items.map((item) => ({
-                        id: item.id,
+                        id: item.productId,
                         name: item.product.name,
                         price: item.product.price,
                         quantity: item.quantity,
