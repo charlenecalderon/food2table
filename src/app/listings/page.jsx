@@ -251,7 +251,7 @@ export default function MyListingsPage() {
                         ) : (
                             <div className="flex flex-col gap-1">
                                 {listing.imageUrl && (
-                                    <img src={listing.imageUrl} alt={listing.title} className="h-40 rounded-lg object-cover w-full mb-2" />
+                                    <img src={listing.imageUrl} alt={listing.title} className="h-56 rounded-lg object-contain w-full mb-2 bg-gray-50" />
                                 )}
                                 <h2 className="text-xl font-serif font-bold text-emerald-900">{listing.title}</h2>
                                 <p className="text-emerald-600 font-bold">${listing.price.toFixed(2)}</p>
