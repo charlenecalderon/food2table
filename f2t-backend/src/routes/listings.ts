@@ -64,7 +64,7 @@ export default async function listingRoutes(fastify: FastifyInstance) {
             }
 
             //Make sure productId[] and quantity[] have same number of elements
-            if (productId.length !== quantity.length) {
+            if (productId.length > 0 && productId.length !== quantity.length) {
                 return reply.status(400).send({
                     error: "BAD REQUEST",
                     message: "productId and quantity arrays must have the same length."
