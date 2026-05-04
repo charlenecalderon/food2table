@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import NavBar from "../../components/NavBar";
 
 
 const API_BASE = "https://food2table-production.up.railway.app/listings";
@@ -132,6 +133,7 @@ export default function MyListingsPage() {
     
     return (
         <main className='p-6'>
+            <Navbar />
             <h1 className="text-3x1 font-serif font-bold text-emerald-900 mb-6" >My Listings</h1>
 
             <button
