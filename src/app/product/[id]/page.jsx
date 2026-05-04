@@ -1,11 +1,11 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import NavBar from "../../../components/NavBar";
 
 const API_URL = "https://food2table-production.up.railway.app";
 
 export default function ProductDetailPage({ params }) {
-  const id = params?.id;
+  const { id } = use(params);
   const [listing, setListing] = useState(null);
   const [vendor, setVendor] = useState(null);
   const [qty, setQty] = useState(1);
@@ -24,13 +24,13 @@ export default function ProductDetailPage({ params }) {
         // Try to fetch vendor profile
         try {
           const token = localStorage.getItem("token");
-          if (token) {
-            const vendorRes = await fetch(`${API_URL}/profiles/me`, {
+          if (true) {
+            const vendorRes = await fetch(`${API_URL}/vendor/${data.listing.sellerId}`, {
               headers: { Authorization: `Bearer ${token}` },
             });
             if (vendorRes.ok) {
               const vendorData = await vendorRes.json();
-              setVendor(vendorData.profile);
+              setVendor(vendorData);
             }
           }
         } catch (e) {
