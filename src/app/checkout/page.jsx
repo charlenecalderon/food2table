@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import NavBar from "../../components/NavBar";
 
-const API_URL = "https://food2table-production.up.railway.app";
+const API_URL = "http://localhost:3001";
 
 function groupByVendor(items) {
   return items.reduce((acc, item) => {
