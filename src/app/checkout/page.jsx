@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 
-const API_URL = "http://localhost:3001";
+const API_URL = "https://food2table-production.up.railway.app";
 
 function groupByVendor(items) {
   return items.reduce((acc, item) => {

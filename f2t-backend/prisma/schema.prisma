@@ -83,6 +83,7 @@ model Profile {
   userId             String   @unique              // Link the profile to only one user (id)
   user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)// user that made the profile
   name               String                        // Name of the profile
+  contactInfo        String                        // Name, phone# etc.
   location           String?                       // home base of creator. optional
   pickupInstructions String?  @db.Text             // Instructions for picking up orders. optional
                                                    // Set to optional since not every user will be a seller
@@ -111,6 +112,7 @@ model Product {
   isAvailable Boolean @default(false)      // Product availability status
   isReserved  Boolean @default(false)      // Product reserved status
   stock       Int     @default(0)          // Total quantity available in stock
+  imageUrl    String  @default("")         // Product image URL
   listings    ProductsToListings[]         // Explicit many-to-many relation with Listing model
                                            // One product can be available in multiple listings. (e.g. tomato can be purchased
                                            // alone, or as part of a wholesale vegetable bundle)
@@ -131,6 +133,7 @@ model Listing {
   quantity       Int[]                          // parallel to array of products. quantity[0] is quantity of products[0] etc.
   price          Float                          // listing price
   isAvailable    Boolean   @default(false)      // bool is true only when all products' isAvailable bools are true
+  imageUrl       String?                        // optional image URL stored in Supabase Storage
   sellerId       String                         // Reference to the seller's id
   seller         User      @relation(fields: [sellerId], references: [id], onDelete: Cascade)// User making the listing
 }

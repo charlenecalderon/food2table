@@ -33,16 +33,15 @@ export default async function listingRoutes(fastify: FastifyInstance) {
             //get currently logged in user's id from the request object and store it in a constant called userId
             const userId = request.user.userId;
             // constant to extract the title, description, and productId from the request body
-            const { title, description, price, productId, quantity } = request.body as {
+            const { title, description, price, imageUrl, productId, quantity } = request.body as {
                 title: string;
                 description: string;
                 price: number;
+                imageUrl?: string;
                 productId: string[];
                 quantity: number[];
             };
             //INPUT VALIDATION SECTION
-
-            //NEEDS INPUT VALIDATION. ESPECIALLY MAKE SURE PRODUCTID AND QUANTITY ARE SAME LENGTH
 
             //make sure all necessary data was provided in request body
             if(!(title&&description&&price&&productId&&quantity)) {
@@ -56,8 +55,8 @@ export default async function listingRoutes(fastify: FastifyInstance) {
             if(typeof title!=="string"||
                typeof description!=="string"||
                typeof price!=="number"||
-               typeof productId[0]!=="string"||
-               typeof quantity[0]!=="number") {
+               (productId.length > 0 && typeof productId[0]!=="string")||
+               (quantity.length > 0 && typeof quantity[0]!=="number")) {
                 return reply.status(400).send({
                     error: "BAD REQUEST",
                     message: "Incorrect data types in request body. title, description, and productIds must be strings, and price and quantity are numbers."
@@ -65,7 +64,7 @@ export default async function listingRoutes(fastify: FastifyInstance) {
             }
 
             //Make sure productId[] and quantity[] have same number of elements
-            if (productId.length !== quantity.length) {
+            if (productId.length > 0 && productId.length !== quantity.length) {
                 return reply.status(400).send({
                     error: "BAD REQUEST",
                     message: "productId and quantity arrays must have the same length."
@@ -97,6 +96,7 @@ export default async function listingRoutes(fastify: FastifyInstance) {
                     title,
                     description,
                     price,
+                    imageUrl: imageUrl ?? null,
                     products: {create: productId.map((id) => ({productId: id })),}, //map function handles all productId array elements for us
                     quantity,
                     isAvailable,
@@ -142,10 +142,11 @@ export default async function listingRoutes(fastify: FastifyInstance) {
             const { id } = params;
 
             // constant to extract the title, description, and productId from the request body
-            const { title, description, price, productId, quantity } = request.body as {
+            const { title, description, price, imageUrl, productId, quantity } = request.body as {
                 title?: string;
                 description?: string;
                 price?: number;
+                imageUrl?: string;
                 productId?: string[];
                 quantity?: number[];
             };
@@ -268,6 +269,7 @@ export default async function listingRoutes(fastify: FastifyInstance) {
                     title,
                     description,
                     price,
+                    imageUrl,
                     quantity,
                     isAvailable,
                     //if updating products and/or quantity, delete old database relations in join table and create new ones

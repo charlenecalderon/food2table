@@ -5,7 +5,9 @@ import { useState } from "react";
 
 export default function SignupPage() {
   const router = useRouter();
+  // username is used to create a profile for the vendor dashboard
   const [formData, setFormData] = useState({
+    username: "",
     email: "",
     password: "",
   });
@@ -17,6 +19,7 @@ export default function SignupPage() {
     setError("");
     setSuccess("");
 
+    // create the user account
     const response = await fetch('https://food2table-production.up.railway.app/users', {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -26,14 +29,46 @@ export default function SignupPage() {
       }),
     });
 
-    if (response.status === 201) {
-      console.log("Success!");
-      setSuccess("Account created successfully!");
-      setTimeout(() => router.push("/login"), 2000);
-    } else {
+    if (response.status !== 201) {
       const errorData = await response.json();
       setError(errorData.message);
+      return;
     }
+
+    // auto-login to get a token
+    const loginRes = await fetch('https://food2table-production.up.railway.app/users/login', {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: formData.email, password: formData.password }),
+    });
+
+    if (!loginRes.ok) {
+      setSuccess("Account created! Please log in.");
+      setTimeout(() => router.push("/login"), 2000);
+      return;
+    }
+
+    const loginData = await loginRes.json();
+    const token = loginData.token;
+    const userId = loginData.user?.id;
+    localStorage.setItem("token", token);
+    if (userId) localStorage.setItem("userId", userId);
+
+    // create the profile using the username so vendor dashboard can show the vendor name
+    await fetch('https://food2table-production.up.railway.app/profiles', {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        name: formData.username,
+        contactInfo: formData.email,
+      }),
+    });
+
+    setSuccess("Account created successfully!");
+    setTimeout(() => router.push("/browse"), 2000);
   };
 
   return (
@@ -44,6 +79,18 @@ export default function SignupPage() {
         </h1>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-semibold text-emerald-900">Username</label>
+            <input
+              type="text"
+              required
+              value={formData.username}
+              onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+              placeholder="Enter your username"
+              className="border border-emerald-200 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+            />
+          </div>
+
           <div className="flex flex-col gap-1">
             <label className="text-sm font-semibold text-emerald-900">Email</label>
             <input

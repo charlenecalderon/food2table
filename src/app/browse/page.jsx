@@ -10,7 +10,7 @@ function ProductCard({ product }) {
     <div className="bg-green-200 text-white rounded-xl w-72 p-4">
       <img
         className="rounded-xl h-40 w-full object-cover"
-        src={product.img || "/placeholder.jpg"}
+        src={product.imageUrl || "/placeholder.jpg"}
         alt={product.name}
       />
       <div className="flex justify-between items-center mt-2">
@@ -42,7 +42,15 @@ function ProductsList() {
         const response = await fetch('https://food2table-production.up.railway.app/products');
         if (!response.ok) throw new Error('Failed to fetch products');
         const data = await response.json();
-        setProducts(data.products);
+        // map listings to the product shape the rest of this component expects
+        const mapped = (data.products || []).map((l) => ({
+          id: l.id,
+          name: l.name,
+          price: l.price,
+          description: l.description,
+          imageUrl: l.imageUrl,
+        }));
+        setProducts(mapped);
       } catch (err) {
         setError(err.message);
       } finally {

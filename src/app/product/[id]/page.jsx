@@ -28,9 +28,34 @@ export default function ProductDetailPage() {
     if (id) fetchProduct();
   }, [id]);
 
-  const handleAddToCart = () => {
-    setAdded(true);
-    setTimeout(() => setAdded(false), 2000);
+  const handleAddToCart = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Please log in to add items to your cart.");
+      return;
+    }
+
+    try {
+      const res = await fetch("https://food2table-production.up.railway.app/orderItems", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({ productId: id, quantity: qty }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        alert(data.message || "Could not add to cart. Please try again.");
+        return;
+      }
+
+      setAdded(true);
+      setTimeout(() => setAdded(false), 2000);
+    } catch (err) {
+      alert("Could not add to cart. Please try again.");
+    }
   };
 
   if (loading) {
@@ -69,7 +94,7 @@ export default function ProductDetailPage() {
           <img
             className="rounded-xl object-cover"
             style={{ width: "200px", height: "200px" }}
-            src={product.img || "/placeholder.jpg"}
+            src={product.imageUrl || "/placeholder.jpg"}
             alt={product.name}
           />
 
@@ -86,8 +111,7 @@ export default function ProductDetailPage() {
             </p>
 
             {/* Quantity + Add to Cart */}
-            {product.stock > 0 && (
-              <div className="flex items-center gap-2 mt-1 flex-wrap">
+            <div className="flex items-center gap-2 mt-1 flex-wrap">
                 <button
                   onClick={() => setQty((q) => Math.max(1, q - 1))}
                   className="bg-emerald-900 hover:bg-emerald-700 text-white px-4 py-1 rounded-full font-bold"
@@ -103,8 +127,7 @@ export default function ProductDetailPage() {
                 >
                   {added ? "✓ Added!" : "Add to Cart"}
                 </button>
-              </div>
-            )}
+            </div>
           </div>
         </div>
 

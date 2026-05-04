@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import NavBar from "../../components/NavBar";
 
 export default function VendorDashboardPage() {
@@ -8,14 +9,21 @@ export default function VendorDashboardPage() {
     const [vendorItems, setVendorItems] = useState([]);
     const [email, setEmail] = useState("");
     const [name, setName] = useState("");
+    const router = useRouter();
 
     useEffect(() => {
         const token = localStorage.getItem("token");
 
+        // redirect to login if not logged in
+        if (!token) {
+            router.push("/login");
+            return;
+        }
+
         async function fetchUser() {
             try {
-                const res = await fetch("http://localhost:3001/users/me", {
-                    headers: {Authorization: 'Bearer ${token}' },
+                const res = await fetch("https://food2table-production.up.railway.app/users/me", {
+                    headers: {Authorization: `Bearer ${token}` },
                 });
                 const data = await res.json();
                 if (res.ok) {
@@ -28,8 +36,8 @@ export default function VendorDashboardPage() {
         
         async function fetchProfile(){
             try {
-                const res = await fetch ("http://localhost:3001/profiles/me", {
-                    headers: { Authorization: 'Bearer ${token}' },
+                const res = await fetch ("https://food2table-production.up.railway.app/profiles/me", {
+                    headers: { Authorization: `Bearer ${token}` },
                 });
                 const data = await res.json();
                 if (res.ok) {
@@ -42,8 +50,8 @@ export default function VendorDashboardPage() {
 
         async function fetchVendorItems(userId) {
             try {
-                const res =await fetch('http://localhost:3001/listings/vendorlistings/${userId}', {
-                    headers : { Authorization: 'Bearer ${token}' },
+                const res =await fetch(`https://food2table-production.up.railway.app/listings/vendorlistings/${userId}`, {
+                    headers : { Authorization: `Bearer ${token}` },
                 });
                 const data = await res.json();
                 if (res.ok) {
@@ -90,7 +98,7 @@ export default function VendorDashboardPage() {
                         ) : (
                         vendorItems.map((item) => (
                             <tr key={item.id} className="border-b border-emerald-50">
-                                <td className="py-2 text-gray-700">{item.name}</td>
+                                <td className="py-2 text-gray-700">{item.title}</td>
                                 <td className="py-2 text-emerald-600 font-bold">${item.price.toFixed(2)}</td>
                                 <td className="py-2 text-gray-700">{item.quantity}</td>
                             </tr>
@@ -100,12 +108,18 @@ export default function VendorDashboardPage() {
                 </table>
             </div>
 
-            <div>
+            <div className="flex gap-3">
                 <a
                     href="/orders"
                     className="bg-emerald-500 text-white px-8 py-2 rounded-full font-bold hover:bg-emerald-600 transition-all"
                 >
                     View Orders
+                </a>
+                <a
+                    href="/listings"
+                    className="bg-emerald-900 text-white px-8 py-2 rounded-full font-bold hover:bg-emerald-700 transition-all"
+                >
+                    My Listings
                 </a>
             </div>
 

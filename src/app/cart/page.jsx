@@ -16,10 +16,10 @@ export default function CartPage() {
 
         async function fetchCart() {
             try {
-                const res = await fetch("http://localhost:3001/carts/current", {
+                const res = await fetch("https://food2table-production.up.railway.app/carts/current", {
                     headers: {
                         "Content-Type": "application/json",
-                        Authorization: 'Bearer ${token}',
+                        Authorization: `Bearer ${token}`,
                     },
                 });
                 const data = await res.json();
@@ -44,11 +44,11 @@ export default function CartPage() {
     const handleAdd = async (id) => {
         const token = localStorage.getItem("token");
         try {
-            const res = await fetch('http://localhost:3001/orderItems/${id}/increase', {
+            const res = await fetch(`https://food2table-production.up.railway.app/orderItems/${id}/increase`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization:'Bearer ${token}',
+                    Authorization:`Bearer ${token}`,
                 },
             });
             if (res.ok){
@@ -65,11 +65,11 @@ export default function CartPage() {
     const handleMinus = async (id) => {
         const token = localStorage.getItem("token");
         try {
-            const res = await fetch ('http://localhost:3001/orderItems/${id}/decrease', {
+            const res = await fetch(`https://food2table-production.up.railway.app/orderItems/${id}/decrease`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: 'Bearer ${token}',
+                    Authorization: `Bearer ${token}`,
                 },
             });
             if (res.ok) {
@@ -86,11 +86,11 @@ export default function CartPage() {
     const handleRemove  = async (id) => {
         const token = localStorage.getItem("token");
         try {
-            const res = await fetch('fetch://localhost:3001/orderItems/${id}', {
+            const res = await fetch(`https://food2table-production.up.railway.app/orderItems/${id}`, {
                 method: "DELETE",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: 'Bearer ${token}',
+                    Authorization: `Bearer ${token}`,
                 },
             });
             if (res.ok) {
@@ -105,11 +105,11 @@ export default function CartPage() {
     const handleReserve = async () => {
         const token = localStorage.getItem("token");
         try {
-            const res = await fetch("http://localhost:3001/carts/reserve", {
+            const res = await fetch("https://food2table-production.up.railway.app/carts/reserve", {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: 'Bearer ${token}',
+                    Authorization: `Bearer ${token}`,
                 },
             });
             if (res.ok) {

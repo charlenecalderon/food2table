@@ -18,10 +18,11 @@ export default async function profileRoutes(fastify: FastifyInstance) {
     //need to receive input to fill name, location, and pickupInstructions
     fastify.post("/", { preHandler: fastify.requireAuth }, async (request, reply) => {
         try {
-            const { name, location, pickupInstructions } = request.body as {
+            const { name, contactInfo, location, pickupInstructions } = request.body as {
                 name: string;
-                location: string;
-                pickupInstructions: string;
+                contactInfo: string;
+                location?: string;
+                pickupInstructions?: string;
             };
 
             // if statement to check that the authenticated user information exists
@@ -37,30 +38,30 @@ export default async function profileRoutes(fastify: FastifyInstance) {
             }
 
             // if statement to check that the required input is not empty
-            if (!name) {
+            if (!name||!contactInfo) {
                 // display a message in the terminal to indicate that the name input is missing
-                console.log("Profile creation failed: Name input is missing");
+                console.log("Profile creation failed: Name or contactInfo input is missing");
 
                 // return a 400 Bad Request status response with an error message
                 return reply.status(400).send({
                     error: "MISSING INPUT",
-                    message: "Name is required to create a profile.",
+                    message: "Name and contact info are required to create a profile.",
                 });
             }
 
             // if statement to check that the input values are of the correct data type
-            if (
-                typeof name !== "string" ||
-                (location !== undefined && typeof location !== "string") ||
-                (pickupInstructions !== undefined && typeof pickupInstructions !== "string")
-            ) {
+            if (typeof name !== "string" 
+                || typeof contactInfo !== "string"
+                || (location !== undefined && typeof location !== "string") 
+                || (pickupInstructions !== undefined && typeof pickupInstructions !== "string")) {
+
                 // display a message in the terminal to indicate that one or more inputs are of the wrong data type
                 console.log("Profile creation failed: One or more inputs are of the wrong data type");
 
                 // return a 400 Bad Request status response with an error message
                 return reply.status(400).send({
                     error: "INVALID INPUT",
-                    message: "Name must be a string. Location and pickup instructions must also be strings if provided.",
+                    message: "Name and contact info must be a string. Location and pickup instructions must also be strings if provided.",
                 });
             }
 
@@ -84,6 +85,7 @@ export default async function profileRoutes(fastify: FastifyInstance) {
             const profile = await fastify.prisma.profile.create({
                 data: {
                     name,
+                    contactInfo,
                     location,
                     pickupInstructions,
                     userId: request.user.userId,// get the id of the currently authenticated user from the request object
@@ -126,8 +128,9 @@ export default async function profileRoutes(fastify: FastifyInstance) {
             const { id } = params;
 
             //object to read in input. 
-            const { name, location, pickupInstructions } = request.body as {
+            const { name, contactInfo, location, pickupInstructions } = request.body as {
                 name?: string; //read in input for new name
+                contactInfo?: string; //read in input for new contact info
                 location?: string;//read in input for new location
                 pickupInstructions?: string//read in input for new instructions
             };
@@ -136,32 +139,38 @@ export default async function profileRoutes(fastify: FastifyInstance) {
             //ONLY VALIDATE THE INPUT THAT IS PROVIDED, ALL 3 INPUTS ARE OPTIONAL
 
             // if statement to check that the id and input are not empty
-            if (!id || !name) {
+            if (!id) {
                 // display a message in the terminal to indicate that the id or input is missing
-                console.log("Profile name update failed: Profile ID or new name input is missing");
+                console.log("Profile update failed: Profile ID is missing");
 
                 // return a 400 Bad Request status response with an error message
                 return reply.status(400).send({
                     error: "MISSING INPUT",
-                    message: "Profile ID and new name are required.",
+                    message: "Profile ID is required.",
                 });
             }
 
             // if statement to check that the id and input are of the correct data type
-            if (typeof id !== "string" || typeof name !== "string") {
+            if (typeof id !== "string" 
+                || (name && typeof name !== "string")
+                || (contactInfo && typeof contactInfo !== "string")
+                || (location && typeof location !== "string")
+                || (pickupInstructions && typeof pickupInstructions !== "string")) {
+
                 // display a message in the terminal to indicate that the id or input is of the wrong data type
-                console.log("Profile name update failed: Profile ID or new name input is of the wrong data type");
+                console.log("Profile update failed: wrong data type. All input must be of type 'string'.");
 
                 // return a 400 Bad Request status response with an error message
                 return reply.status(400).send({
                     error: "INVALID INPUT",
-                    message: "Profile ID and new name must be strings.",
+                    message: "All input must be of type 'string'.",
                 });
             }
 
             //create object to hold input and to use for updating actual database object
             const updateData: {
                 name?: string;
+                contactInfo?: string;
                 location?: string;
                 pickupInstructions?: string;
             } = {};
@@ -169,6 +178,9 @@ export default async function profileRoutes(fastify: FastifyInstance) {
             //make sure the input variables aren't NULL before assigning them to this object
             if(name!==undefined){
                 updateData.name=name;
+            }
+            if(contactInfo!==undefined){
+                updateData.contactInfo=contactInfo;
             }
             if(location!==undefined){
                 updateData.location=location;
@@ -193,7 +205,7 @@ export default async function profileRoutes(fastify: FastifyInstance) {
                 });
             }
 
-            // update the profile name in the database
+            // update the profile in the database
             const updatedProfile = await fastify.prisma.profile.update({
                 where: { id },
                 data: updateData,
@@ -201,18 +213,19 @@ export default async function profileRoutes(fastify: FastifyInstance) {
                     id: true,
                     userId: true,
                     name: true,
+                    contactInfo: true,
                     location: true,
                     pickupInstructions: true,
                     updatedAt: true
                 },
             });
 
-            // display a message in the terminal to indicate that the profile name was updated successfully
-            console.log(`Profile name updated successfully for profile ID ${id}`);
+            // display a message in the terminal to indicate that the profile was updated successfully
+            console.log(`Profile updated successfully for profile ID ${id}`);
 
             // return a 200 OK response with a success message and the updated profile
             return reply.status(200).send({
-                message: "Name updated successfully",
+                message: "Profile updated successfully",
                 profile: updatedProfile,
             });
         }
@@ -290,6 +303,74 @@ export default async function profileRoutes(fastify: FastifyInstance) {
             console.error(error);
 
             // return a 500 Internal Server Error response with an error message
+            return reply.status(500).send({
+                error: "INTERNAL SERVER ERROR",
+                message: "An unexpected error occurred while processing your request.",
+            });
+        }
+    });
+
+    // *********************************************************************************
+    // route to delete a profile
+    // *********************************************************************************
+
+    // display a message to show that the route is being registered
+    console.log("Registering delete profile route");
+
+    //need to receive input to fill name, location, and pickupInstructions
+    fastify.delete("/", { preHandler: fastify.requireAuth }, async (request, reply) => {
+        try {
+            // constant to get the current user id
+            const userId = request.user.userId;
+
+             // if statement to check that the authenticated user information exists
+            if (!userId) {
+                // display a message in the terminal to indicate missing authentication data
+                console.log("Profile deletion failed: Authenticated user information is missing");
+
+                // return a 401 Unauthorized status response with an error message
+                return reply.status(401).send({
+                    error: "UNAUTHORIZED",
+                    message: "User authentication is required to delete a profile.",
+                });
+            }
+
+            // check if the user with the specified id exists in the database
+            const existingProfile = await fastify.prisma.profile.findUnique({
+                where: { userId: userId },
+            });
+
+             // if statement to check if the profile exists
+            if (!existingProfile) {
+                // display a message in the terminal to indicate that the profile already exists
+                console.log(`Profile deletion failed: could not find profile for user ID ${userId}`);
+
+                // return a 400 Bad Request status response with an error message
+                return reply.status(404).send({
+                    error: "PROFILE NOT FOUND",
+                    message: `Could not find profile connected to user ID ${userId}.`,
+                });
+            }
+
+            // constant to delete the user from the database using Prisma's delete method
+            await fastify.prisma.profile.delete({
+                where: { userId: userId },
+            });
+
+            // display a message in the terminal to indicate that the user was deleted successfully
+            console.log(`Profile deleted successfully`);
+
+            // return a 200 OK Request status response with a success message
+            return reply.status(200).send({
+                message: "Profile deleted successfully",
+            });
+        }
+        
+        // catch block to handle any errors that may occur during the user creation process
+        catch (error) {
+            // display the error in the terminal for debugging purposes
+            console.error(error);
+            // return a 500 Internal Server Error response with an error message if an unexpected error occurs during the user creation process
             return reply.status(500).send({
                 error: "INTERNAL SERVER ERROR",
                 message: "An unexpected error occurred while processing your request.",
