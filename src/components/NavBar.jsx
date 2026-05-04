@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Search, ShoppingCart, User, Menu } from "lucide-react";
 
@@ -9,6 +9,18 @@ export default function NavBar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [cartCount, setCartCount] = useState(0);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+    fetch("https://food2table-production.up.railway.app/orderItems", {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.ok ? res.json() : null)
+      .then((data) => { if (data?.items) setCartCount(data.items.length); })
+      .catch(() => {});
+  }, []);
 
   const handleProfileClick = () => {
     const token = localStorage.getItem("token");
@@ -107,7 +119,7 @@ export default function NavBar() {
             <button className="relative text-emerald-800 hover:text-emerald-600 transition-colors">
               <ShoppingCart size={20} />
               <span className="absolute -top-2 -right-2 bg-emerald-700 text-white text-xs font-bold rounded-full w-4 h-4 flex items-center justify-center">
-                0
+                {cartCount}
               </span>
             </button>
           </Link>
