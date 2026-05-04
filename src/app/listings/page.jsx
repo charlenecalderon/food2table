@@ -284,7 +284,7 @@ export default function MyListingsPage() {
 function EditForm({ listing, onSave, onCancel }) {
     const [form, setForm] = useState({
         title: listing.title,
-        price: listing.price,
+        price: listing.price.toFixed(2),
         description: listing.description,
         imageUrl: listing.imageUrl || "",
     });
