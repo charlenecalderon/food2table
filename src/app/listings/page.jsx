@@ -13,7 +13,7 @@ export default function MyListingsPage() {
     const [uploading, setUploading] = useState(false);
 
     const [newListing, setNewListing] = useState({
-        title: "", price: "", description: "", imageUrl: ""
+        title: "", price: "", quantity: "", description: "", imageUrl: ""
     });
 
     const [showAddForm, setShowAddForm] = useState(false);
@@ -145,7 +145,7 @@ export default function MyListingsPage() {
                     price: parseFloat(newListing.price),
                     imageUrl: newListing.imageUrl || null,
                     productId: [],
-                    quantity: [],
+                    quantity: newListing.quantity ? [parseInt(newListing.quantity)] : [],
                 }),
             });
 
@@ -154,7 +154,7 @@ export default function MyListingsPage() {
             const data = await res.json();
 
             setListings([...listings, data.listing]);
-            setNewListing({ title: "", price: "", description: "", imageUrl: "" });
+            setNewListing({ title: "", price: "", quantity: "", description: "", imageUrl: "" });
             setShowAddForm(false);
         } catch (err) {
             console.error("Error adding listing:", err);
@@ -190,6 +190,13 @@ export default function MyListingsPage() {
                             placeholder="Price"
                             value={newListing.price}
                             onChange={(e) => setNewListing({ ...newListing, price: e.target.value })}
+                            className="border border-emerald-200 rounded-lg p-2"
+                        />
+                        <input
+                            type="number"
+                            placeholder="Quantity Available"
+                            value={newListing.quantity}
+                            onChange={(e) => setNewListing({ ...newListing, quantity: e.target.value })}
                             className="border border-emerald-200 rounded-lg p-2"
                         />
                         <input
