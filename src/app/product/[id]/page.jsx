@@ -6,7 +6,7 @@ const API_URL = "https://food2table-production.up.railway.app";
 
 export default function ProductDetailPage({ params }) {
   const { id } = use(params);
-  const [listing, setListing] = useState(null);
+  const [product, setProduct] = useState(null);
   const [vendor, setVendor] = useState(null);
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
@@ -14,12 +14,12 @@ export default function ProductDetailPage({ params }) {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const fetchListing = async () => {
+    const fetchProduct = async () => {
       try {
-        const response = await fetch(`${API_URL}/listings/${id}`);
-        if (!response.ok) throw new Error("Listing not found");
+        const response = await fetch(`${API_URL}/products/${id}`);
+        if (!response.ok) throw new Error("Product not found");
         const data = await response.json();
-        setListing(data.listing);
+        setProduct(data.product);
 
         // Try to fetch vendor profile
         try {
@@ -44,7 +44,7 @@ export default function ProductDetailPage({ params }) {
       }
     };
 
-    if (id) fetchListing();
+    if (id) fetchProduct();
   }, [id]);
 
   const handleAddToCart = async () => {
@@ -82,13 +82,13 @@ export default function ProductDetailPage({ params }) {
       <div className="bg-emerald-50 min-h-screen">
         <NavBar />
         <div className="p-6 flex justify-center items-center">
-          <p className="text-emerald-900">Loading listing...</p>
+          <p className="text-emerald-900">Loading product...</p>
         </div>
       </div>
     );
   }
 
-  if (error || !listing) {
+  if (error || !product) {
     return (
       <div className="bg-emerald-50 min-h-screen">
         <NavBar />
@@ -108,27 +108,27 @@ export default function ProductDetailPage({ params }) {
         <div className="bg-green-200 rounded-xl p-6 flex flex-col md:flex-row gap-6 mb-6 max-w-4xl mx-auto">
 
           {/* Image */}
-          {listing.imageUrl && (
+          {product.imageUrl && (
             <img
               className="rounded-xl object-cover"
               style={{ width: "200px", height: "200px" }}
-              src={listing.imageUrl}
-              alt={listing.title}
+              src={product.imageUrl}
+              alt={product.title}
             />
           )}
 
           <div className="flex flex-col gap-3 flex-1">
-            <h1 className="text-2xl font-serif font-bold text-emerald-900">{listing.title}</h1>
-            <p className="text-emerald-900 font-bold text-lg">${Number(listing.price).toFixed(2)}</p>
-            <p className="text-emerald-900 font-serif text-sm">{listing.description || "No description available."}</p>
+            <h1 className="text-2xl font-serif font-bold text-emerald-900">{product.title}</h1>
+            <p className="text-emerald-900 font-bold text-lg">${Number(product.price).toFixed(2)}</p>
+            <p className="text-emerald-900 font-serif text-sm">{product.description || "No description available."}</p>
 
             {/* Availability */}
             <p className="text-emerald-900 text-sm font-semibold">
-              {listing.isAvailable ? "✅ Available" : "❌ Sold Out"}
+              {product.isAvailable ? "✅ Available" : "❌ Sold Out"}
             </p>
 
             {/* Quantity + Add to Cart */}
-            {listing.isAvailable && (
+            {product.isAvailable && (
               <div className="flex items-center gap-2 mt-1 flex-wrap">
                 <button
                   onClick={() => setQty((q) => Math.max(1, q - 1))}
