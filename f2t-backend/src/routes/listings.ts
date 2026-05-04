@@ -33,10 +33,11 @@ export default async function listingRoutes(fastify: FastifyInstance) {
             //get currently logged in user's id from the request object and store it in a constant called userId
             const userId = request.user.userId;
             // constant to extract the title, description, and productId from the request body
-            const { title, description, price, productId, quantity } = request.body as {
+            const { title, description, price, imageUrl, productId, quantity } = request.body as {
                 title: string;
                 description: string;
                 price: number;
+                imageUrl?: string;
                 productId: string[];
                 quantity: number[];
             };
@@ -95,6 +96,7 @@ export default async function listingRoutes(fastify: FastifyInstance) {
                     title,
                     description,
                     price,
+                    imageUrl: imageUrl ?? null,
                     products: {create: productId.map((id) => ({productId: id })),}, //map function handles all productId array elements for us
                     quantity,
                     isAvailable,
@@ -140,10 +142,11 @@ export default async function listingRoutes(fastify: FastifyInstance) {
             const { id } = params;
 
             // constant to extract the title, description, and productId from the request body
-            const { title, description, price, productId, quantity } = request.body as {
+            const { title, description, price, imageUrl, productId, quantity } = request.body as {
                 title?: string;
                 description?: string;
                 price?: number;
+                imageUrl?: string;
                 productId?: string[];
                 quantity?: number[];
             };
@@ -266,6 +269,7 @@ export default async function listingRoutes(fastify: FastifyInstance) {
                     title,
                     description,
                     price,
+                    imageUrl,
                     quantity,
                     isAvailable,
                     //if updating products and/or quantity, delete old database relations in join table and create new ones

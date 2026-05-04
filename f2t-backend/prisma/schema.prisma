@@ -132,6 +132,7 @@ model Listing {
   quantity       Int[]                          // parallel to array of products. quantity[0] is quantity of products[0] etc.
   price          Float                          // listing price
   isAvailable    Boolean   @default(false)      // bool is true only when all products' isAvailable bools are true
+  imageUrl       String?                        // optional image URL stored in Supabase Storage
   sellerId       String                         // Reference to the seller's id
   seller         User      @relation(fields: [sellerId], references: [id], onDelete: Cascade)// User making the listing
 }
