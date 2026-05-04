@@ -18,8 +18,10 @@ export default function NavBar() {
     fetch("https://food2table-production.up.railway.app/orderItems", {
       headers: { Authorization: `Bearer ${token}` },
     })
-      .then((res) => res.ok ? res.json() : null)
-      .then((data) => { if (data?.items) setCartCount(data.items.length); })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.items) setCartCount(data.items.length);
+      })
       .catch(() => {});
   }, []);
 
@@ -49,17 +51,16 @@ export default function NavBar() {
   return (
     <div className="w-full">
       {/* BANNER */}
-      <div className="w-full h-40 md:h-52 overflow-hidden border-b-4 border-emerald-900">
+      <div className="w-full h-50 md:h-52 overflow-hidden border-b-4 border-emerald-900">
         <img
           className="w-full h-full object-cover"
-          src="/banneropt3.png"
+          src="/banner.jpg"
           alt="Fresh2Table Banner"
         />
       </div>
 
       {/* NAVIGATION BAR */}
       <nav className="bg-green-200 px-8 py-3 border-b border-emerald-200 flex items-center justify-between relative">
-
         {/* LEFT — Logo with dropdown */}
         <div className="relative">
           <button
@@ -89,7 +90,6 @@ export default function NavBar() {
 
         {/* RIGHT — Icons */}
         <div className="flex items-center gap-5">
-
           {/* Search */}
           {searchOpen ? (
             <form
@@ -109,7 +109,10 @@ export default function NavBar() {
                 placeholder="Search products..."
                 className="border border-emerald-300 rounded-full px-4 py-1 text-sm text-emerald-900 outline-none focus:ring-2 focus:ring-emerald-400 w-48"
               />
-              <button type="submit" className="text-emerald-800 hover:text-emerald-600 transition-colors">
+              <button
+                type="submit"
+                className="text-emerald-800 hover:text-emerald-600 transition-colors"
+              >
                 <Search size={20} />
               </button>
             </form>
