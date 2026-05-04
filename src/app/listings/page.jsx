@@ -60,7 +60,7 @@ export default function MyListingsPage() {
             .upload(fileName, file, { upsert: true });
 
         if (uploadError) {
-            alert("Image upload failed, please try again later.");
+            alert(`Image upload failed: ${uploadError.message}`);
             setUploading(false);
             return;
         }
@@ -301,7 +301,7 @@ function EditForm({ listing, onSave, onCancel }) {
             .upload(fileName, file, { upsert: true });
 
         if (uploadError) {
-            alert("Image upload failed, please try again later.");
+            alert(`Image upload failed: ${uploadError.message}`);
             setUploading(false);
             return;
         }
