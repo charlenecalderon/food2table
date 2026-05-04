@@ -8,11 +8,13 @@ import jwt from "@fastify/jwt";
 // Import the Fastify type so TypeScript understands the fastify object
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 
+// Import Role type from Prisma schema
+import { Role } from "@prisma/client";
+
 // Create an authentication Plugin function so that we can use in fastifyPlugins
 async function authenticationPlugin(fastifyApp: FastifyInstance) {
   // Read secret keys from environment (.env) variables
   const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
-  // const COOKIE_SECRET_KEY = process.env.COOKIE_SECRET_KEY;
 
   // Display error message if either secret key is empty
   if (!JWT_SECRET_KEY /*|| !COOKIE_SECRET_KEY*/) {
@@ -26,7 +28,7 @@ async function authenticationPlugin(fastifyApp: FastifyInstance) {
     secret: JWT_SECRET_KEY,
   });
 
-  // Add a new method that checks for authentication
+  // Add a new method that checks for login authentication
   async function requireAuth(request: FastifyRequest, reply: FastifyReply) {
     try {
       // Temporary debug logs so we can see what is happening
@@ -75,9 +77,32 @@ async function authenticationPlugin(fastifyApp: FastifyInstance) {
     }
   }
 
+  // Add a new method that checks for ADMIN role authorization
+  async function requireAdmin(request: FastifyRequest, reply: FastifyReply) {
+    // Verify that the user is logged in
+    await requireAuth(request, reply);
+
+    // stop execution if a response has been sent already
+    if (reply.sent) {
+      return;
+    }
+
+    // check if the user has an ADMIN role
+    if (!request.user.roles.includes(Role.ADMIN)) {
+      // return a 403 Forbidden response if the user is not an admin
+      return reply.code(403).send({
+        error: "Forbidden",
+        message: "Admin access is required.",
+      });
+    }
+  }
+
   // Attach the requireAuth method to the fastifyApp instance
   // This allows us to use fastifyApp.requireAuth() in our routes to protect them with authentication
   fastifyApp.decorate("requireAuth", requireAuth);
+  // Attach the requireAdmin method to the fastifyApp instance
+  // This allows us to use fastifyApp.requireAdmin() in our routes to protect them with admin authorization
+  fastifyApp.decorate("requireAdmin", requireAdmin);
 }
 
 // Export the Fastify plugin
@@ -96,9 +121,9 @@ declare module "fastify" {
 declare module "@fastify/jwt" {
   interface FastifyJWT {
     // This is the data we store inside the token
-    payload: { userId: string};
+    payload: { userId: string, roles: Role[] };
 
     // This is the data available on request.user after jwtVerify() succeeds
-    user: { userId: string};
+    user: { userId: string; roles: Role[] };
   }
 }

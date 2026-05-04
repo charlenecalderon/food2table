@@ -1,23 +1,83 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import NavBar from "../../components/NavBar";
 
 export default function VendorDashboardPage() {
 
-    const [vendorItems, setVendorItems] = useState([
-        { id: 1, name: "Krabby Patty", price: 1.99, quantity: 1 },
-        { id: 2, name: "Kelp Shake", price: 2.99, quantity: 2 },
-        { id: 3, name: "One Cube of Ice", price: 3.99, quantity: 3 }
-    ]);
+    const [vendorItems, setVendorItems] = useState([]);
+    const [email, setEmail] = useState("");
+    const [name, setName] = useState("");
+    const router = useRouter();
+
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+
+        // redirect to login if not logged in
+        if (!token) {
+            router.push("/login");
+            return;
+        }
+
+        async function fetchUser() {
+            try {
+                const res = await fetch("https://food2table-production.up.railway.app/users/me", {
+                    headers: {Authorization: `Bearer ${token}` },
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    setEmail(data.user.email);
+                }
+            } catch (err) {
+                console.error("Failed to fetch user:", err);
+            }
+        }
+        
+        async function fetchProfile(){
+            try {
+                const res = await fetch ("https://food2table-production.up.railway.app/profiles/me", {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    setName(data.profile.name);
+                }
+            } catch (err) {
+                console.error("Failed to fetch profile:", err);
+            }
+        }
+
+        async function fetchVendorItems(userId) {
+            try {
+                const res =await fetch(`https://food2table-production.up.railway.app/listings/vendorlistings/${userId}`, {
+                    headers : { Authorization: `Bearer ${token}` },
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    setVendorItems(data.listings);
+                }
+            } catch (err) {
+                console.error("Failed to fetch vendor items:", err);
+            }
+        }
+       
+        const userId = localStorage.getItem("userId");
+        fetchVendorItems (userId);
+        fetchUser();
+        fetchProfile();
+    }, []);
 
     return (
-        <main className="p-6">
+        <main>
+        <NavBar />
+        <div className="p-6">
             <h1 className="text-3x1 font-serif font-bold text-emerald-900 mb-6">Vendor Dashboard</h1>
 
             <div className="bg-white rounded-x1 shadow p-4 mb-6">
                 <h2 className="text-xl font-serif font-bold text-emerald-900 mb-2">Account</h2>
-                <p className="text-gray-600">Vendor Name: <span className="text-emerald-700 font-bold">Spongebob Squarepants</span></p>
-                <p className="text-gray-600">Email: <span className="text-emerald-700">SpongebobSquarepants@gmail.com</span></p>
+                <p className="text-gray-600">Vendor Name: <span className="text-emerald-700 font-bold">{name || "Loading..."}</span></p>
+                <p className="text-gray-600">Email: <span className="text-emerald-700">{email || "Loading..."}</span></p>
             </div>
 
             <div className="bg-white rounded-xl shadow p-4 mb-6">
@@ -31,27 +91,39 @@ export default function VendorDashboardPage() {
                         </tr>
                     </thead>
                     <tbody>
-
-                        {vendorItems.map((item) => (
+                        {vendorItems.length === 0 ? (
+                            <tr>
+                                <td colSpan={3} className="py-2 text-gray-400">No items to display yet.</td>
+                            </tr>
+                        ) : (
+                        vendorItems.map((item) => (
                             <tr key={item.id} className="border-b border-emerald-50">
-                                <td className="py-2 text-gray-700">{item.name}</td>
+                                <td className="py-2 text-gray-700">{item.title}</td>
                                 <td className="py-2 text-emerald-600 font-bold">${item.price.toFixed(2)}</td>
                                 <td className="py-2 text-gray-700">{item.quantity}</td>
                             </tr>
-                        ))}
+                        ))
+                        )}
                     </tbody>
                 </table>
             </div>
 
-            <div>
+            <div className="flex gap-3">
                 <a
-                    href="/vendor/orders-vendor"
+                    href="/orders"
                     className="bg-emerald-500 text-white px-8 py-2 rounded-full font-bold hover:bg-emerald-600 transition-all"
                 >
                     View Orders
                 </a>
+                <a
+                    href="/listings"
+                    className="bg-emerald-900 text-white px-8 py-2 rounded-full font-bold hover:bg-emerald-700 transition-all"
+                >
+                    My Listings
+                </a>
             </div>
 
+        </div>
         </main>
     );
 }

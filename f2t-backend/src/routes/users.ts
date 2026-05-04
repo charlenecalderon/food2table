@@ -23,7 +23,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
     console.log("Registering /user route");
 
     // fastify.post() function to handle POST requests to the /user route
-    fastify.post("/", async (request, reply) => {
+    fastify.post("", async (request, reply) => {
         // try-catch block to handle any errors that may occur during the user creation process
         try {
             // constant to extract the email and password from the request body
@@ -45,7 +45,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
                 });
             }
 
-            // if statement tocheck that the email and password inputs are of the correct data type (string)
+            // if statement to check that the email and password inputs are of the correct data type (string)
             if (typeof email !== "string" || typeof password !== "string") {
                 // display a message in the terminal to indicate that the email or password input is of the wrong data type
                 console.log("User creation failed: Email or password input is of the wrong data type");
@@ -56,6 +56,54 @@ export default async function userRoutes(fastify: FastifyInstance) {
                     message: "Email and password must be of type string.",
                 });
             }
+
+            // variable to store a boolean value to indicate if the email format is valid or not
+            let isValidEmail = false;
+
+            // if statement to check that the email is of the correct format
+            // check that the email contains both @ and . symbol
+            if (email.indexOf('@') > -1 && email.indexOf('.') > -1) {
+                // if statement to check the order between @ and . symbols
+                // check that the @ symbol comes before the last . symbol
+                if (email.indexOf('@') < email.lastIndexOf('.')) {
+                    // create a variable to store the strings between the @ and . symbols in the email
+                    let domainPart = email.substring(email.lastIndexOf("@") + 1, email.lastIndexOf("."));
+                    
+                    // if statement to check that the domain part is not empty
+                    if (domainPart != '') {
+                        // create a variable to store the email username part (string before @)
+                        let emailUsernamePart = email.split('@')[0];
+
+                        // if statemeent to check that the username part is not empty
+                        if (emailUsernamePart != '') {
+                            // create an array that stores the strings before and after the . symbol
+                            let emailDomainParts = email.split('.');
+                            // create a variable to store the domain extension (string after . symbol)
+                            let emailDomainExtension = emailDomainParts[emailDomainParts.length - 1];
+
+                            // if statement to check that the domain extension part is not empty
+                            if (emailDomainExtension != '') {
+                                isValidEmail = true;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // if statament to check if the email format is invalid
+            if (!isValidEmail) {
+                // display a message in the terminal to indicate that the email format is invalid
+                console.log("User creation failed: Email format is invalid");
+
+                // return a 400 Bad Request status response with an error message
+                return reply.status(400).send({
+                    error: "INVALID EMAIL FORMAT",
+                    message: "The email format should be in the format of username@domain.domainEnder. Please provide a valid email address.",
+                });
+            }
+
+            // console message to indicate that the user's email format is valid
+            console.log("Email format is valid");
 
             // check if a user with the same email already exists in the database
             const existingUser = await fastify.prisma.user.findUnique({
@@ -152,6 +200,54 @@ export default async function userRoutes(fastify: FastifyInstance) {
                 });
             }
 
+            // variable to store a boolean value to indicate if the email format is valid or not
+            let isValidEmail = false;
+
+            // if statement to check that the email is of the correct format
+            // check that the email contains both @ and . symbol
+            if (email.indexOf('@') > -1 && email.indexOf('.') > -1) {
+                // if statement to check the order between @ and . symbols
+                // check that the @ symbol comes before the last . symbol
+                if (email.indexOf('@') < email.lastIndexOf('.')) {
+                    // create a variable to store the strings between the @ and . symbols in the email
+                    let domainPart = email.substring(email.lastIndexOf("@") + 1, email.lastIndexOf("."));
+                    
+                    // if statement to check that the domain part is not empty
+                    if (domainPart != '') {
+                        // create a variable to store the email username part (string before @)
+                        let emailUsernamePart = email.split('@')[0];
+
+                        // if statemeent to check that the username part is not empty
+                        if (emailUsernamePart != '') {
+                            // create an array that stores the strings before and after the . symbol
+                            let emailDomainParts = email.split('.');
+                            // create a variable to store the domain extension (string after . symbol)
+                            let emailDomainExtension = emailDomainParts[emailDomainParts.length - 1];
+
+                            // if statement to check that the domain extension part is not empty
+                            if (emailDomainExtension != '') {
+                                isValidEmail = true;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // if statament to check if the email format is invalid
+            if (!isValidEmail) {
+                // display a message in the terminal to indicate that the email format is invalid
+                console.log("User creation failed: Email format is invalid");
+
+                // return a 400 Bad Request status response with an error message
+                return reply.status(400).send({
+                    error: "INVALID EMAIL FORMAT",
+                    message: "The email format should be in the format of username@domain.domainEnder. Please provide a valid email address.",
+                });
+            }
+
+            // console message to indicate that the user's email format is valid
+            console.log("Email format is valid");
+
             // find the user in the database by email and check if the password is correct
             const user = await fastify.prisma.user.findUnique({
                 where: { email },
@@ -198,7 +294,8 @@ export default async function userRoutes(fastify: FastifyInstance) {
 
             // create a JWT token with the user's id and roles
             const token = await reply.jwtSign({
-                userId: user.id
+                userId: user.id,
+                roles: user.roles, // added user roles to the JWT token payload
             });
 
             // display a message in the terminal to indicate that the user logged in successfully

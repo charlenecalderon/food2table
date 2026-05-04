@@ -1,5 +1,7 @@
 import buildServer from "./buildServer.js";
 
 const fastifyApp = await buildServer();
-
-await fastifyApp.listen({ port: 3000, host: "0.0.0.0" });
+// start the server and listen on port 3001 for request
+// the "0.0.0.0" address allows the server to accept requests from any IP address
+const port = process.env.PORT ? parseInt(process.env.PORT) : 3001;
+await fastifyApp.listen({ port, host: "0.0.0.0" });

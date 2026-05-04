@@ -1,121 +1,188 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect, use } from "react";
+import NavBar from "../../../components/NavBar";
 
-// Placeholder product data (will connect to backend later)
-const product = {
-  id: 1,
-  name: "Heirloom Tomatoes",
-  price: 3.50,
-  vendor: "Sunrise Valley Farm",
-  vendorLocation: "Riverside, CA",
-  vendorPickupInstructions: "Text us when you arrive — use the side gate on Oak St.",
-  vendorPickupWindows: ["Mon 8am–12pm", "Wed 2pm–6pm", "Sat 7am–11am"],
-  category: "Vegetables",
-  dietaryTags: ["Organic", "Non-GMO"],
-  quantityAvailable: 18,
-  desc: "Sun-ripened heirloom tomatoes grown without pesticides on our family farm in Riverside County. Perfect for salads, sauces, or fresh slicing.",
-  img: "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=800&q=80",
-};
+const API_URL = "https://food2table-production.up.railway.app";
 
-export default function ProductDetailPage() {
+export default function ProductDetailPage({ params }) {
+  const { id } = use(params);
+  const [product, setProduct] = useState(null);
+  const [vendor, setVendor] = useState(null);
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const handleAddToCart = () => {
-    setAdded(true);
-    setTimeout(() => setAdded(false), 2000);
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const response = await fetch(`${API_URL}/products/${id}`);
+        if (!response.ok) throw new Error("Product not found");
+        const data = await response.json();
+        setProduct(data.product);
+
+        // Try to fetch vendor profile
+        try {
+          const token = localStorage.getItem("token");
+          if (token) {
+            const vendorRes = await fetch(`${API_URL}/profiles/me`, {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            if (vendorRes.ok) {
+              const vendorData = await vendorRes.json();
+              setVendor(vendorData.profile);
+            }
+          }
+        } catch (e) {
+          // vendor info optional
+        }
+
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) fetchProduct();
+  }, [id]);
+
+  const handleAddToCart = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Please log in to add items to your cart.");
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_URL}/orderItems`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ productId: id, quantity: qty }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        alert(data.message || "Could not add to cart. Please try again.");
+        return;
+      }
+
+      setAdded(true);
+      setTimeout(() => setAdded(false), 2000);
+    } catch (err) {
+      alert("Could not add to cart. Please try again.");
+    }
   };
 
+  if (loading) {
+    return (
+      <div className="bg-emerald-50 min-h-screen">
+        <NavBar />
+        <div className="p-6 flex justify-center items-center">
+          <p className="text-emerald-900">Loading product...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !product) {
+    return (
+      <div className="bg-emerald-50 min-h-screen">
+        <NavBar />
+        <div className="p-6 flex justify-center items-center">
+          <p className="text-red-600">{error || "Listing not found."}</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-emerald-50 min-h-screen p-6">
+    <div className="bg-emerald-50 min-h-screen">
+      <NavBar />
+      <div className="p-6">
 
-      {/* Product Card */}
-      <div className="bg-green-200 rounded-xl p-6 flex flex-col md:flex-row gap-6 mb-6 max-w-4xl mx-auto">
+        {/* Listing Card */}
+        <div className="bg-green-200 rounded-xl p-6 flex flex-col md:flex-row gap-6 mb-6 max-w-4xl mx-auto">
 
-        {/* Image */}
-        <img
-          className="rounded-xl object-cover"
-          style={{ width: "200px", height: "200px" }}
-          src={product.img}
-          alt={product.name}
-        />
-
-        {/* Info */}
-        <div className="flex flex-col gap-3 flex-1">
-
-          {/* Tags */}
-          <div className="flex flex-wrap gap-2">
-            <span className="bg-emerald-900 text-white text-xs font-bold px-3 py-1 rounded-full">
-              {product.category}
-            </span>
-            {product.dietaryTags.map((tag) => (
-              <span key={tag} className="bg-emerald-900 text-white text-xs font-bold px-3 py-1 rounded-full">
-                {tag}
-              </span>
-            ))}
-          </div>
-
-          <h1 className="text-2xl font-serif font-bold text-emerald-900">{product.name}</h1>
-          <p className="text-emerald-900 font-bold text-lg">${product.price.toFixed(2)} / lb</p>
-          <p className="text-emerald-900 font-serif text-sm">{product.desc}</p>
-
-          {/* Availability */}
-          <p className="text-emerald-900 text-sm font-semibold">
-            {product.quantityAvailable > 0
-              ? `✅ ${product.quantityAvailable} lbs available`
-              : "❌ Sold Out"}
-          </p>
-
-          {/* Quantity + Add to Cart */}
-          {product.quantityAvailable > 0 && (
-            <div className="flex items-center gap-2 mt-1 flex-wrap">
-              <button
-                onClick={() => setQty((q) => Math.max(1, q - 1))}
-                className="bg-emerald-900 hover:bg-emerald-700 text-white px-4 py-1 rounded-full font-bold"
-              >-</button>
-              <span className="font-bold text-emerald-900 px-2">{qty}</span>
-              <button
-                onClick={() => setQty((q) => Math.min(product.quantityAvailable, q + 1))}
-                className="bg-emerald-900 hover:bg-emerald-700 text-white px-4 py-1 rounded-full font-bold"
-              >+</button>
-              <button
-                onClick={handleAddToCart}
-                className="bg-emerald-900 hover:bg-emerald-700 text-white px-6 py-2 rounded-full font-bold text-sm"
-              >
-                {added ? "✓ Added!" : "Add to Cart"}
-              </button>
-            </div>
+          {/* Image */}
+          {product.imageUrl && (
+            <img
+              className="rounded-xl object-cover"
+              style={{ width: "200px", height: "200px" }}
+              src={product.imageUrl}
+              alt={product.title}
+            />
           )}
+
+          <div className="flex flex-col gap-3 flex-1">
+            <h1 className="text-2xl font-serif font-bold text-emerald-900">{product.title}</h1>
+            <p className="text-emerald-900 font-bold text-lg">${Number(product.price).toFixed(2)}</p>
+            <p className="text-emerald-900 font-serif text-sm">{product.description || "No description available."}</p>
+
+            {/* Availability */}
+            <p className="text-emerald-900 text-sm font-semibold">
+              {product.isAvailable ? "✅ Available" : "❌ Sold Out"}
+            </p>
+
+            {/* Quantity + Add to Cart */}
+            {product.isAvailable && (
+              <div className="flex items-center gap-2 mt-1 flex-wrap">
+                <button
+                  onClick={() => setQty((q) => Math.max(1, q - 1))}
+                  className="bg-emerald-900 hover:bg-emerald-700 text-white px-4 py-1 rounded-full font-bold"
+                >-</button>
+                <span className="font-bold text-emerald-900 px-2">{qty}</span>
+                <button
+                  onClick={() => setQty((q) => q + 1)}
+                  className="bg-emerald-900 hover:bg-emerald-700 text-white px-4 py-1 rounded-full font-bold"
+                >+</button>
+                <button
+                  onClick={handleAddToCart}
+                  className="bg-emerald-900 hover:bg-emerald-700 text-white px-6 py-2 rounded-full font-bold text-sm"
+                >
+                  {added ? "✓ Added!" : "Add to Cart"}
+                </button>
+              </div>
+            )}
+          </div>
         </div>
+
+        {/* Vendor Info Section */}
+        <div className="bg-white rounded-xl shadow p-4 max-w-4xl mx-auto">
+          <h2 className="text-lg font-serif font-bold text-emerald-900 mb-3">
+            Vendor Info
+          </h2>
+
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center gap-3">
+              <div className="bg-emerald-800 rounded-full w-12 h-12 flex items-center justify-center text-xl">
+                🌻
+              </div>
+              <div>
+                <p className="text-emerald-900 font-bold font-serif text-base">
+                  {vendor?.name || "Vendor info coming soon"}
+                </p>
+                <p className="text-emerald-800 text-sm">
+                  📍 {vendor?.location || "Location not available"}
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-emerald-50 rounded-xl p-3">
+              <p className="text-emerald-900 font-bold text-sm mb-1">
+                Pickup Instructions
+              </p>
+              <p className="text-gray-600 text-sm">
+                {vendor?.pickupInstructions || "Pickup instructions coming soon."}
+              </p>
+            </div>
+          </div>
+        </div>
+
       </div>
-
-      {/* Vendor Info Card */}
-      <div className="bg-green-200 rounded-xl p-6 max-w-4xl mx-auto">
-        <h2 className="text-lg font-serif font-bold text-emerald-900 mb-4">Vendor Info</h2>
-
-        <p className="text-base font-serif font-bold text-emerald-900">{product.vendor}</p>
-        <p className="text-emerald-900 text-sm mb-4">📍 {product.vendorLocation}</p>
-
-        {/* Pickup Instructions */}
-        <div className="bg-emerald-50 rounded-xl p-4 mb-4">
-          <p className="font-bold text-emerald-900 text-sm mb-1">Pickup Instructions</p>
-          <p className="text-emerald-900 font-serif text-sm">{product.vendorPickupInstructions}</p>
-        </div>
-
-        {/* Pickup Windows */}
-        <p className="font-bold text-emerald-900 text-sm mb-2">Available Pickup Windows</p>
-        <div className="flex flex-wrap gap-2">
-          {product.vendorPickupWindows.map((window) => (
-            <span
-              key={window}
-              className="bg-emerald-900 text-white text-xs font-bold px-4 py-2 rounded-full"
-            >
-              🕐 {window}
-            </span>
-          ))}
-        </div>
-      </div>
-
     </div>
   );
 }

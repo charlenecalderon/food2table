@@ -1,0 +1,4 @@
+-- Baseline marker migration after Role enum transition.
+-- No schema changes in this migration.
+-- This migration exists to document the current stable schema state
+-- and keep team setup/instructions aligned.

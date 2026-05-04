@@ -1,22 +1,21 @@
-
 'use client';
 
 import NavBar from "../../components/NavBar";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 
-{/*layout for the data to be shown as a card*/}
 function ProductCard({ product }) {
   return (
     <div className="bg-green-200 text-white rounded-xl w-72 p-4">
       <img
         className="rounded-xl h-40 w-full object-cover"
-        src={product.img || "/placeholder.jpg"}
+        src={product.imageUrl || "/placeholder.jpg"}
         alt={product.name}
       />
       <div className="flex justify-between items-center mt-2">
         <h2 className="text-emerald-900 font-bold font-serif">{product.name}</h2>
-        <span className="text-emerald-900 font-bold">${product.price}</span>
+        <span className="text-emerald-900 font-bold">${Number(product.price).toFixed(2)}</span>
       </div>
       <div className="flex justify-between mt-2">
         <Link href={`/product/${product.id}`}>
@@ -27,24 +26,31 @@ function ProductCard({ product }) {
       </div>
       <p className="text-emerald-900 font-serif text-sm mt-2 line-clamp-4">{product.description}</p>
     </div>
-  )
+  );
 }
 
-{/*fetch products from backend */}
 function ProductsList() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const searchParams = useSearchParams();
+  const query = searchParams.get("q") || "";
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch('http://localhost:3000/products');
-        if (!response.ok) {
-          throw new Error('Failed to fetch products');
-        }
+        const response = await fetch('https://food2table-production.up.railway.app/products');
+        if (!response.ok) throw new Error('Failed to fetch products');
         const data = await response.json();
-        setProducts(data.products);
+        // map listings to the product shape the rest of this component expects
+        const mapped = (data.products || []).map((l) => ({
+          id: l.id,
+          name: l.name,
+          price: l.price,
+          description: l.description,
+          imageUrl: l.imageUrl,
+        }));
+        setProducts(mapped);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -57,28 +63,38 @@ function ProductsList() {
 
   if (loading) {
     return (
-      <div className="p-5">
-        <div className="flex justify-center items-center">
-          <p className="text-emerald-900">Loading products...</p>
-        </div>
+      <div className="p-5 flex justify-center">
+        <p className="text-emerald-900">Loading products...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="p-5">
-        <div className="flex justify-center items-center">
-          <p className="text-red-600">Error: {error}</p>
-        </div>
+      <div className="p-5 flex justify-center">
+        <p className="text-red-600">Error: {error}</p>
       </div>
     );
   }
 
+  const filtered = query
+    ? products.filter((p) =>
+        p.name.toLowerCase().includes(query.toLowerCase()) ||
+        p.description.toLowerCase().includes(query.toLowerCase())
+      )
+    : products;
+
   return (
     <div className="p-5">
+      {query && (
+        <p className="text-emerald-900 font-semibold mb-4">
+          {filtered.length > 0
+            ? `Showing results for "${query}"`
+            : `No products found for "${query}"`}
+        </p>
+      )}
       <div className="flex flex-wrap gap-6 justify-start">
-        {products.map((product) => (
+        {filtered.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
       </div>
@@ -89,10 +105,10 @@ function ProductsList() {
 export default function Browse() {
   return (
     <>
-    <NavBar/>
-      {/* products section */}
-      <ProductsList />
-</>
-   
+      <NavBar />
+      <Suspense fallback={<div className="p-5 text-emerald-900">Loading products...</div>}>
+        <ProductsList />
+      </Suspense>
+    </>
   );
 }
