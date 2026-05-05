@@ -25,12 +25,12 @@ export default function ProductDetailPage({ params }) {
         try {
           const token = localStorage.getItem("token");
           if (token) {
-            const vendorRes = await fetch(`${API_URL}/profiles/me`, {
+            const vendorRes = await fetch(`${API_URL}/vendor/${data.product.sellerId}`, {
               headers: { Authorization: `Bearer ${token}` },
             });
             if (vendorRes.ok) {
               const vendorData = await vendorRes.json();
-              setVendor(vendorData.profile);
+              setVendor(vendorData);
             }
           }
         } catch (e) {
