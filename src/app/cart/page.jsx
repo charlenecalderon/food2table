@@ -24,6 +24,7 @@ export default function CartPage() {
         if (res.ok) {
           const mapped = data.currentCart.items.map((item) => ({
             id: item.id,
+            productId: item.productId,
             name: item.product.name,
             price: item.product.price,
             quantity: item.quantity,
@@ -39,11 +40,12 @@ export default function CartPage() {
     fetchCart();
   }, []);
 
-  const handleAdd = async (id) => {
+  const handleAdd = async (productId) => {
     const token = localStorage.getItem("token");
     try {
-      const res = await fetch(`https://food2table-production.up.railway.app/orderItems/${id}/increase`, {
+      const res = await fetch(`https://food2table-production.up.railway.app/orderItems/${productId}/increase`, {
         method: "PATCH",
+        body: JSON.stringify({}),
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -51,7 +53,7 @@ export default function CartPage() {
       });
       if (res.ok) {
         setCartItems(cartItems.map((i) =>
-          i.id === id ? { ...i, quantity: i.quantity + 1 } : i
+          i.productId === productId ? { ...i, quantity: i.quantity + 1 } : i
         ));
       }
     } catch (err) {
@@ -59,11 +61,12 @@ export default function CartPage() {
     }
   };
 
-  const handleMinus = async (id) => {
+  const handleMinus = async (productId) => {
     const token = localStorage.getItem("token");
     try {
-      const res = await fetch(`https://food2table-production.up.railway.app/orderItems/${id}/decrease`, {
+      const res = await fetch(`https://food2table-production.up.railway.app/orderItems/${productId}/decrease`, {
         method: "PATCH",
+        body: JSON.stringify({}),
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -71,7 +74,7 @@ export default function CartPage() {
       });
       if (res.ok) {
         setCartItems(cartItems.map((i) =>
-          i.id === id ? { ...i, quantity: Math.max(1, i.quantity - 1) } : i
+          i.productId === productId ? { ...i, quantity: Math.max(1, i.quantity - 1) } : i
         ));
       }
     } catch (err) {
@@ -79,18 +82,19 @@ export default function CartPage() {
     }
   };
 
-  const handleRemove = async (id) => {
+  const handleRemove = async (productId) => {
     const token = localStorage.getItem("token");
     try {
-      const res = await fetch(`https://food2table-production.up.railway.app/orderItems/${id}`, {
+      const res = await fetch(`https://food2table-production.up.railway.app/orderItems/${productId}`, {
         method: "DELETE",
+        body: JSON.stringify({}),
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       });
       if (res.ok) {
-        setCartItems(cartItems.filter((i) => i.id !== id));
+        setCartItems(cartItems.filter((i) => i.productId !== productId));
       }
     } catch (err) {
       console.error("Failed to remove item:", err);
@@ -126,9 +130,9 @@ export default function CartPage() {
                 Subtotal: <span className="font-bold">${(item.price * item.quantity).toFixed(2)}</span>
               </p>
               <div className="flex gap-2 mt-1">
-                <button onClick={() => handleAdd(item.id)} className="bg-emerald-900 text-white px-4 py-1 rounded-full font-bold hover:bg-emerald-700">+</button>
-                <button onClick={() => handleMinus(item.id)} className="bg-emerald-900 text-white px-4 py-1 rounded-full font-bold hover:bg-emerald-700">−</button>
-                <button onClick={() => handleRemove(item.id)} className="bg-red-400 text-white px-4 py-1 rounded-full font-bold hover:bg-red-500">Remove</button>
+                <button onClick={() => handleAdd(item.productId)} className="bg-emerald-900 text-white px-4 py-1 rounded-full font-bold hover:bg-emerald-700">+</button>
+                <button onClick={() => handleMinus(item.productId)} className="bg-emerald-900 text-white px-4 py-1 rounded-full font-bold hover:bg-emerald-700">−</button>
+                <button onClick={() => handleRemove(item.productId)} className="bg-red-400 text-white px-4 py-1 rounded-full font-bold hover:bg-red-500">Remove</button>
               </div>
             </div>
           ))}
