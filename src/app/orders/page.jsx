@@ -1,29 +1,85 @@
 "use client";
+import { useState, useEffect } from "react";
 import NavBar from "../../components/NavBar";
-import OrderCard from "../../components/BuyersOrders";
-import useRequireAuth from "../../lib/useRequireAuth";
+import BuyersOrders from "../../components/BuyersOrders";
+import VendorOrders from "../../components/VendorOrders";
+
+const API_BASE = "https://food2table-production.up.railway.app";
 
 export default function OrdersPage() {
-  useRequireAuth();
-  // PRISMA PLACEHOLDER
-  const sampleOrders = [
-    { id: 1, itemName: "Milk", vendorName: "Dairy Co", price: 2.49, status: "PAID", timeLeft: 24, paymentType: "DIGITAL" },
-    { id: 2, itemName: "Apple Bag", vendorName: "Orchard", price: 4.50, status: "UNPAID", timeLeft: null, paymentType: "CASH" },
-    { id: 3, itemName: "Sourdough Bread", vendorName: "Baker", price: 5.00, status: "UNPAID", timeLeft: 12, paymentType: "DIGITAL" },
-  ];
+    const [activeTab, setActiveTab] = useState("buying");
+    const [buyerOrders, setBuyerOrders] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-  return (
-    <div className="min-h-screen bg-[#f0fff4]">
-      <NavBar />
-      <main className="max-w-4xl mx-auto p-6">
-        <h1 className="text-3xl font-bold text-emerald-900 mb-8">My Orders</h1>
-        
-        <div className="grid gap-6">
-          {sampleOrders.map((order) => (
-            <OrderCard key={order.id} order={order} />
-          ))}
+    useEffect(() => {
+        async function fetchOrders() {
+            try {
+                const token = localStorage.getItem("token");
+                const res = await fetch(`${API_BASE}/orders`, {
+                    headers: { Authorization: 'Bearer ${token}' },
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    setBuyerOrders(data.orders);
+                }
+            } catch (err) {
+                console.error("Failed to fetch orders:", err);
+                setError("Could not load orders.");
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchOrders();
+    }, []);
+
+    return (
+        <div className="min-h-screen bg-[#f0fff4]">
+            <NavBar />
+            <main className="max-w-4xl mx-auto p-6">
+                <h1 className="text-3xl font-serif font-bold text-emerald-900 mb-6">My Orders</h1>
+
+                {/* Tab Switcher */}
+                <div className="flex gap-4 mb-6">
+                    <button
+                        onClick={() => setActiveTab("buying")}
+                        className={`px-6 py-2 rounded-full font-bold transition-all
+                            ${activeTab === "buying"
+                                ? "bg-emerald-500 text-white"
+                                : "bg-white text-emerald-700 border border-emerald-300 hover:bg-emerald-50"}`}
+                    >
+                        Buying
+                    </button>
+                    <button
+                        onClick={() => setActiveTab("selling")}
+                        className={`px-6 py-2 rounded-full font-bold transition-all
+                            ${activeTab === "selling"
+                                ? "bg-emerald-500 text-white"
+                                : "bg-white text-emerald-700 border border-emerald-300 hover:bg-emerald-50"}`}
+                    >
+                        Selling
+                    </button>
+                </div>
+
+                {/* Tab Content */}
+                {activeTab === "buying" ? (
+                    <div>
+                        {loading && <p className="text-emerald-700">Loading orders...</p>}
+                        {error && <p className="text-red-500">{error}</p>}
+                        {!loading && !error && buyerOrders.length === 0 && (
+                            <p className="text-gray-500">No orders found.</p>
+                        )}
+                        <div className="grid gap-6">
+                            {buyerOrders.map((order) => (
+                                <BuyersOrders key={order.id} order={order} />
+                            ))}
+                        </div>
+                    </div>
+                ) : (
+                    <VendorOrders />
+                )}
+            </main>
         </div>
-      </main>
-    </div>
-  );
-}
+    );         
+} 
+
