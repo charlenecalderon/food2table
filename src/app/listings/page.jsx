@@ -135,7 +135,7 @@ export default function MyListingsPage() {
     
     return (
         <main className='p-6'>
-            <Navbar />
+            <NavBar />
             <h1 className="text-3x1 font-serif font-bold text-emerald-900 mb-6" >My Listings</h1>
 
             <button
