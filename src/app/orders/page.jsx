@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import NavBar from "../../components/NavBar";
 import BuyersOrders from "../../components/BuyersOrders";
-import VendorOrders from "../../components/VendorOrders";
+import VendorOrders from "../../components/VendorsOrders";
 
 const API_BASE = "https://food2table-production.up.railway.app";
 
