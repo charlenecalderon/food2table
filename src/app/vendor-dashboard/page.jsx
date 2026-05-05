@@ -252,9 +252,7 @@ export default function VendorDashboardPage() {
                 </div>
 
                 <div className="flex gap-3 mt-6">
-                    <a>
-                        href="/orders"
-                        className="bg-emerald-500 text-white px-8 py-2 rounded-full font-bold hover:bg-emerald-600 transition-all"
+                    <a href="/orders" className="bg-emerald-500 text-white px-8 py-2 rounded-full font-bold hover:bg-emerald-600 transition-all">
                         View Orders
                     </a>
                 </div>
