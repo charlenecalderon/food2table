@@ -17,7 +17,7 @@ export default function OrdersPage() {
             try {
                 const token = localStorage.getItem("token");
                 const res = await fetch(`${API_BASE}/orders`, {
-                    headers: { Authorization: 'Bearer ${token}' },
+                    headers: { Authorization: `Bearer ${token}` },
                 });
                 const data = await res.json();
                 if (res.ok) {
