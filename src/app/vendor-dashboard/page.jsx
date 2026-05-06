@@ -14,6 +14,7 @@ export default function VendorDashboardPage() {
     const [name, setName] = useState("");
     const [location, setLocation] = useState("");
     const [pickupInstructions, setPickupInstructions] = useState("");
+    const [profileId, setProfileId] = useState("");
     const router = useRouter();
 
     //commenting all the code pasted from listing page starting here
@@ -59,6 +60,7 @@ export default function VendorDashboardPage() {
                     setName(data.profile.name);
                     setLocation(data.profile.location || "");
                     setPickupInstructions(data.profile.pickupInstructions || "");
+                    setProfileId(data.profile.id);
                 }
             } catch (err) {
                 console.error("Failed to fetch profile:", err);
@@ -109,7 +111,7 @@ export default function VendorDashboardPage() {
     const handleSaveProfile = async () => {
         const token = localStorage.getItem("token");
         try {
-            const res = await fetch(`${API_BASE}/profiles/me`, {
+            const res = await fetch(`${API_BASE}/profiles/${profileId}`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 body: JSON.stringify({ location, pickupInstructions }),
