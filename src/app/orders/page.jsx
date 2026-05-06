@@ -36,7 +36,7 @@ export default function OrdersPage() {
     return (
         <div className="min-h-screen bg-[#f0fff4]">
             <NavBar />
-            <main className="max-w-4xl mx-auto p-6">
+            <main className="p-6">
                 <h1 className="text-3xl font-serif font-bold text-emerald-900 mb-6">My Orders</h1>
 
                 {/* Tab Switcher */}
