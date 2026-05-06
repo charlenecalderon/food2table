@@ -93,7 +93,7 @@ function ProductsList() {
             : `No products found for "${query}"`}
         </p>
       )}
-      <div className="flex flex-wrap gap-6 justify-center">
+      <div className="flex flex-wrap gap-6 justify-start">
         {filtered.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
