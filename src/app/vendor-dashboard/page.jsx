@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import NavBar from "../../components/NavBar";
+import { supabase } from "../../lib/supabase";
 
 const API_BASE = "https://food2table-production.up.railway.app";
 
@@ -11,6 +12,8 @@ export default function VendorDashboardPage() {
     const [vendorItems, setVendorItems] = useState([]);
     const [email, setEmail] = useState("");
     const [name, setName] = useState("");
+    const [location, setLocation] = useState("");
+    const [pickupInstructions, setPickupInstructions] = useState("");
     const router = useRouter();
 
     //commenting all the code pasted from listing page starting here
@@ -18,9 +21,10 @@ export default function VendorDashboardPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [newListing, setNewListing] = useState({
-        title: "", price: "", description: ""
+        title: "", price: "", description: "", quantity: "", imageUrl: ""
     });
     const [showAddForm, setShowAddForm] = useState(false);
+    const [uploading, setUploading] = useState(false);
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -53,6 +57,8 @@ export default function VendorDashboardPage() {
                 const data = await res.json();
                 if (res.ok) {
                     setName(data.profile.name);
+                    setLocation(data.profile.location || "");
+                    setPickupInstructions(data.profile.pickupInstructions || "");
                 }
             } catch (err) {
                 console.error("Failed to fetch profile:", err);
@@ -80,6 +86,40 @@ export default function VendorDashboardPage() {
         fetchUser();
         fetchProfile();
     }, []);
+
+    const handleImageUpload = async (file, onSuccess) => {
+        setUploading(true);
+        const fileExt = file.name.split(".").pop();
+        const fileName = `${Date.now()}.${fileExt}`;
+        const { error: uploadError } = await supabase.storage
+            .from("listing-images")
+            .upload(fileName, file, { upsert: true });
+        if (uploadError) {
+            alert("Image upload failed, please try again later.");
+            setUploading(false);
+            return;
+        }
+        const { data: urlData } = supabase.storage
+            .from("listing-images")
+            .getPublicUrl(fileName);
+        onSuccess(urlData.publicUrl);
+        setUploading(false);
+    };
+
+    const handleSaveProfile = async () => {
+        const token = localStorage.getItem("token");
+        try {
+            const res = await fetch(`${API_BASE}/profiles/me`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                body: JSON.stringify({ location, pickupInstructions }),
+            });
+            if (res.ok) alert("Profile updated!");
+            else alert("Failed to update profile.");
+        } catch (err) {
+            console.error("Failed to save profile:", err);
+        }
+    };
 
     // From listing page
     const handleDelete = async (id) => {
@@ -164,10 +204,32 @@ export default function VendorDashboardPage() {
             <div className="p-6">
                 <h1 className="text-3x1 font-serif font-bold text-emerald-900 mb-6">Vendor Dashboard</h1>
 
-                <div className="bg-white rounded-x1 shadow p-4 mb-6">
+                <div className="bg-white rounded-xl shadow p-4 mb-6">
                     <h2 className="text-xl font-serif font-bold text-emerald-900 mb-2">Account</h2>
                     <p className="text-gray-600">Vendor Name: <span className="text-emerald-700 font-bold">{name || "Loading..."}</span></p>
                     <p className="text-gray-600">Email: <span className="text-emerald-700">{email || "Loading..."}</span></p>
+                    <div className="flex flex-col gap-2 mt-3">
+                        <input
+                            type="text"
+                            placeholder="Location"
+                            value={location}
+                            onChange={(e) => setLocation(e.target.value)}
+                            className="border border-emerald-200 rounded-lg p-2 text-sm"
+                        />
+                        <input
+                            type="text"
+                            placeholder="Pickup Instructions"
+                            value={pickupInstructions}
+                            onChange={(e) => setPickupInstructions(e.target.value)}
+                            className="border border-emerald-200 rounded-lg p-2 text-sm"
+                        />
+                        <button
+                            onClick={handleSaveProfile}
+                            className="bg-emerald-900 text-white px-6 py-2 rounded-full font-bold hover:bg-emerald-700 w-fit text-sm"
+                        >
+                            Save
+                        </button>
+                    </div>
                 </div>
 
                 <h2 className="text-3x1 font-serif font-bold text-emerald-900 mb-6" >My Listings</h2>
@@ -204,9 +266,32 @@ export default function VendorDashboardPage() {
                                 onChange={(e) => setNewListing({ ...newListing, description: e.target.value})}
                                 className="border border-emerald-200 rounded-lg p-2"
                             />
+                            <input
+                                type="number"
+                                placeholder="Quantity Available"
+                                value={newListing.quantity}
+                                onChange={(e) => setNewListing({ ...newListing, quantity: e.target.value })}
+                                className="border border-emerald-200 rounded-lg p-2"
+                            />
+                            <label className="text-sm font-semibold text-emerald-900">Photo</label>
+                            <input type="file" accept="image/*"
+                                onChange={(e) => {
+                                    if (e.target.files[0]) {
+                                        handleImageUpload(e.target.files[0], (url) =>
+                                            setNewListing((prev) => ({ ...prev, imageUrl: url }))
+                                        );
+                                    }
+                                }}
+                                className="border border-emerald-200 rounded-lg p-2"
+                            />
+                            {uploading && <p className="text-sm text-emerald-600">Uploading image...</p>}
+                            {newListing.imageUrl && (
+                                <img src={newListing.imageUrl} alt="Preview" className="h-32 rounded-lg object-cover w-full" />
+                            )}
                             <button
                                 onClick={handleAdd}
-                                className="bg-emerald-500 text-white px-6 py-2 rounded-full font-bold hover:bg-emerald-600 w-fit"
+                                disabled={uploading}
+                                className="bg-emerald-500 text-white px-6 py-2 rounded-full font-bold hover:bg-emerald-600 w-fit disabled:opacity-50"
                             >
                                 Add Listing
                             </button>
