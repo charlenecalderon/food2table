@@ -9,7 +9,7 @@ export default function About() {
           About Us
         </h1>
         <hr className="border-emerald-400 mb-8 h-0.5" />
-        <p className="text-lg text-emerald-800 font-serif max-w-3xl mx-auto px-4 mb-4">
+        <p className="text-lg text-emerald-800 font-serif max-w-3xl mx-auto px-4 mb-4 text-center">
           Hello and welcome to fresh2table! Our mission is to display local
           vendors who are selling fresh produce either from their backyard
           gardens or very own farms. We as a small business would like to create
@@ -22,7 +22,7 @@ export default function About() {
           community and continue to support us!
         </p>
         <h2 className="text-xl font-bold font-serif text-emerald-900 text-center py-4">
-          Contact Us:{" "}
+          Contact Us:&nbsp;
           <a
             href="mailto:fresh2table@gmail.com"
             className="text-emerald-600 hover:underline"
