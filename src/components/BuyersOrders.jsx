@@ -1,53 +1,43 @@
+// adding this to keep the same format as the browse page
 export default function BuyersOrders({ order }) {
-  // Placeholder Logic of order statuses and such to determine color based on status/urgency
-  const isPaid = order.status === "PAID";
-  const isUrgent = order.timeLeft && order.timeLeft <= 12;
-  
+  const isPaid = order.status === "PLACED" || order.status === "COMPLETED";
+  const total = order.items?.reduce((sum, item) => sum + item.quantity * (item.product?.price || 0), 0) || 0;
+  const vendorProfile = order.items?.[0]?.product?.seller?.profile;
+  const orderDate = order.createdAt ? new Date(order.createdAt).toLocaleDateString() : null;
+
   return (
-    <div className={`bg-white border-2 rounded-2xl p-5 shadow-sm transition-all ${
-      isPaid ? 'border-emerald-100' : isUrgent ? 'border-red-100 shadow-md' : 'border-slate-100'
-    }`}>
-      
-      {/* Header: Title, Price, and Status */}
-      <div className="flex justify-between items-start mb-4">
-        <div>
-          <h3 className="text-xl font-bold text-slate-800">{order.itemName}</h3>
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest">
-            {order.vendorName}
+    <div className="bg-green-200 rounded-xl w-72 p-4">
+      <h2 className="text-emerald-900 font-bold font-serif mb-1">
+        {order.items?.[0]?.product?.name || "Order"}
+        {order.items?.length > 1 ? ` + ${order.items.length - 1} more` : ""}
+      </h2>
+      <div className="flex flex-col gap-1 mt-1 mb-2">
+        {order.items?.map((item) => (
+          <p key={item.id} className="text-emerald-900 font-serif text-sm">
+            {item.product?.name} × {item.quantity}
           </p>
-        </div>
-        <div className="text-right">
-          <p className="text-lg font-bold text-emerald-700">${order.price.toFixed(2)}</p>
-          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-            isPaid ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-50 text-slate-500 border-slate-200'
-          }`}>
-            {order.status}
-          </span>
-        </div>
+        ))}
       </div>
-
-      {/* Conditional Info Area (Urgency or Payment Info) */}
-      <div className="mt-2">
-        {order.timeLeft ? (
-          <div className={`p-3 rounded-xl border ${isUrgent ? 'bg-red-50 border-red-100' : 'bg-orange-50 border-orange-100'}`}>
-            <p className={`text-sm font-bold ${isUrgent ? 'text-red-700' : 'text-orange-800'}`}>
-              {isPaid ? "✅ Pickup within:" : "⚠️ Reserve expires in:"} {order.timeLeft} hours
-            </p>
-          </div>
-        ) : (
-          <p className="text-slate-400 text-[10px] italic">No time limit on this reserve</p>
-        )}
-      </div>
-
-      {/* Payment Section (Hidden if already paid) */}
-      {!isPaid && (
-        <div className="mt-4 pt-4 border-t border-dashed border-slate-200">
-          <p className="text-slate-500 text-[10px] font-bold uppercase mb-1">Preferred Payment:</p>
-          <p className="text-sm font-bold text-slate-700">
-            {order.paymentType === "CASH" ? " Cash on Delivery" : "Digital (Venmo/Zelle)"}
-          </p>
-        </div>
+      {vendorProfile?.name && (
+        <p className="text-emerald-900 font-serif text-sm">Vendor: <span className="font-bold">{vendorProfile.name}</span></p>
       )}
+      {vendorProfile?.location && (
+        <p className="text-emerald-900 font-serif text-sm">Pickup: <span className="font-bold">{vendorProfile.location}</span></p>
+      )}
+      {vendorProfile?.pickupInstructions && (
+        <p className="text-emerald-900 font-serif text-sm">Instructions: {vendorProfile.pickupInstructions}</p>
+      )}
+      {orderDate && (
+        <p className="text-emerald-900 font-serif text-sm">Ordered: {orderDate}</p>
+      )}
+      <div className="flex justify-between items-center mt-2">
+        <span className={`text-xs font-bold px-3 py-1 rounded-full ${
+          isPaid ? "bg-emerald-900 text-white" : "bg-white text-emerald-900"
+        }`}>
+          {order.status}
+        </span>
+        <span className="text-emerald-900 font-bold">${total.toFixed(2)}</span>
+      </div>
     </div>
   );
 }

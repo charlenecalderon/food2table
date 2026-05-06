@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Search, ShoppingCart, User, Menu } from "lucide-react";
 
@@ -9,14 +9,36 @@ export default function NavBar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [cartCount, setCartCount] = useState(0);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+    fetch("https://food2table-production.up.railway.app/orderItems", {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.items) setCartCount(data.items.length);
+      })
+      .catch(() => {});
+  }, []);
 
   const handleProfileClick = () => {
     const token = localStorage.getItem("token");
     if (token) {
-      router.push("/profile");
+      setProfileMenuOpen(!profileMenuOpen);
     } else {
       router.push("/login");
     }
+  };
+
+  const handleLogOut = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("userId");
+    setProfileMenuOpen(false);
+    router.push("/login");
   };
 
   const menuLinks = [
@@ -29,17 +51,16 @@ export default function NavBar() {
   return (
     <div className="w-full">
       {/* BANNER */}
-      <div className="w-full h-40 md:h-52 overflow-hidden border-b-4 border-emerald-900">
+      <div className="w-full h-50 md:h-52 overflow-hidden border-b-4 border-emerald-900">
         <img
           className="w-full h-full object-cover"
-          src="/banneropt3.png"
+          src="/banner.jpg"
           alt="Fresh2Table Banner"
         />
       </div>
 
       {/* NAVIGATION BAR */}
       <nav className="bg-green-200 px-8 py-3 border-b border-emerald-200 flex items-center justify-between relative">
-
         {/* LEFT — Logo with dropdown */}
         <div className="relative">
           <button
@@ -69,7 +90,6 @@ export default function NavBar() {
 
         {/* RIGHT — Icons */}
         <div className="flex items-center gap-5">
-
           {/* Search */}
           {searchOpen ? (
             <form
@@ -89,7 +109,10 @@ export default function NavBar() {
                 placeholder="Search products..."
                 className="border border-emerald-300 rounded-full px-4 py-1 text-sm text-emerald-900 outline-none focus:ring-2 focus:ring-emerald-400 w-48"
               />
-              <button type="submit" className="text-emerald-800 hover:text-emerald-600 transition-colors">
+              <button
+                type="submit"
+                className="text-emerald-800 hover:text-emerald-600 transition-colors"
+              >
                 <Search size={20} />
               </button>
             </form>
@@ -107,18 +130,31 @@ export default function NavBar() {
             <button className="relative text-emerald-800 hover:text-emerald-600 transition-colors">
               <ShoppingCart size={20} />
               <span className="absolute -top-2 -right-2 bg-emerald-700 text-white text-xs font-bold rounded-full w-4 h-4 flex items-center justify-center">
-                0
+                {cartCount}
               </span>
             </button>
           </Link>
 
-          {/* Account icon */}
-          <button
-            onClick={handleProfileClick}
-            className="text-emerald-800 hover:text-emerald-600 transition-colors"
-          >
-            <User size={20} />
-          </button>
+          {/* Account icon with dropdown */}
+          <div className="relative">
+            <button
+              onClick={handleProfileClick}
+              className="text-emerald-800 hover:text-emerald-600 transition-colors"
+            >
+              <User size={20} />
+            </button>
+
+            {profileMenuOpen && (
+              <div className="absolute right-0 mt-3 w-44 bg-white rounded-xl shadow-lg border border-emerald-100 z-50 overflow-hidden">
+                <button
+                  onClick={handleLogOut}
+                  className="w-full text-left px-5 py-3 text-sm font-semibold text-red-500 hover:bg-green-100 transition-colors cursor-pointer"
+                >
+                  Log Out
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </nav>
     </div>

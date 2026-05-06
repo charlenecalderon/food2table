@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import NavBar from "../../components/NavBar";
 import BuyersOrders from "../../components/BuyersOrders";
-import VendorOrders from "../../components/VendorOrders";
+import VendorOrders from "../../components/VendorsOrders";
 
 const API_BASE = "https://food2table-production.up.railway.app";
 
@@ -17,7 +17,7 @@ export default function OrdersPage() {
             try {
                 const token = localStorage.getItem("token");
                 const res = await fetch(`${API_BASE}/orders`, {
-                    headers: { Authorization: 'Bearer ${token}' },
+                    headers: { Authorization: `Bearer ${token}` },
                 });
                 const data = await res.json();
                 if (res.ok) {
@@ -36,7 +36,7 @@ export default function OrdersPage() {
     return (
         <div className="min-h-screen bg-[#f0fff4]">
             <NavBar />
-            <main className="max-w-4xl mx-auto p-6">
+            <main className="p-6">
                 <h1 className="text-3xl font-serif font-bold text-emerald-900 mb-6">My Orders</h1>
 
                 {/* Tab Switcher */}
