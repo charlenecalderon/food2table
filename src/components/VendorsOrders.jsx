@@ -17,7 +17,7 @@ export default function VendorOrders() {
                 });
                 const data = await res.json();
                 if (res.ok) {
-                    setOrders(data.orders);
+                    setOrders(data.orders ?? []);
                 }
             } catch (err) {
                 console.error("Failed to fetch vendor orders:", err);
