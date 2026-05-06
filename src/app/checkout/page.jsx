@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import NavBar from "../../components/NavBar";
 
-const API_URL = "http://localhost:3001";
+const API_URL = "https://food2table-production.up.railway.app";
 
 function groupByVendor(items) {
   return items.reduce((acc, item) => {
@@ -27,6 +27,8 @@ export default function CheckoutPage() {
 
   // Get item price by matching listing to product seller
   const getItemPrice = (item) => {
+    return item.product?.price || 0;
+    // old code below, no longer needed
     const matchedListing = listings.find(
       (l) => l.sellerId === item.product?.sellerId
     );
@@ -48,7 +50,7 @@ export default function CheckoutPage() {
           fetch(`${API_URL}/carts/current`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          fetch(`${API_URL}/listings`),
+          fetch(`${API_URL}/products`),
         ]);
 
         // Handle cart
