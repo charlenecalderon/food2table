@@ -309,7 +309,7 @@ export default async function orderRoutes(fastify: FastifyInstance) {
             // Also, include the order items related to each order using the include option
             const orders = await fastify.prisma.order.findMany({
                 where: { buyerId: userId, status: { in: ["PLACED", "COMPLETED", "CANCELLED"]} },
-                include: { items: { include: { product: true } } }
+                include: { items: { include: { product: { include: { seller: { include: { profile: true } } } } } } }
             });
 
             // display a message in the terminal to indicate that the orders were retrieved successfully and show all the order details

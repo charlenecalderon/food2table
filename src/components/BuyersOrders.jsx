@@ -2,6 +2,8 @@
 export default function BuyersOrders({ order }) {
   const isPaid = order.status === "PLACED" || order.status === "COMPLETED";
   const total = order.items?.reduce((sum, item) => sum + item.quantity * (item.product?.price || 0), 0) || 0;
+  const vendorProfile = order.items?.[0]?.product?.seller?.profile;
+  const orderDate = order.createdAt ? new Date(order.createdAt).toLocaleDateString() : null;
 
   return (
     <div className="bg-green-200 rounded-xl w-72 p-4">
@@ -16,6 +18,18 @@ export default function BuyersOrders({ order }) {
           </p>
         ))}
       </div>
+      {vendorProfile?.name && (
+        <p className="text-emerald-900 font-serif text-sm">Vendor: <span className="font-bold">{vendorProfile.name}</span></p>
+      )}
+      {vendorProfile?.location && (
+        <p className="text-emerald-900 font-serif text-sm">Pickup: <span className="font-bold">{vendorProfile.location}</span></p>
+      )}
+      {vendorProfile?.pickupInstructions && (
+        <p className="text-emerald-900 font-serif text-sm">Instructions: {vendorProfile.pickupInstructions}</p>
+      )}
+      {orderDate && (
+        <p className="text-emerald-900 font-serif text-sm">Ordered: {orderDate}</p>
+      )}
       <div className="flex justify-between items-center mt-2">
         <span className={`text-xs font-bold px-3 py-1 rounded-full ${
           isPaid ? "bg-emerald-900 text-white" : "bg-white text-emerald-900"
