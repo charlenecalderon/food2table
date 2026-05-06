@@ -399,6 +399,7 @@ export default async function orderRoutes(fastify: FastifyInstance) {
             // just get the user
             const user = await fastify.prisma.user.findUnique({
                 where: { id: userId },
+                include: { orders: true }
             })
 
             // send the order(s)
