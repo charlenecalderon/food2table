@@ -177,22 +177,24 @@ export default function VendorDashboardPage() {
     // From listing page
     const handleAdd = async () => {
          try {
-            const res = await fetch(`${API_BASE}/listings`, {
+            const res = await fetch(`${API_BASE}/products`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${localStorage.getItem("token")}`,
                 },
                 body: JSON.stringify({
-                    title: newListing.title,
+                    name: newListing.title,
                     description: newListing.description,
                     price: parseFloat(newListing.price),
+                    imageUrl: newListing.imageUrl || "",
+                    stock: newListing.quantity ? parseInt(newListing.quantity) : 0,
                 }),
             });
             if (!res.ok) throw new Error("Failed to add listing");
             const data = await res.json();
-            setvendorItems([...vendorItems, data.listing]);
-            setNewListing({ title: "", price: "", description: ""});
+            setVendorItems([...vendorItems, { ...data.product, title: data.product.name }]);
+            setNewListing({ title: "", price: "", quantity: "", description: "", imageUrl: "" });
             setShowAddForm(false);
          } catch (err) {
             console.error("Error adding listing:", err);
