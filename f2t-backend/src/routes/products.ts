@@ -434,20 +434,20 @@ export default async function productRoutes(fastify: FastifyInstance) {
 
             //SET ALL RELATED LISTINGS TO UNAVAILABLE
             //first pull all items that have this product id from the join table
-            const listingConnections = await fastify.prisma.productsToListings.findMany({
-                where: {productId: id},
-            });
+            // const listingConnections = await fastify.prisma.productsToListings.findMany({
+            //     where: {productId: id},
+            // });
 
             //now use these connections to find the ids of all connected listings
-            const connectedListings = listingConnections.map((connection) => connection.listingId);
+            // const connectedListings = listingConnections.map((connection) => connection.listingId);
 
             // 2. Use these ids to set isAvailable to false for all those listings
-            if (connectedListings.length > 0) {
-                await fastify.prisma.listing.updateMany({
-                    where: {id: { in: connectedListings },},
-                    data: {isAvailable: false,},
-                });
-            }
+            // if (connectedListings.length > 0) {
+            //     await fastify.prisma.listing.updateMany({
+            //         where: {id: { in: connectedListings },},
+            //         data: {isAvailable: false,},
+            //     });
+            // }
 
             // delete the product from the database using Prisma's delete method
             await fastify.prisma.product.delete({
