@@ -44,7 +44,7 @@ export default function About() {
           . ݁₊ ⊹ . ݁Our Developer Team ݁ . ⊹ ₊ ݁.
         </h1>
         <div className="items-center flex flex-col justify-center mb-8">
-          <h2 className="text-lg font-bold font-serif text-emerald-700 w-6xl my-2 mx-8 text-center">
+          <h2 className="text-lg font-bold font-serif text-emerald-700 max-w-2xl w-full my-2 px-4 text-center">
             Meet the devs for fresh2table! We are a group of students at CSUSB
             pursuing a degree in something related to computers and we are so
             excited that we got the opportunity to work on this as a real dev
@@ -59,10 +59,10 @@ export default function About() {
           <img
             src="/team.jpg"
             alt="Developer Team"
-            className="w-200 h-auto rounded-lg border-emerald-950 border-4"
+            className="w-full max-w-md h-auto rounded-lg border-emerald-950 border-4"
           />
         </div>
-        <div className="flex flex-col md:flex-row items-center justify-center gap-4 m-4 w-auto">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 m-4">
           <div className="bg-emerald-100 h-70 rounded-lg shadow-lg p-6 w-full md:w-1/3 text-center">
             <h2 className="text-lg font-bold font-serif text-emerald-900 mb-2">
               Charlene Calderon

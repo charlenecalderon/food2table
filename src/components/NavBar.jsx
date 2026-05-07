@@ -51,9 +51,9 @@ export default function NavBar() {
   return (
     <div className="w-full">
       {/* BANNER */}
-      <div className="w-full h-50 md:h-52 overflow-hidden border-b-4 border-emerald-900">
+      <div className="w-full overflow-hidden border-b-4 border-emerald-900">
         <img
-          className="w-full h-full object-cover"
+          className="w-full h-auto"
           src="/banner.jpg"
           alt="Fresh2Table Banner"
         />
