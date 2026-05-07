@@ -399,7 +399,7 @@ export default async function orderRoutes(fastify: FastifyInstance) {
                     status: { in: ["PLACED", "COMPLETED", "CANCELLED"] },
                     items: { some: { product: { sellerId: userId } } },
                 },
-                include: { items: { include: { product: true } } },
+                include: { items: { include: { product: true } }, buyer: { include: { profile: true } } },
             });
 
             return reply.status(200).send({

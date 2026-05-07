@@ -40,23 +40,32 @@ export default function VendorOrders() {
     if (orders.length === 0) return <p className="text-gray-500">No vendor orders found.</p>;
 
     return (
-        <div className="flex flex-wrap gap-6">
+        <div className="flex flex-col gap-6">
             {orders.map((order) => (
-                <div key={order.id} className="bg-green-200 rounded-xl w-72 p-4">
-                    <div className="flex justify-between items-center mt-2">
-                        <h2 className="text-emerald-900 font-bold font-serif">
-                            {order.items?.[0]?.product?.name || "Order"}
-                            {order.items?.length > 1 ? ` + ${order.items.length - 1} more` : ""}
-                        </h2>
-                    </div>
-                    <div className="mt-2">
+                <div key={order.id} className="bg-green-200 rounded-xl p-4">
+                    <div className="flex justify-between items-center">
                         <span className="text-xs font-bold px-3 py-1 rounded-full bg-white text-emerald-900">
                             {order.status}
                         </span>
+                        <p className="text-emerald-700 text-xs">
+                            {new Date(order.createdAt).toLocaleString()}
+                        </p>
                     </div>
-                    <p className="text-emerald-900 font-serif text-sm mt-2">
-                        {order.items?.length} item{order.items?.length !== 1 ? "s" : ""}
-                    </p>
+
+                    <div className="mt-3">
+                        <p className="text-emerald-900 font-bold font-serif">Buyer: {order.buyer?.profile?.name || order.buyer?.email || "Unknown"}</p>
+                        <p className="text-emerald-800 text-sm">{order.buyer?.email}</p>
+                    </div>
+
+                    <div className="mt-3">
+                        <p className="text-emerald-900 font-serif text-sm font-bold mb-1">Items:</p>
+                        {order.items?.map((item) => (
+                            <div key={item.id} className="flex justify-between text-sm text-emerald-900">
+                                <span>{item.product?.name}</span>
+                                <span>x{item.quantity}</span>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             ))}
         </div>
