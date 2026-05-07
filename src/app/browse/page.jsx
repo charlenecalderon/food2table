@@ -7,7 +7,7 @@ import { useSearchParams } from "next/navigation";
 
 function ProductCard({ product }) {
   return (
-    <div className="bg-green-200 text-white rounded-xl w-72 p-4">
+    <div className="bg-green-200 text-white rounded-xl p-4">
       <img
         className="rounded-xl h-40 w-full object-cover"
         src={product.imageUrl || "/placeholder.jpg"}
@@ -93,7 +93,7 @@ function ProductsList() {
             : `No products found for "${query}"`}
         </p>
       )}
-      <div className="flex flex-wrap gap-6 justify-start">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
         {filtered.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
