@@ -391,29 +391,24 @@ export default async function orderRoutes(fastify: FastifyInstance) {
 
 
         fastify.get("/vendor", { preHandler: fastify.requireAuth }, async (request, reply) => {
-        // NO MORE COMMENTS!
         try {
-            // get the logged in user's id
-            const userId = request.user.userId; 
+            const userId = request.user.userId;
 
-            // just get the user
-            const user = await fastify.prisma.user.findUnique({
-                where: { id: userId },
-                include: { orders: true }
-            })
+            const orders = await fastify.prisma.order.findMany({
+                where: {
+                    status: { in: ["PLACED", "COMPLETED", "CANCELLED"] },
+                    items: { some: { product: { sellerId: userId } } },
+                },
+                include: { items: { include: { product: true } } },
+            });
 
-            // send the order(s)
             return reply.status(200).send({
                 message: "Orders retrieved successfully",
-                orders: user.order
+                orders,
             });
-            // it doesn't check to see if there actually are any orders and IDGAF RN
         }
-        
         catch (error) {
-            // display the error in the terminal for debugging purposes
             console.error(error);
-            // return a 500 Internal Server Error
             return reply.status(500).send({
                 error: "INTERNAL SERVER ERROR",
                 message: "An unexpected error occurred while processing your request.",

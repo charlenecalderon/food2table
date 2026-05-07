@@ -67,15 +67,14 @@ export default function VendorDashboardPage() {
             }
         }
         
-        // From listing page
-        async function fetchVendorItems(userId) {
+        async function fetchVendorItems() {
             try {
-                const res =await fetch(`https://food2table-production.up.railway.app/listings/vendorlistings/${userId}`, {
-                    headers : { Authorization: `Bearer ${token}` },
+                const res = await fetch(`${API_BASE}/products/my-products`, {
+                    headers: { Authorization: `Bearer ${token}` },
                 });
                 const data = await res.json();
                 if (res.ok) {
-                    setVendorItems(data.listings);
+                    setVendorItems(data.products);
                 }
             } catch (err) {
                 console.error("Failed to fetch vendor items:", err);
@@ -83,8 +82,7 @@ export default function VendorDashboardPage() {
                 setLoading(false);
             }
         }
-        const userId = localStorage.getItem("userId");
-        fetchVendorItems (userId);
+        fetchVendorItems();
         fetchUser();
         fetchProfile();
     }, []);
@@ -123,10 +121,9 @@ export default function VendorDashboardPage() {
         }
     };
 
-    // From listing page
     const handleDelete = async (id) => {
-        try { 
-            const res = await fetch(`${API_BASE}/listings/${id}`, {
+        try {
+            const res = await fetch(`${API_BASE}/products/${id}`, {
                 method: "DELETE",
                 headers: {
                     "Content-Type": "application/json",
@@ -134,11 +131,11 @@ export default function VendorDashboardPage() {
                 },
             });
 
-            if(!res.ok) throw new Error ("Failed to delete listings");
-            setVendorItems(vendorItems.filter(listing => listing.id !== id));
+            if(!res.ok) throw new Error("Failed to delete product");
+            setVendorItems(vendorItems.filter(item => item.id !== id));
         } catch (err) {
-            console.error("Error deleting listing:", err);
-            alert("Could not delete listing. Please try again.");
+            console.error("Error deleting product:", err);
+            alert("Could not delete product. Please try again.");
         }
     };
 
@@ -147,30 +144,29 @@ export default function VendorDashboardPage() {
         setEditingId(listing.id);
     };
 
-    // From listing page
-    const handleEditSave = async (id, updatedListing) => {
+    const handleEditSave = async (id, updatedProduct) => {
         try {
-            const res = await fetch(`${API_BASE}/listings/${id}`, {
+            const res = await fetch(`${API_BASE}/products/${id}`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${localStorage.getItem("token")}`,
                 },
                 body: JSON.stringify({
-                    title: updatedListing.title,
-                    description: updatedListing.description,
-                    price: parseFloat(updatedListing.price),
+                    name: updatedProduct.name,
+                    description: updatedProduct.description,
+                    price: parseFloat(updatedProduct.price),
                 }),
             });
-            if(!res.ok) throw new Error("Failed to update listing");
+            if(!res.ok) throw new Error("Failed to update product");
             const data = await res.json();
-            setVendorItems(vendorItems.map(listing =>
-                listing.id === id ? data.listing : listing
+            setVendorItems(vendorItems.map(item =>
+                item.id === id ? data.product : item
             ));
             setEditingId(null);
         } catch (err) {
-            console.error("Error updating listing:", err);
-            alert("Could not update listing. Please try again.");
+            console.error("Error updating product:", err);
+            alert("Could not update product. Please try again.");
         }
     };
 
@@ -193,7 +189,7 @@ export default function VendorDashboardPage() {
             });
             if (!res.ok) throw new Error("Failed to add listing");
             const data = await res.json();
-            setVendorItems([...vendorItems, { ...data.product, title: data.product.name }]);
+            setVendorItems([...vendorItems, data.product]);
             setNewListing({ title: "", price: "", quantity: "", description: "", imageUrl: "" });
             setShowAddForm(false);
          } catch (err) {
@@ -317,7 +313,7 @@ export default function VendorDashboardPage() {
                                 />
                             ) : (
                                 <div className="flex flex-col gap-1">
-                                    <h2 className="text-xl font-serif font-bold text-emerald-900">{listing.title}</h2>
+                                    <h2 className="text-xl font-serif font-bold text-emerald-900">{listing.name}</h2>
                                     <p className="text-emerald-600 font-bold">${listing.price.toFixed(2)}</p>
                                     <p className="text-gray-600">{listing.description}</p>
                                     <div className="flex gap-2 mt-2">
@@ -347,7 +343,7 @@ export default function VendorDashboardPage() {
 
 function EditForm({ listing, onSave, onCancel }) {
     const [form, setForm] = useState({
-        title: listing.title,
+        name: listing.name,
         price: listing.price,
         description: listing.description,
     });
@@ -356,8 +352,8 @@ function EditForm({ listing, onSave, onCancel }) {
         <div className="flex flex-col gap-2">
             <input
                 type="text"
-                value={form.title}
-                onChange={(e) => setForm({ ...form, title: e.target.value })}
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
                 className="border border-emerald-200 rounded-lg p-2"
             />
             <input
